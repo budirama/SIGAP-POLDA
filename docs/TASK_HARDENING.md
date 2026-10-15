@@ -39,7 +39,7 @@ Lanjutan hasil code review 15 Oktober 2026. Setiap task dikerjakan di branch ter
 - **Catatan:** data lama hasil input warga yang sudah tersimpan dalam bentuk ter-escape tidak dikonversi otomatis (data seed tidak terdampak).
 
 ### T5 — File bukti privat (tidak dapat diakses publik)
-- [ ] **Masalah:** lampiran bukti & klarifikasi disimpan di `public/uploads/` dengan nama mudah ditebak (`BUKTI_<timestamp>_<4 digit>`) → dapat diunduh siapa pun tanpa login/PIN. Validasi hanya berdasarkan ekstensi, tanpa batas ukuran.
+- [x] **Masalah:** lampiran bukti & klarifikasi disimpan di `public/uploads/` dengan nama mudah ditebak (`BUKTI_<timestamp>_<4 digit>`) → dapat diunduh siapa pun tanpa login/PIN. Validasi hanya berdasarkan ekstensi, tanpa batas ukuran.
 - **Solusi:** simpan di `storage/uploads/` (di luar web root, diblokir `.htaccess`), nama file acak 128-bit, validasi MIME (`finfo`) + batas ukuran, dan unduh lewat controller `/file/attachment/{id}` & `/file/message/{id}` yang memeriksa hak akses (personil berwenang atau pelapor dengan PIN terverifikasi). Migrasi memindahkan file lama.
 - **Kriteria selesai:** akses langsung ke file → 403/404; unduh lewat controller hanya berhasil bagi yang berhak.
 

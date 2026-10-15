@@ -103,7 +103,7 @@
         <b class="text-xs text-slate-400 block mb-2">Lampiran Bukti Digital (<?= count($attachments) ?> File):</b>
         <div class="flex flex-wrap gap-3">
           <?php foreach ($attachments as $att): ?>
-            <a href="<?= $baseUrl ?>/<?= htmlspecialchars($att['file_path']) ?>" target="_blank"
+            <a href="<?= $baseUrl ?>/file/attachment/<?= (int)$att['id'] ?>" target="_blank"
                class="p-2.5 rounded-xl bg-[#070F1E] border border-slate-700 hover:border-amber-500 text-xs text-slate-300 flex items-center gap-2 transition-colors">
               <i class="fas fa-paperclip text-amber-400"></i>
               <span class="max-w-[150px] truncate"><?= htmlspecialchars($att['file_name_original']) ?></span>
@@ -272,7 +272,7 @@
 
               <?php if (!empty($msg['attachment_path'])): ?>
                 <div class="mt-2.5 pt-2 border-t border-slate-700/60">
-                  <a href="<?= $baseUrl ?>/<?= htmlspecialchars($msg['attachment_path']) ?>" target="_blank"
+                  <a href="<?= $baseUrl ?>/file/message/<?= (int)$msg['id'] ?>" target="_blank"
                      class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-900 hover:bg-slate-950 text-amber-400 text-[11px] font-semibold transition-colors border border-amber-500/30">
                     <i class="fas fa-paperclip"></i> Unduh / Buka Dokumen Lampiran
                   </a>

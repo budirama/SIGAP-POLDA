@@ -14,9 +14,9 @@ desktop.ini
 *.sublime-project
 *.sublime-workspace
 
-# Uploaded media (keep folder via .gitkeep)
-/public/uploads/*
-!/public/uploads/.gitkeep
+# Uploaded media (privat, di luar web root; keep folder via .gitkeep)
+/storage/uploads/*
+!/storage/uploads/.gitkeep
 
 # Temporary / Scratch scripts
 /scratch/

@@ -69,6 +69,16 @@ class Report extends Model
         );
     }
 
+    public function findAttachment(int $id): ?array
+    {
+        return $this->fetch("SELECT * FROM report_attachments WHERE id = ? LIMIT 1", [$id]);
+    }
+
+    public function findCaseMessage(int $id): ?array
+    {
+        return $this->fetch("SELECT * FROM case_messages WHERE id = ? LIMIT 1", [$id]);
+    }
+
     /**
      * Dapatkan Timeline Riwayat Laporan (Filter Catatan Publik vs Internal)
      */

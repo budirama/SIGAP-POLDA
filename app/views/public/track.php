@@ -277,7 +277,7 @@
 
                 <?php if (!empty($msg['attachment_path'])): ?>
                   <div class="mt-2.5 pt-2 border-t border-slate-700/60">
-                    <a href="<?= $baseUrl ?>/<?= htmlspecialchars($msg['attachment_path']) ?>" target="_blank"
+                    <a href="<?= $baseUrl ?>/file/message/<?= (int)$msg['id'] ?>" target="_blank"
                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-900 hover:bg-slate-950 text-amber-400 text-[11px] font-semibold transition-colors border border-amber-500/30">
                       <i class="fas fa-paperclip"></i> Lihat Lampiran Dokumen / Bukti
                     </a>

@@ -65,9 +65,9 @@ class Config
         return 'http://localhost/SIGAP-Polda/public';
     }
 
-    // Direktori Upload Bukti & Dokumen
+    // Direktori Upload Bukti & Dokumen (privat, di luar web root public/)
     public static function getUploadDir(): string
     {
-        return dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'uploads';
+        return dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'uploads';
     }
 }
