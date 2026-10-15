@@ -1,7 +1,7 @@
 <div class="space-y-6">
   
   <!-- Header & Simulator Bar -->
-  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 polri-glass-card p-6 rounded-2xl border border-[#1E355B]">
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 polri-glass-card p-6 rounded-2xl border border-[#3B2F1C]">
     <div>
       <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-950/80 border border-sky-700/60 text-sky-300 text-xs font-bold mb-2">
         <i class="fab fa-x-twitter"></i> Tim Humas & Patroli Siber POLDA
@@ -71,7 +71,7 @@
             </div>
 
             <!-- Post Content -->
-            <p class="text-xs text-slate-300 leading-relaxed bg-[#070F1E] p-3 rounded-xl border border-slate-800/80 mb-3 font-sans">
+            <p class="text-xs text-slate-300 leading-relaxed bg-[#0C0A08] p-3 rounded-xl border border-slate-800/80 mb-3 font-sans">
               <?= nl2br(htmlspecialchars($feed['post_content'])) ?>
             </p>
 
@@ -123,7 +123,7 @@
 
 <!-- Modal Konversi ke Tiket Resmi -->
 <div id="modalConvert" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-  <div class="bg-[#0E1E38] border border-amber-500/40 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
+  <div class="bg-[#1B1610] border border-amber-500/40 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
     <div class="flex items-center justify-between border-b border-slate-700 pb-3 mb-4">
       <h3 class="text-base font-bold text-slate-100 flex items-center gap-2">
         <i class="fas fa-file-circle-check text-amber-400"></i>
@@ -141,12 +141,12 @@
       <div>
         <label class="block text-xs font-semibold text-slate-300 mb-1">Judul Laporan Resmi:</label>
         <input type="text" name="title" id="convert_title" required
-               class="w-full bg-[#070F1E] border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 outline-none focus:border-amber-500">
+               class="w-full bg-[#0C0A08] border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 outline-none focus:border-amber-500">
       </div>
 
       <div>
         <label class="block text-xs font-semibold text-slate-300 mb-1">Kategori Perkara:</label>
-        <select name="category_id" class="w-full bg-[#070F1E] border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 outline-none focus:border-amber-500">
+        <select name="category_id" class="w-full bg-[#0C0A08] border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 outline-none focus:border-amber-500">
           <option value="1">Kriminal Umum (Begal, Curanmor, Premanisme, Pungli)</option>
           <option value="2">Kejahatan Siber & Finansial</option>
           <option value="4">Lalu Lintas (Kemacetan, Balap Liar, Kecelakaan)</option>
@@ -158,7 +158,7 @@
       <div>
         <label class="block text-xs font-semibold text-slate-300 mb-1">Perkiraan Lokasi TKP:</label>
         <input type="text" name="incident_location" value="Wilayah Hukum Polda Metro Jaya" required
-               class="w-full bg-[#070F1E] border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 outline-none focus:border-amber-500">
+               class="w-full bg-[#0C0A08] border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 outline-none focus:border-amber-500">
       </div>
 
       <div class="pt-2 flex items-center justify-end gap-3">
@@ -177,7 +177,7 @@
 
 <!-- Modal Simulasi Webhook Medsos -->
 <div id="modalSimulate" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-  <div class="bg-[#0E1E38] border border-sky-500/40 rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
+  <div class="bg-[#1B1610] border border-sky-500/40 rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
     <div class="flex items-center justify-between border-b border-slate-700 pb-3 mb-4">
       <h3 class="text-base font-bold text-slate-100 flex items-center gap-2">
         <i class="fas fa-satellite-dish text-sky-400"></i>
@@ -192,7 +192,7 @@
       <input type="hidden" name="_csrf_token" value="<?= $csrfToken ?>">
       <div>
         <label class="block text-xs font-semibold text-slate-300 mb-1">Platform Asal:</label>
-        <select name="platform" class="w-full bg-[#070F1E] border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 outline-none">
+        <select name="platform" class="w-full bg-[#0C0A08] border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 outline-none">
           <option value="TWITTER_X">X (Twitter)</option>
           <option value="INSTAGRAM">Instagram</option>
           <option value="TIKTOK">TikTok</option>
@@ -203,13 +203,13 @@
       <div>
         <label class="block text-xs font-semibold text-slate-300 mb-1">Username Pengunggah (@):</label>
         <input type="text" name="username" value="warga_peduli_jkt" required
-               class="w-full bg-[#070F1E] border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 outline-none">
+               class="w-full bg-[#0C0A08] border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 outline-none">
       </div>
 
       <div>
         <label class="block text-xs font-semibold text-slate-300 mb-1">Isi Postingan / Tag Mention:</label>
         <textarea name="content" rows="3" required
-                  class="w-full bg-[#070F1E] border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 outline-none">Tolong @HumasPolda ditindak tegas aksi balap liar dan knalpot brong di kawasan Jl. Asia Afrika tiap tengah malam sangat mengganggu warga!</textarea>
+                  class="w-full bg-[#0C0A08] border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 outline-none">Tolong @HumasPolda ditindak tegas aksi balap liar dan knalpot brong di kawasan Jl. Asia Afrika tiap tengah malam sangat mengganggu warga!</textarea>
       </div>
 
       <div class="pt-2 flex items-center justify-end gap-3">

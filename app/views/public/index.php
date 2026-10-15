@@ -1,8 +1,11 @@
 <!-- Hero Section -->
-<section class="relative overflow-hidden py-16 lg:py-24 border-b border-[#1E355B]/60">
-  <!-- Background Glow & Grid Accent -->
-  <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/25 via-[#070F1E] to-[#070F1E] -z-10"></div>
+<section class="hud-grid relative isolate overflow-hidden py-16 lg:py-24 border-b border-[#3B2F1C]/60">
+  <!-- Latar: glow logo, jaringan data digital & lantai grid 3D -->
+  <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-900/25 via-[#0C0A08] to-[#0C0A08] -z-10"></div>
   <div class="absolute top-1/4 right-5 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl -z-10 pointer-events-none"></div>
+  <div class="absolute -bottom-20 -left-10 w-80 h-80 bg-red-700/10 rounded-full blur-3xl -z-10 pointer-events-none"></div>
+  <canvas class="fx-network" aria-hidden="true"></canvas>
+  <div class="grid-floor" aria-hidden="true"></div>
 
   <div class="max-w-7xl mx-auto px-4">
     <div class="grid lg:grid-cols-12 gap-12 items-center">
@@ -10,9 +13,14 @@
       <!-- Left Content -->
       <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
         
-        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#0E1E38] border border-amber-500/30 text-amber-400 text-xs font-bold tracking-wide shadow-md">
+        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#1B1610] border border-amber-500/30 text-amber-400 text-xs font-bold tracking-wide shadow-md">
           <i class="fas fa-shield-halved text-amber-400"></i>
           <span>SIGAP POLDA • Pelayanan Terpadu & Transparan</span>
+        </div>
+        <div class="flex flex-wrap justify-center lg:justify-start gap-2 text-[10px]">
+          <span class="chip-digital px-2 py-0.5 rounded">SP2HP-E // ONLINE</span>
+          <span class="chip-digital px-2 py-0.5 rounded">PRESISI DIGITAL</span>
+          <span class="chip-digital px-2 py-0.5 rounded" data-live-clock>--:--:-- WIB</span>
         </div>
 
         <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-100 tracking-tight leading-[1.15] font-heading">
@@ -26,13 +34,13 @@
         <!-- CTA Buttons -->
         <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
           <a href="<?= $baseUrl ?>/report/create" 
-             class="w-full sm:w-auto px-7 py-3.5 bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-black rounded-xl text-sm transition-all shadow-xl hover:shadow-amber-500/25 flex items-center justify-center gap-2.5">
+             class="btn-gold w-full sm:w-auto px-7 py-3.5 font-black rounded-xl text-sm transition-all shadow-xl hover:shadow-amber-500/25 flex items-center justify-center gap-2.5">
             <i class="fas fa-bullhorn"></i>
             <span>Buat Laporan Sekarang</span>
           </a>
 
           <a href="<?= $baseUrl ?>/report/track" 
-             class="w-full sm:w-auto px-6 py-3.5 bg-[#0E1E38] hover:bg-[#132442] text-slate-200 border border-[#1E355B] hover:border-amber-500/40 font-bold rounded-xl text-sm transition-all flex items-center justify-center gap-2">
+             class="w-full sm:w-auto px-6 py-3.5 bg-[#1B1610] hover:bg-[#241D14] text-slate-200 border border-[#3B2F1C] hover:border-amber-500/40 font-bold rounded-xl text-sm transition-all flex items-center justify-center gap-2">
             <i class="fas fa-magnifying-glass text-amber-400"></i>
             <span>Lacak Status Tiket Anda</span>
           </a>
@@ -40,7 +48,7 @@
 
         <!-- Quick Track Input Bar -->
         <div class="pt-4 max-w-lg mx-auto lg:mx-0">
-          <form action="<?= $baseUrl ?>/report/track" method="GET" class="flex items-center gap-2 p-1.5 bg-[#0A192F]/90 border border-amber-500/30 rounded-2xl shadow-xl">
+          <form action="<?= $baseUrl ?>/report/track" method="GET" class="flex items-center gap-2 p-1.5 bg-[#14100C]/90 border border-amber-500/30 rounded-2xl shadow-xl">
             <div class="pl-3 text-slate-500"><i class="fas fa-ticket text-amber-500"></i></div>
             <input type="text" name="ticket" required placeholder="Contoh: LP-POLDA-202610-0001" 
                    class="bg-transparent flex-1 text-xs text-slate-100 placeholder-slate-500 outline-none px-2 py-1.5 font-mono uppercase">
@@ -61,12 +69,19 @@
         <div class="relative w-full max-w-md">
           
           <!-- Outer Decorative Card -->
-          <div class="polri-glass-card rounded-3xl p-8 relative overflow-hidden shadow-2xl border border-amber-500/30">
+          <div class="polri-glass-card hud-corners scanline tilt-3d rounded-3xl p-8 relative overflow-hidden shadow-2xl border border-amber-500/30" data-tilt="6">
             <div class="absolute -top-10 -right-10 w-36 h-36 bg-red-600/10 rounded-full blur-2xl"></div>
             
             <div class="text-center space-y-4">
-              <div class="w-44 h-auto mx-auto relative group">
-                <img src="<?= $baseUrl ?>/assets/img/logo-polisi-masyarakat.png" alt="Polisi Bersama Masyarakat" class="w-full h-auto object-contain filter drop-shadow-[0_12px_24px_rgba(217,119,6,0.35)] transition-transform duration-300 group-hover:scale-105">
+              <!-- Emblem 3D: logo melayang dengan cincin orbit data -->
+              <div class="emblem-3d tilt-pop">
+                <div class="emblem-3d__stage">
+                  <div class="emblem-3d__glow"></div>
+                  <div class="emblem-3d__ring emblem-3d__ring--3"></div>
+                  <div class="emblem-3d__ring emblem-3d__ring--1"></div>
+                  <div class="emblem-3d__ring emblem-3d__ring--2"></div>
+                  <img src="<?= $baseUrl ?>/assets/img/logo-polisi-masyarakat-transparent.png" alt="Polisi Bersama Masyarakat" class="emblem-3d__logo">
+                </div>
               </div>
 
               <div>
@@ -78,7 +93,7 @@
               </div>
 
               <div class="space-y-2.5 pt-2 text-left">
-                <div class="p-3 rounded-xl bg-[#070F1E]/80 border border-slate-800 flex items-center gap-3">
+                <div class="p-3 rounded-xl bg-[#0C0A08]/80 border border-slate-800 flex items-center gap-3">
                   <div class="w-8 h-8 rounded-lg bg-blue-950 text-blue-400 flex items-center justify-center font-bold text-xs"><i class="fas fa-mobile-screen"></i></div>
                   <div>
                     <div class="text-xs font-bold text-slate-200">Pantau Progres Kapan Saja</div>
@@ -86,7 +101,7 @@
                   </div>
                 </div>
 
-                <div class="p-3 rounded-xl bg-[#070F1E]/80 border border-slate-800 flex items-center gap-3">
+                <div class="p-3 rounded-xl bg-[#0C0A08]/80 border border-slate-800 flex items-center gap-3">
                   <div class="w-8 h-8 rounded-lg bg-amber-950 text-amber-400 flex items-center justify-center font-bold text-xs"><i class="fas fa-map-location-dot"></i></div>
                   <div>
                     <div class="text-xs font-bold text-slate-200">Integrasi Peta TKP Spasial</div>
@@ -94,7 +109,7 @@
                   </div>
                 </div>
 
-                <div class="p-3 rounded-xl bg-[#070F1E]/80 border border-slate-800 flex items-center gap-3">
+                <div class="p-3 rounded-xl bg-[#0C0A08]/80 border border-slate-800 flex items-center gap-3">
                   <div class="w-8 h-8 rounded-lg bg-emerald-950 text-emerald-400 flex items-center justify-center font-bold text-xs"><i class="fas fa-file-shield"></i></div>
                   <div>
                     <div class="text-xs font-bold text-slate-200">Unduh Dokumen SP2HP Digital</div>
@@ -115,26 +130,26 @@
 </section>
 
 <!-- Stats Bar -->
-<section class="border-b border-[#1E355B]/60 bg-[#0A192F]/40 py-8">
+<section class="border-b border-[#3B2F1C]/60 bg-[#14100C]/40 py-8">
   <div class="max-w-7xl mx-auto px-4">
     <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
       
-      <div class="p-4 rounded-2xl bg-[#0E1E38]/60 border border-[#1E355B]/50">
+      <div class="p-4 rounded-2xl bg-[#1B1610]/60 border border-[#3B2F1C]/50">
         <div class="text-2xl sm:text-3xl font-black text-slate-100 font-heading"><?= number_format($stats['total_reports']) ?></div>
         <div class="text-xs text-slate-400 mt-1 font-medium">Total Laporan Masuk</div>
       </div>
 
-      <div class="p-4 rounded-2xl bg-[#0E1E38]/60 border border-[#1E355B]/50">
+      <div class="p-4 rounded-2xl bg-[#1B1610]/60 border border-[#3B2F1C]/50">
         <div class="text-2xl sm:text-3xl font-black text-emerald-400 font-heading"><?= $stats['clearance_rate'] ?>%</div>
         <div class="text-xs text-slate-400 mt-1 font-medium">Tingkat Penyelesaian (Clearance)</div>
       </div>
 
-      <div class="p-4 rounded-2xl bg-[#0E1E38]/60 border border-[#1E355B]/50">
+      <div class="p-4 rounded-2xl bg-[#1B1610]/60 border border-[#3B2F1C]/50">
         <div class="text-2xl sm:text-3xl font-black text-amber-400 font-heading"><?= number_format($stats['investigating']) ?></div>
         <div class="text-xs text-slate-400 mt-1 font-medium">Dalam Penyelidikan Aktif</div>
       </div>
 
-      <div class="p-4 rounded-2xl bg-[#0E1E38]/60 border border-[#1E355B]/50">
+      <div class="p-4 rounded-2xl bg-[#1B1610]/60 border border-[#3B2F1C]/50">
         <div class="text-2xl sm:text-3xl font-black text-amber-300 font-heading flex items-center justify-center gap-1">
           <span><?= $stats['avg_rating'] !== null ? number_format($stats['avg_rating'], 1) : '–' ?></span>
           <i class="fas fa-star text-amber-400 text-lg"></i>
@@ -157,7 +172,7 @@
   <div class="grid md:grid-cols-4 gap-6 relative">
     
     <!-- Step 1 -->
-    <div class="p-6 rounded-2xl bg-[#0E1E38] border border-[#1E355B] relative hover:border-amber-500/50 transition-all">
+    <div class="reveal tilt-3d hud-corners p-6 rounded-2xl bg-[#1B1610] border border-[#3B2F1C] relative hover:border-amber-500/50 transition-all" data-tilt="7">
       <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center font-black text-base mb-4">
         1
       </div>
@@ -168,7 +183,7 @@
     </div>
 
     <!-- Step 2 -->
-    <div class="p-6 rounded-2xl bg-[#0E1E38] border border-[#1E355B] relative hover:border-amber-500/50 transition-all">
+    <div class="reveal tilt-3d hud-corners p-6 rounded-2xl bg-[#1B1610] border border-[#3B2F1C] relative hover:border-amber-500/50 transition-all" data-tilt="7">
       <div class="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 border border-blue-500/30 flex items-center justify-center font-black text-base mb-4">
         2
       </div>
@@ -179,7 +194,7 @@
     </div>
 
     <!-- Step 3 -->
-    <div class="p-6 rounded-2xl bg-[#0E1E38] border border-[#1E355B] relative hover:border-amber-500/50 transition-all">
+    <div class="reveal tilt-3d hud-corners p-6 rounded-2xl bg-[#1B1610] border border-[#3B2F1C] relative hover:border-amber-500/50 transition-all" data-tilt="7">
       <div class="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center font-black text-base mb-4">
         3
       </div>
@@ -190,7 +205,7 @@
     </div>
 
     <!-- Step 4 -->
-    <div class="p-6 rounded-2xl bg-[#0E1E38] border border-[#1E355B] relative hover:border-amber-500/50 transition-all">
+    <div class="reveal tilt-3d hud-corners p-6 rounded-2xl bg-[#1B1610] border border-[#3B2F1C] relative hover:border-amber-500/50 transition-all" data-tilt="7">
       <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-black text-base mb-4">
         4
       </div>
@@ -205,7 +220,7 @@
 
 <!-- Call to Action Banner -->
 <section class="max-w-7xl mx-auto px-4 pb-16">
-  <div class="rounded-3xl p-8 lg:p-12 bg-gradient-to-r from-blue-950 via-[#0A192F] to-slate-900 border border-amber-500/30 text-center relative overflow-hidden shadow-2xl">
+  <div class="rounded-3xl p-8 lg:p-12 hud-grid scanline bg-gradient-to-r from-[#4A0E0E] via-[#14100C] to-[#4A0E0E] border border-amber-500/30 text-center relative isolate overflow-hidden shadow-2xl">
     <div class="max-w-2xl mx-auto space-y-4">
       <h3 class="text-2xl sm:text-3xl font-black text-slate-100 font-heading">
         Mengalami Atau Menyaksikan Tindak Pidana?
@@ -214,7 +229,7 @@
         Jangan ragu untuk melapor. Kepolisian Daerah siap melindungi, mengayomi, dan melayani setiap laporan masyarakat secara profesional.
       </p>
       <div class="pt-2 flex flex-wrap items-center justify-center gap-3">
-        <a href="<?= $baseUrl ?>/report/create" class="px-6 py-3 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-black rounded-xl text-xs transition-all shadow-lg">
+        <a href="<?= $baseUrl ?>/report/create" class="btn-gold px-6 py-3 font-black rounded-xl text-xs transition-all shadow-lg">
           <i class="fas fa-pen-to-square mr-1.5"></i> Buat Pengaduan Sekarang
         </a>
         <a href="tel:110" class="px-5 py-3 bg-rose-950/80 hover:bg-rose-900 border border-rose-800 text-rose-200 font-bold rounded-xl text-xs transition-all">

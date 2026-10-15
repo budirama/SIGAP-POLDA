@@ -10,7 +10,7 @@
   <!-- Header Card -->
   <div class="polri-glass-card rounded-2xl p-6 sm:p-8 mb-8 border border-amber-500/30 relative overflow-hidden shadow-2xl">
     <div class="absolute top-0 right-0 p-6 opacity-15 pointer-events-none">
-      <img src="<?= $baseUrl ?>/assets/img/logo-polisi-masyarakat.png" alt="Polisi Bersama Masyarakat" class="w-36 h-auto">
+      <img src="<?= $baseUrl ?>/assets/img/logo-polisi-masyarakat-transparent.png" alt="Polisi Bersama Masyarakat" class="w-36 h-auto">
     </div>
 
     <div class="flex items-start gap-4">
@@ -31,7 +31,7 @@
     <input type="hidden" name="_csrf_token" value="<?= $csrfToken ?>">
 
     <!-- Section 1: Identitas Pelapor -->
-    <div class="polri-glass-card rounded-2xl p-6 border border-[#1E355B]">
+    <div class="polri-glass-card rounded-2xl p-6 border border-[#3B2F1C]">
       <div class="flex items-center justify-between border-b border-slate-700/60 pb-3 mb-5">
         <h2 class="text-base font-bold text-slate-100 flex items-center gap-2 font-heading">
           <span class="w-6 h-6 rounded-lg bg-blue-900 text-blue-300 flex items-center justify-center text-xs font-bold">1</span>
@@ -49,7 +49,7 @@
           <input type="text" id="reporter_nik" name="reporter_nik" maxlength="16" required
                  value="<?= htmlspecialchars($old['reporter_nik'] ?? $authUser['nik'] ?? '') ?>" inputmode="numeric" pattern="\d{16}"
                  placeholder="3171012304950001"
-                 class="w-full bg-[#070F1E] border border-[#1E355B] focus:border-amber-500 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-600 outline-none">
+                 class="w-full bg-[#0C0A08] border border-[#3B2F1C] focus:border-amber-500 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-600 outline-none">
         </div>
 
         <!-- Nama Lengkap -->
@@ -60,7 +60,7 @@
           <input type="text" id="reporter_name" name="reporter_name" required
                  value="<?= htmlspecialchars($old['reporter_name'] ?? $authUser['name'] ?? '') ?>" maxlength="150"
                  placeholder="Contoh: Budi Santoso"
-                 class="w-full bg-[#070F1E] border border-[#1E355B] focus:border-amber-500 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-600 outline-none">
+                 class="w-full bg-[#0C0A08] border border-[#3B2F1C] focus:border-amber-500 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-600 outline-none">
         </div>
 
         <!-- Nomor WhatsApp -->
@@ -73,7 +73,7 @@
             <input type="tel" id="reporter_phone" name="reporter_phone" required
                    value="<?= htmlspecialchars($old['reporter_phone'] ?? $authUser['phone'] ?? '') ?>"
                    placeholder="081298765432"
-                   class="w-full bg-[#070F1E] border border-[#1E355B] focus:border-amber-500 rounded-xl pl-9 pr-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-600 outline-none">
+                   class="w-full bg-[#0C0A08] border border-[#3B2F1C] focus:border-amber-500 rounded-xl pl-9 pr-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-600 outline-none">
           </div>
           <p class="text-[10px] text-slate-400 mt-1">Dipakai penyidik untuk menghubungi Anda bila perlu klarifikasi. Nomor tiket &amp; PIN ditampilkan setelah laporan terkirim &mdash; mohon dicatat.</p>
         </div>
@@ -84,7 +84,7 @@
             Tingkat Kedaruratan
           </label>
           <select id="urgency_level" name="urgency_level"
-                  class="w-full bg-[#070F1E] border border-[#1E355B] focus:border-amber-500 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 outline-none">
+                  class="w-full bg-[#0C0A08] border border-[#3B2F1C] focus:border-amber-500 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 outline-none">
             <?php foreach (['NORMAL' => 'Normal (Pelaporan Standar)', 'HIGH' => 'Tinggi (Pelaku Masih di Lokasi / Ancaman Jiwa)', 'EMERGENCY' => 'Darurat (Butuh Tindakan Cepat 1x24 Jam)'] as $val => $label): ?>
               <option value="<?= $val ?>" <?= ($old['urgency_level'] ?? 'NORMAL') === $val ? 'selected' : '' ?>><?= $label ?></option>
             <?php endforeach; ?>
@@ -109,7 +109,7 @@
     </div>
 
     <!-- Section 2: Informasi Perkara -->
-    <div class="polri-glass-card rounded-2xl p-6 border border-[#1E355B]">
+    <div class="polri-glass-card rounded-2xl p-6 border border-[#3B2F1C]">
       <div class="flex items-center justify-between border-b border-slate-700/60 pb-3 mb-5">
         <h2 class="text-base font-bold text-slate-100 flex items-center gap-2 font-heading">
           <span class="w-6 h-6 rounded-lg bg-amber-900 text-amber-300 flex items-center justify-center text-xs font-bold">2</span>
@@ -124,7 +124,7 @@
             Kategori Perkara / Gangguan <span class="text-rose-400">*</span>
           </label>
           <select id="category_id" name="category_id" required
-                  class="w-full bg-[#070F1E] border border-[#1E355B] focus:border-amber-500 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 outline-none">
+                  class="w-full bg-[#0C0A08] border border-[#3B2F1C] focus:border-amber-500 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 outline-none">
             <option value="">-- Pilih Jenis Pengaduan / Perkara --</option>
             <?php foreach ($categories as $cat): ?>
               <option value="<?= (int)$cat['id'] ?>" <?= (string)($old['category_id'] ?? '') === (string)$cat['id'] ? 'selected' : '' ?>>
@@ -142,7 +142,7 @@
           <input type="text" id="title" name="title" required maxlength="200"
                  value="<?= htmlspecialchars($old['title'] ?? '') ?>"
                  placeholder="Contoh: Pencurian Sepeda Motor Honda Beat di Parkiran Ruko Cengkareng"
-                 class="w-full bg-[#070F1E] border border-[#1E355B] focus:border-amber-500 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-600 outline-none">
+                 class="w-full bg-[#0C0A08] border border-[#3B2F1C] focus:border-amber-500 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-600 outline-none">
         </div>
 
         <!-- Tanggal & Waktu Kejadian -->
@@ -153,14 +153,14 @@
             </label>
             <input type="date" id="incident_date" name="incident_date" required max="<?= date('Y-m-d') ?>"
                    value="<?= htmlspecialchars($old['incident_date'] ?? date('Y-m-d')) ?>"
-                   class="w-full bg-[#070F1E] border border-[#1E355B] focus:border-amber-500 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 outline-none">
+                   class="w-full bg-[#0C0A08] border border-[#3B2F1C] focus:border-amber-500 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 outline-none">
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-300 mb-1" for="incident_time">
               Perkiraan Waktu (WIB)
             </label>
             <input type="time" id="incident_time" name="incident_time" value="<?= htmlspecialchars($old['incident_time'] ?? date('H:i')) ?>"
-                   class="w-full bg-[#070F1E] border border-[#1E355B] focus:border-amber-500 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 outline-none">
+                   class="w-full bg-[#0C0A08] border border-[#3B2F1C] focus:border-amber-500 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 outline-none">
           </div>
         </div>
 
@@ -171,13 +171,13 @@
           </label>
           <textarea id="description" name="description" rows="5" required
                     placeholder="Uraikan apa yang terjadi, siapa pelakunya (jika mengenali/melihat ciri fisik), barang apa saja yang hilang/dirusak, serta saksi-saksi yang berada di lokasi kejadian..."
-                    class="w-full bg-[#070F1E] border border-[#1E355B] focus:border-amber-500 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-600 outline-none leading-relaxed"><?= htmlspecialchars($old['description'] ?? '') ?></textarea>
+                    class="w-full bg-[#0C0A08] border border-[#3B2F1C] focus:border-amber-500 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-600 outline-none leading-relaxed"><?= htmlspecialchars($old['description'] ?? '') ?></textarea>
         </div>
       </div>
     </div>
 
     <!-- Section 3: Lokasi TKP & Peta Spasial -->
-    <div class="polri-glass-card rounded-2xl p-6 border border-[#1E355B]">
+    <div class="polri-glass-card rounded-2xl p-6 border border-[#3B2F1C]">
       <div class="flex items-center justify-between border-b border-slate-700/60 pb-3 mb-5">
         <h2 class="text-base font-bold text-slate-100 flex items-center gap-2 font-heading">
           <span class="w-6 h-6 rounded-lg bg-emerald-900 text-emerald-300 flex items-center justify-center text-xs font-bold">3</span>
@@ -193,7 +193,7 @@
           <input type="text" id="incident_location" name="incident_location" required maxlength="1000"
                  value="<?= htmlspecialchars($old['incident_location'] ?? '') ?>"
                  placeholder="Contoh: Jl. Daan Mogot KM 12 depan Halte TransJakarta Pesing, Cengkareng"
-                 class="w-full bg-[#070F1E] border border-[#1E355B] focus:border-amber-500 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-600 outline-none">
+                 class="w-full bg-[#0C0A08] border border-[#3B2F1C] focus:border-amber-500 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-600 outline-none">
         </div>
 
         <!-- Peta Leaflet Interaktif -->
@@ -221,7 +221,7 @@
     </div>
 
     <!-- Section 4: Upload Bukti Digital -->
-    <div class="polri-glass-card rounded-2xl p-6 border border-[#1E355B]">
+    <div class="polri-glass-card rounded-2xl p-6 border border-[#3B2F1C]">
       <div class="flex items-center justify-between border-b border-slate-700/60 pb-3 mb-5">
         <h2 class="text-base font-bold text-slate-100 flex items-center gap-2 font-heading">
           <span class="w-6 h-6 rounded-lg bg-purple-900 text-purple-300 flex items-center justify-center text-xs font-bold">4</span>
@@ -234,7 +234,7 @@
           Pilih Berkas Lampiran (Format: JPG, PNG, WEBP, MP4, PDF • Maksimal 5 File):
         </label>
         
-        <div class="border-2 border-dashed border-slate-700 hover:border-amber-500/50 rounded-2xl p-8 text-center cursor-pointer transition-colors bg-[#070F1E]/50"
+        <div class="border-2 border-dashed border-slate-700 hover:border-amber-500/50 rounded-2xl p-8 text-center cursor-pointer transition-colors bg-[#0C0A08]/50"
              onclick="document.getElementById('proof_files').click()">
           <input type="file" id="proof_files" name="proof_files[]" multiple accept="image/*,video/mp4,.pdf" class="hidden" onchange="previewFiles(this)">
           <i class="fas fa-cloud-arrow-up text-3xl text-amber-500 mb-2"></i>
@@ -322,7 +322,7 @@
       for (let i = 0; i < input.files.length; i++) {
         const file = input.files[i];
         const item = document.createElement('div');
-        item.className = 'flex items-center justify-between p-2 rounded-lg bg-[#070F1E] border border-slate-800 text-xs text-slate-300';
+        item.className = 'flex items-center justify-between p-2 rounded-lg bg-[#0C0A08] border border-slate-800 text-xs text-slate-300';
         item.innerHTML = `<span><i class="fas fa-file text-amber-400 mr-2"></i> <span class="file-name"></span></span><span class="text-slate-500 font-mono text-[10px]">${(file.size / 1024).toFixed(1)} KB</span>`;
         item.querySelector('.file-name').textContent = file.name;
         list.appendChild(item);
