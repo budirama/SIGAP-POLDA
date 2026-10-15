@@ -1,11 +1,11 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteBase /SIGAP-Polda/public/
 
     # Jangan rewrite jika file atau folder fisik ada
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
 
-    # Arahkan semua request lainnya ke index.php
-    RewriteRule ^(.*)$ index.php [QSA,L]
+    # Arahkan semua request lainnya ke index.php (relatif terhadap folder ini,
+    # tanpa RewriteBase hardcode sehingga portabel di folder/domain mana pun)
+    RewriteRule ^ index.php [QSA,L]
 </IfModule>
