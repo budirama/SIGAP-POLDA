@@ -6,6 +6,7 @@
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Core\Audit;
 use App\Core\Auth;
 use App\Core\Session;
 use App\Config\Constants;
@@ -94,6 +95,7 @@ class SpktController extends Controller
         $success = $this->reportModel->dispatchReport($reportId, $satkerId, Auth::id(), $notes);
 
         if ($success) {
+            Audit::log('report.dispatch', $reportId, 'Satker tujuan #' . $satkerId);
             Session::setFlash('success', 'Laporan berhasil didisposisikan ke Satuan Kerja terkait.');
         } else {
             Session::setFlash('error', 'Gagal memproses disposisi laporan.');
@@ -133,6 +135,7 @@ class SpktController extends Controller
         }
 
         if ($this->reportModel->rejectReport($reportId, Auth::id(), $reason)) {
+            Audit::log('report.reject', $reportId, $reason);
             Session::setFlash('success', 'Laporan telah ditandai Ditolak.');
         } else {
             Session::setFlash('error', 'Gagal menolak laporan.');

@@ -6,6 +6,7 @@
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Core\Audit;
 use App\Core\Auth;
 use App\Core\ReportAccess;
 use App\Core\Session;
@@ -63,6 +64,8 @@ class InvestigatorController extends Controller
             Session::setFlash('error', 'Data perkara tidak ditemukan atau bukan dalam kewenangan Anda.');
             $this->redirect($this->homeUrl());
         }
+
+        Audit::log('case.view', $id, $report['is_anonymous'] ? 'Berkas whistleblower (identitas pelapor dirahasiakan)' : null);
 
         // Ambil timeline lengkap (termasuk rahasia internal)
         $timeline = $this->reportModel->getTimeline($id, true);
@@ -123,6 +126,7 @@ class InvestigatorController extends Controller
         );
 
         if ($success) {
+            Audit::log('report.sp2hp', $reportId, "{$sp2hpNumber} → {$newStatus}");
             Session::setFlash('success', "SP2HP Elektronik ({$sp2hpNumber}) berhasil diterbitkan dan terkirim ke Pelapor.");
         } else {
             Session::setFlash('error', 'Gagal menerbitkan SP2HP.');
@@ -182,6 +186,7 @@ class InvestigatorController extends Controller
             $attachmentPath
         );
 
+        Audit::log('case.message', $reportId, $attachmentPath ? 'Pesan dengan lampiran' : null);
         Session::setFlash('success', 'Pesan klarifikasi resmi berhasil terkirim ke Pelapor.');
         $this->redirect("/investigator/detail/{$reportId}#ruang-klarifikasi");
     }
@@ -209,6 +214,7 @@ class InvestigatorController extends Controller
         $success = $this->reportModel->closeReport($reportId, Auth::id(), $resolutionNotes);
 
         if ($success) {
+            Audit::log('report.close', $reportId);
             Session::setFlash('success', 'Perkara resmi ditutup (CLOSED). Warga kini dapat memberikan penilaian Survei Kepuasan (SKM).');
         } else {
             Session::setFlash('error', 'Gagal menutup perkara.');

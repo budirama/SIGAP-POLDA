@@ -6,6 +6,7 @@
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Core\Audit;
 use App\Core\Auth;
 use App\Core\Session;
 use App\Config\Config;
@@ -100,6 +101,7 @@ class SocialMediaController extends Controller
                 'urgency_level'     => 'HIGH' // Laporan medsos viral berkategori tinggi
             ]);
 
+            Audit::log('social.convert', null, "Postingan #{$feed['id']} → {$ticketNumber}");
             Session::setFlash('success', "Berhasil! Postingan @{$feed['author_username']} telah dikonversi menjadi Tiket Resmi: {$ticketNumber}");
         } catch (\Throwable $e) {
             error_log('[SIGAP-POLDA] Gagal konversi postingan medsos: ' . $e);
@@ -125,6 +127,7 @@ class SocialMediaController extends Controller
 
         $feedId = (int)$this->post('feed_id', 0);
         if ($feedId > 0 && $this->socialModel->dismissFeed($feedId, Auth::id())) {
+            Audit::log('social.dismiss', null, "Postingan #{$feedId}");
             Session::setFlash('success', 'Postingan telah ditandai sebagai spam / diabaikan.');
         } else {
             Session::setFlash('error', 'Postingan tidak ditemukan atau sudah diproses sebelumnya.');

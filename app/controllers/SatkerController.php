@@ -6,6 +6,7 @@
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Core\Audit;
 use App\Core\Auth;
 use App\Core\Session;
 use App\Config\Constants;
@@ -102,6 +103,7 @@ class SatkerController extends Controller
         $success = $this->reportModel->assignInvestigator($reportId, $investigatorId, Auth::id(), $sprintgas);
 
         if ($success) {
+            Audit::log('report.assign', $reportId, "Penyidik #{$investigatorId}, {$sprintgas}");
             Session::setFlash('success', 'Surat Perintah Penugasan (Sprintgas) berhasil diterbitkan ke Penyidik.');
         } else {
             Session::setFlash('error', 'Gagal memproses penugasan penyidik.');
@@ -150,6 +152,7 @@ class SatkerController extends Controller
         }
 
         if ($directiveModel->respond((int)$directive['id'], Auth::id(), $newStatus, $notes)) {
+            Audit::log('directive.respond', (int)$directive['report_id'], "Instruksi #{$directive['id']} → {$newStatus}");
             Session::setFlash('success', $newStatus === 'ACKNOWLEDGED'
                 ? 'Instruksi Atensi Kapolda telah diterima.'
                 : 'Instruksi Atensi Kapolda dilaporkan selesai.');

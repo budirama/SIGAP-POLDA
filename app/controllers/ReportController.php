@@ -6,6 +6,7 @@
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Core\Audit;
 use App\Core\Session;
 use App\Core\Auth;
 use App\Core\ReportAccess;
@@ -220,7 +221,10 @@ $this->feedbackModel = new Feedback();
             $found = $this->reportModel->findByTicket($ticketNumber);
             if ($found && $this->canAccessReport($found)) {
                 $report = $found;
-                $timeline = $this->reportModel->getTimeline($report['id'], false); // Hanya catatan publik
+                if (!ReportAccess::reporterCanView($found)) {
+                    Audit::log('report.view', (int)$found['id'], 'Halaman publik laporan dibuka personil');
+                }
+$timeline = $this->reportModel->getTimeline($report['id'], false); // Hanya catatan publik
                 $attachments = $this->reportModel->getAttachments($report['id']);
                 $feedback = $this->feedbackModel->getByReportId($report['id']);
                 $messages = $this->reportModel->getCaseMessages($report['id']);
@@ -436,10 +440,12 @@ $this->feedbackModel = new Feedback();
 
         if ($report && hash_equals((string)$report['security_pin'], $pin)) {
             $this->throttle->clear('pin_ticket_ip', "{$ticket}|{$ip}");
+            Audit::log('pin.unlock', (int)$report['id']);
             ReportAccess::grantReporter($report['ticket_number']);
             $this->redirect('/report/track?ticket=' . urlencode($report['ticket_number']));
         }
 
+        Audit::log('pin.failed', $report ? (int)$report['id'] : null, 'Tiket: ' . mb_substr($ticket, 0, 50));
         // Tiket tak dikenal & PIN salah diperlakukan sama (pesan & hitungan)
         $this->throttle->hit('pin_ticket_ip', "{$ticket}|{$ip}");
         $this->throttle->hit('pin_ip', $ip);

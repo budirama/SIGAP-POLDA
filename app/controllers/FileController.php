@@ -6,6 +6,7 @@
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Core\Audit;
 use App\Core\ReportAccess;
 use App\Core\Upload;
 use App\Models\Report;
@@ -27,6 +28,7 @@ class FileController extends Controller
         $attachment = $this->reportModel->findAttachment($id);
         $this->authorize($attachment ? (int)$attachment['report_id'] : 0);
 
+        Audit::log('file.download', (int)$attachment['report_id'], 'Lampiran bukti #' . $id);
         $this->stream($attachment['file_path'], $attachment['file_name_original'] ?: basename($attachment['file_path']));
     }
 
@@ -41,6 +43,7 @@ class FileController extends Controller
         }
         $this->authorize($message ? (int)$message['report_id'] : 0);
 
+        Audit::log('file.download', (int)$message['report_id'], 'Lampiran pesan klarifikasi #' . $id);
         $this->stream($message['attachment_path'], basename($message['attachment_path']));
     }
 

@@ -6,6 +6,7 @@
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Core\Audit;
 use App\Core\Auth;
 use App\Core\Session;
 use App\Models\User;
@@ -59,6 +60,7 @@ class AuthController extends Controller
         $idKey = mb_strtolower($identifier);
         $ip = Throttle::clientIp();
         if ($throttle->tooMany('login_id', $idKey) || $throttle->tooMany('login_ip', $ip)) {
+            Audit::log('auth.login_locked', null, 'Identitas: ' . $identifier);
             Session::setFlash('error', 'Terlalu banyak percobaan login yang gagal. Silakan coba lagi dalam '
                 . Throttle::windowMinutes('login_id') . ' menit.');
             $this->redirect('/auth/login');
@@ -71,6 +73,7 @@ class AuthController extends Controller
         $valid = password_verify($password, $hash) && $user !== null;
 
         if (!$valid) {
+            Audit::log('auth.login_failed', null, 'Identitas: ' . $identifier);
             $throttle->hit('login_id', $idKey);
             $throttle->hit('login_ip', $ip);
             Session::setFlash('error', 'Kombinasi NRP/Email atau Password tidak sesuai.');
@@ -80,6 +83,7 @@ class AuthController extends Controller
         $throttle->clear('login_id', $idKey);
 
         Auth::login($user);
+        Audit::log('auth.login');
         Session::setFlash('success', "Selamat datang kembali, {$user['rank']} {$user['name']}!");
         $this->redirectByRole($user['role']);
     }
@@ -115,6 +119,7 @@ class AuthController extends Controller
         $user = $this->userModel->findByEmailOrNrp($roleMap[$roleKey]);
         if ($user) {
             Auth::login($user);
+            Audit::log('auth.quick_login', null, 'Login cepat uji coba (development)');
             Session::setFlash('success', "Login cepat aktif sebagai: " . Constants::getRoleLabel($user['role']));
             $this->redirectByRole($user['role']);
         }
@@ -124,6 +129,7 @@ class AuthController extends Controller
 
     public function logout(): void
     {
+        Audit::log('auth.logout');
         Auth::logout();
         Session::setFlash('success', 'Anda telah berhasil keluar dari sistem dinas.');
         $this->redirect('/auth/login');

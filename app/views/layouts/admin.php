@@ -98,6 +98,15 @@
           </a>
         <?php endif; ?>
 
+        <!-- Jejak Audit -->
+        <?php if (\App\Core\Auth::hasRole([\App\Config\Constants::ROLE_SUPERADMIN, \App\Config\Constants::ROLE_INTERNAL_AFFAIRS])): ?>
+          <a href="<?= $baseUrl ?>/audit"
+             class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-300 hover:text-slate-100 hover:bg-[#0E1E38] transition-colors">
+            <i class="fas fa-clipboard-list text-slate-300 w-4"></i>
+            <span>Jejak Audit</span>
+          </a>
+        <?php endif; ?>
+
         <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-3 py-1 mt-4">AKSES CEPAT</div>
         
         <a href="<?= $baseUrl ?>/report/track" target="_blank"

@@ -10,7 +10,7 @@
         Meja Triage Laporan & Disposisi Terpusat
       </h2>
       <p class="text-xs text-slate-400 mt-1">
-        Verifikasi kelayakan aduan masyarakat dari Portal Web maupun Eskalasi Media Sosial.Tentukan disposisi ke Direktorat atau Polres jajaran.
+        Verifikasi kelayakan aduan masyarakat dari Portal Web maupun Eskalasi Media Sosial. Tentukan disposisi ke Direktorat atau Polres jajaran.
       </p>
       <?php if (!$canAct): ?>
         <p class="mt-2 inline-flex items-center gap-1.5 text-[11px] font-semibold text-sky-300 bg-sky-950/60 border border-sky-800/60 px-2.5 py-1 rounded-lg">

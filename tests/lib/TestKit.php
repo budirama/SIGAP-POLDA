@@ -219,8 +219,18 @@ final class Db
         return [$client, $q['ticket']];
     }
 
+    private static ?int $auditMark = null;
+
     public static function cleanup(): void
     {
+        // Jejak audit: tandai posisi di awal suite, hapus entri yang dibuat test di akhir suite
+        if (self::$auditMark === null) {
+            self::$auditMark = (int)self::value("SELECT COALESCE(MAX(id), 0) FROM audit_logs");
+        } else {
+            self::exec("DELETE FROM audit_logs WHERE id > ?", [self::$auditMark]);
+            self::$auditMark = null;
+        }
+
         $ids = self::pdo()->query("SELECT id FROM reports WHERE title LIKE '" . self::PREFIX . "%'")->fetchAll(PDO::FETCH_COLUMN);
         foreach ($ids as $id) {
             $paths = self::pdo()->query(

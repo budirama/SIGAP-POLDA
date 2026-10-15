@@ -57,7 +57,7 @@ Hasil review ulang 15 Oktober 2026 setelah PR #1–#11 (lihat `docs/TASK_HARDENI
 - **Solusi:** pakai data SP2HP terakhir yang sebenarnya, hanya dapat dicetak setelah ada penyidik; hapus klaim fitur yang belum ada.
 
 ### U11 — Audit log
-- [ ] **Masalah:** tidak ada jejak login/gagal login/akses data sensitif (identitas whistleblower, file bukti).
+- [x] **Masalah:** tidak ada jejak login/gagal login/akses data sensitif (identitas whistleblower, file bukti).
 - **Solusi:** tabel `audit_logs` (user, aksi, laporan, IP, waktu) dicatat dari login, logout, workspace kasus, unduhan file & aksi status; halaman audit untuk Superadmin & Itwasda.
 
 ### U12 — Header keamanan, aktor timeline & konfigurasi DB
