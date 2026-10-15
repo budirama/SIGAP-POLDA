@@ -36,7 +36,7 @@ Lanjutan hasil code review 15 Oktober 2026. Setiap task dikerjakan di branch ter
 - [x] **Masalah:** `Controller::post()/get()` menjalankan `htmlspecialchars` sebelum data disimpan, lalu view meng-escape lagi → teks seperti `Tom & Jerry` tampil `Tom &amp; Jerry`; password yang mengandung `& < > " '` tidak cocok dengan hash-nya.
 - **Solusi:** `post()/get()` hanya `trim`; pastikan seluruh output di view memakai `htmlspecialchars`.
 - **Kriteria selesai:** input dengan karakter khusus tersimpan apa adanya di DB dan tampil benar sekali-escape; tidak ada output user-controlled tanpa escape.
-- **Catatan:** data lama hasil input warga yang sudah tersimpan dalam bentuk ter-escape tidak dikonversi otomatis (data seed tidak terdampak).
+- **Catatan:** data lama yang tersimpan dalam bentuk ter-escape dikonversi lewat T8.
 
 ### T5 — File bukti privat (tidak dapat diakses publik)
 - [x] **Masalah:** lampiran bukti & klarifikasi disimpan di `public/uploads/` dengan nama mudah ditebak (`BUKTI_<timestamp>_<4 digit>`) → dapat diunduh siapa pun tanpa login/PIN. Validasi hanya berdasarkan ekstensi, tanpa batas ukuran.
@@ -52,3 +52,8 @@ Lanjutan hasil code review 15 Oktober 2026. Setiap task dikerjakan di branch ter
 - [x] **Masalah:** belum ada test sama sekali.
 - **Solusi:** test runner PHP CLI tanpa dependensi (`tests/run.php`): unit test (router, `.env` parser) dan integration test HTTP terhadap server lokal untuk alur akses (PIN, rate limit, otorisasi kasus, CSRF, file privat, routing).
 - **Kriteria selesai:** `php tests/run.php` hijau di XAMPP lokal dengan data seeder.
+
+### T8 — Konversi data lama yang tersimpan ter-escape
+- [x] **Masalah:** input yang tersimpan sebelum T4 dideploy masih berbentuk ter-escape (`Tom &amp; Jerry`) sehingga kini tampil rusak.
+- **Solusi:** skrip migrasi `database/migrations/2026_10_15_decode_legacy_escaped_input.php` men-decode (`htmlspecialchars_decode`, `ENT_QUOTES`) hanya kolom yang dahulu berasal dari input pengguna, hanya pada baris yang dibuat sebelum waktu deploy (`--before`), default dry-run, `--apply` dalam satu transaksi.
+- **Kriteria selesai:** data lama ter-decode; teks sah yang diketik setelah perbaikan (mis. `&amp;` literal) tidak tersentuh; idempoten; data seeder tidak berubah.
