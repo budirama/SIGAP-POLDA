@@ -39,7 +39,12 @@ class Session
 
             $_SESSION['_fingerprint'] = $fingerprint;
             $_SESSION['_created'] ??= $now;
-            $_SESSION['_last_activity'] = $now;
+            // Polling latar (Live Chat/Omnichat) tidak dihitung aktivitas agar batas idle tetap berlaku
+            if (empty($_SERVER['HTTP_X_SIGAP_POLL'])) {
+                $_SESSION['_last_activity'] = $now;
+            } else {
+                $_SESSION['_last_activity'] ??= $now;
+            }
         }
     }
 

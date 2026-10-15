@@ -50,6 +50,7 @@ class Constants
     public const CHANNEL_FB = 'FACEBOOK';
     public const CHANNEL_TIKTOK = 'TIKTOK';
     public const CHANNEL_110 = 'CALL_CENTER_110';
+    public const CHANNEL_LIVECHAT = 'LIVE_CHAT';
 
     // Label Deskriptif Role
     public static function getRoleLabel(string $role): string
@@ -94,6 +95,7 @@ class Constants
             self::CHANNEL_IG => '<span class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded bg-pink-900/60 text-pink-200 border border-pink-700/50"><i class="fab fa-instagram"></i> Instagram</span>',
             self::CHANNEL_FB => '<span class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded bg-indigo-900/60 text-indigo-200 border border-indigo-700/50"><i class="fab fa-facebook"></i> Facebook</span>',
             self::CHANNEL_TIKTOK => '<span class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded bg-slate-900/80 text-slate-200 border border-slate-600"><i class="fab fa-tiktok"></i> TikTok</span>',
+            self::CHANNEL_LIVECHAT => '<span class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded bg-amber-900/60 text-amber-200 border border-amber-700/50"><i class="fas fa-comments"></i> Live Chat</span>',
             self::CHANNEL_110 => '<span class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded bg-red-900/60 text-red-200 border border-red-700/50"><i class="fas fa-phone-alt"></i> Call Center 110</span>',
             default => '<span class="px-2 py-0.5 text-xs rounded bg-slate-800 text-slate-300">'.htmlspecialchars($channel, ENT_QUOTES, 'UTF-8').'</span>'
         };

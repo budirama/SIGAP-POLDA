@@ -97,6 +97,18 @@
           </a>
         <?php endif; ?>
 
+        <!-- Omnichat: kanal chat warga -->
+        <?php if (\App\Core\Auth::hasRole([\App\Config\Constants::ROLE_SPKT_OPERATOR, \App\Config\Constants::ROLE_CYBER_HUMAS, \App\Config\Constants::ROLE_SUPERADMIN, \App\Config\Constants::ROLE_INTERNAL_AFFAIRS])): ?>
+          <?php $chatWaiting = (new \App\Models\Chat())->countWaiting(); ?>
+          <a href="<?= $baseUrl ?>/omnichat"
+             class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-300 hover:text-slate-100 hover:bg-[#1B1610] transition-colors">
+            <i class="fas fa-comments text-amber-400 w-4"></i>
+            <span class="flex-1">Omnichat Live Chat</span>
+            <span id="navChatWaiting" class="px-1.5 min-w-[1.25rem] text-center rounded-full bg-red-600 text-white text-[10px] leading-5"
+                  <?= $chatWaiting > 0 ? '' : 'hidden' ?>><?= $chatWaiting ?></span>
+          </a>
+        <?php endif; ?>
+
         <!-- Jejak Audit -->
         <?php if (\App\Core\Auth::hasRole([\App\Config\Constants::ROLE_SUPERADMIN, \App\Config\Constants::ROLE_INTERNAL_AFFAIRS])): ?>
           <a href="<?= $baseUrl ?>/audit"

@@ -17,8 +17,12 @@ return [
         T::notContains('SLA Terpenuhi', $html, 'badge hardcode lama');
         // Satker dengan kasus lewat SLA diurutkan paling atas dan berlabel merah
         $firstCard = strpos($html, htmlspecialchars($satkerName));
-        $badge = strpos($html, '1 Lewat SLA');
-        T::true($firstCard !== false && $badge !== false && $badge > $firstCard, 'badge "1 Lewat SLA" pada Satker tujuan');
+        // Data demo dapat sudah berisi kasus lewat SLA di Satker ini: hitung jumlah yang diharapkan dari DB
+        $overdue = (int)Db::value(
+            "SELECT COUNT(*) FROM reports WHERE current_satker_id = 4 AND status NOT IN ('CLOSED', 'REJECTED') AND sla_deadline < NOW()"
+        );
+        $badge = strpos($html, "{$overdue} Lewat SLA", $firstCard ?: 0);
+        T::true($firstCard !== false && $badge !== false, "badge \"{$overdue} Lewat SLA\" pada Satker tujuan");
         T::true($firstCard < strpos($html, 'Sesuai SLA'), 'Satker bermasalah tampil sebelum yang sesuai SLA');
     },
 

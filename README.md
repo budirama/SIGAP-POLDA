@@ -51,6 +51,13 @@
    - Metrik KPI: *Clearance Rate*, Waktu Respons Rata-Rata, Watchlist Satker Bottleneck SLA.
    - Tombol Komando: *"Beri Atensi Kapolri"* (prioritas bintang merah dengan instruksi taktis tertulis).
 
+7. **Kanal Live Chat & Omnichat Command Center:**
+   - Widget *Live Chat SPKT* di setiap halaman portal warga (tanpa login; percakapan terikat sesi browser warga).
+   - Konsol *Omnichat* untuk Operator SPKT, Humas & Superadmin: antrean menunggu, ambil alih atomik, balas, tutup, dan konversi chat menjadi tiket resmi (kanal `LIVE_CHAT`). Itwasum memantau (hanya lihat).
+   - PIN pelacakan tiket hasil konversi hanya dapat dibuka warga dari jendela chat-nya, tidak terlihat oleh petugas.
+   - Pembaruan memakai *polling* JSON (tanpa WebSocket); polling latar tidak memperpanjang batas idle sesi personil.
+   - Migrasi database lama: `database/migrations/2026_10_15_add_livechat.sql`.
+
 ---
 
 ## 🗂️ Struktur Direktori Proyek

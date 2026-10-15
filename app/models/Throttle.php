@@ -17,6 +17,8 @@ class Throttle extends Model
         'pin_ticket_ip' => [5, 15],   // PIN salah per tiket dari IP yang sama
         'pin_ip'        => [20, 15],  // PIN salah per IP (lintas tiket, termasuk tiket tak dikenal)
         'pin_ticket'    => [50, 60],  // plafon PIN salah per tiket dari seluruh IP (anti brute-force terdistribusi)
+        'chat_start_ip' => [5, 60],   // sesi Live Chat baru per IP
+        'chat_msg_ip'   => [40, 5],   // pesan Live Chat warga per IP
     ];
 
     public static function clientIp(): string
