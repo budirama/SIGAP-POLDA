@@ -144,9 +144,9 @@
       <div class="space-y-3">
         <h4 class="font-bold text-slate-200 text-xs uppercase tracking-wider text-amber-400">Posko Pengaduan</h4>
         <p class="text-xs leading-relaxed">
-          Gedung Bareskrim Mabes Polri<br>
-          Jl. Jenderal Sudirman Kav. 55<br>
-          Hotline: 021-5234000 / 110
+          SPKT Mabes Polri<br>
+          Jl. Trunojoyo No. 3, Kebayoran Baru, Jakarta Selatan<br>
+          Panggilan Darurat: 110 • Live Chat SPKT di pojok kanan bawah
         </p>
       </div>
 
@@ -158,6 +158,8 @@
       <p class="text-slate-500 flex items-center gap-2"><span class="cube-3d" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></span> Dikembangkan bersama Divisi TIK Polri • <span class="font-mono">V1.2.0</span></p>
     </div>
   </footer>
+
+  <?php require __DIR__ . '/_livechat_widget.php'; ?>
 
 </body>
 </html>

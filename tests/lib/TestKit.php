@@ -246,6 +246,8 @@ final class Db
             self::exec("DELETE FROM reports WHERE id = ?", [$id]);
         }
         self::exec("DELETE FROM social_feeds WHERE post_id_str LIKE 'zztest_%'");
+        // Percakapan Live Chat uji (pesan ikut terhapus via ON DELETE CASCADE)
+        self::exec("DELETE FROM chat_conversations WHERE visitor_name LIKE '" . self::PREFIX . "%'");
         // Sequence diinisialisasi ulang dari tiket tertinggi saat laporan berikutnya dibuat
         self::exec("DELETE FROM ticket_sequences");
         self::exec("DELETE FROM throttle_events");
