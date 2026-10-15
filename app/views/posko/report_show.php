@@ -44,7 +44,14 @@ $late = $report['deadline_at'] && (($report['submitted_at'] ?: date('Y-m-d H:i:s
         </h2>
         <p class="text-xs text-slate-400"><?= htmlspecialchars($report['satker_name']) ?> · dibuat oleh <?= htmlspecialchars(trim(($report['creator_rank'] ?? '') . ' ' . ($report['creator_name'] ?? '-'))) ?></p>
       </div>
-      <div class="flex flex-wrap items-center gap-2"><?= $poskoStatusBadge($report['status']) ?> <?= $poskoPriorityBadge($report['priority']) ?></div>
+      <div class="flex flex-wrap items-center gap-2">
+        <?= $poskoStatusBadge($report['status']) ?>
+        <?= $poskoPriorityBadge($report['priority']) ?>
+        <a href="<?= $baseUrl ?>/posko-laporan/print/<?= (int)$report['id'] ?>" target="_blank"
+           class="px-3 py-1.5 rounded-xl bg-[#241D14] border border-amber-600/60 hover:border-amber-400 text-amber-200 text-xs font-bold inline-flex items-center gap-1.5 shadow-sm transition">
+          <i class="fas fa-print"></i> Cetak Dokumen
+        </a>
+      </div>
     </div>
 
     <dl class="mt-4 grid grid-cols-2 lg:grid-cols-4 gap-3 text-xs">

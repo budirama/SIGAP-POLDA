@@ -47,14 +47,17 @@ class PoskoReport extends Model
 
     /**
      * Daftar laporan dalam cakupan wilayah. Draft hanya terlihat oleh unitnya sendiri ($ownUnitId).
+    /**
+     * Helper pembuat klausa WHERE dan parameter untuk daftar & ekspor laporan
      *
      * @param int[] $scopeIds
+     * @return array{0: string, 1: array}
      */
-    public function paginate(array $scopeIds, ?int $ownUnitId, array $filters, int $page, int $perPage = 25): array
+    private function buildScopeQuery(array $scopeIds, ?int $ownUnitId, array $filters): array
     {
         $scopeIds = array_values(array_filter(array_map('intval', $scopeIds)));
         if (!$scopeIds) {
-            return ['items' => [], 'total' => 0, 'page' => 1, 'pages' => 1, 'perPage' => $perPage];
+            return ['1 = 0', []];
         }
 
         $where = [
@@ -92,7 +95,21 @@ class PoskoReport extends Model
             $kw = '%' . $filters['search'] . '%';
             array_push($params, $kw, $kw, $kw);
         }
-        $sqlWhere = implode(' AND ', $where);
+
+        return [implode(' AND ', $where), $params];
+    }
+
+    /**
+     * Daftar laporan dalam cakupan wilayah. Draft hanya terlihat oleh unitnya sendiri ($ownUnitId).
+     *
+     * @param int[] $scopeIds
+     */
+    public function paginate(array $scopeIds, ?int $ownUnitId, array $filters, int $page, int $perPage = 25): array
+    {
+        [$sqlWhere, $params] = $this->buildScopeQuery($scopeIds, $ownUnitId, $filters);
+        if ($sqlWhere === '1 = 0') {
+            return ['items' => [], 'total' => 0, 'page' => 1, 'pages' => 1, 'perPage' => $perPage];
+        }
 
         $total = (int)($this->fetch(
             "SELECT COUNT(*) AS n FROM posko_reports r JOIN satkers s ON s.id = r.satker_id WHERE {$sqlWhere}",
@@ -116,6 +133,41 @@ class PoskoReport extends Model
         );
 
         return ['items' => $items, 'total' => $total, 'page' => $page, 'pages' => $pages, 'perPage' => $perPage];
+    }
+
+    /**
+     * Ambil seluruh laporan sesuai filter & batas wilayah untuk ekspor Excel / cetak daftar.
+     * Menerapkan pembatasan scopeSatkerIds() dan filter yang persis sama dengan tampilan.
+     *
+     * @param int[] $scopeIds
+     */
+    public function allForExport(array $scopeIds, ?int $ownUnitId, array $filters, int $limit = 5000): array
+    {
+        [$sqlWhere, $params] = $this->buildScopeQuery($scopeIds, $ownUnitId, $filters);
+        if ($sqlWhere === '1 = 0') {
+            return [];
+        }
+
+        return $this->fetchAll(
+            "SELECT r.id, r.report_number, r.status, r.priority, r.is_nil, r.is_recap, r.needs_review,
+                    r.period_start, r.period_end, r.period_key, r.event_time, r.deadline_at, r.submitted_at,
+                    r.created_at, r.updated_at, r.region, r.situation_summary, r.description, r.obstacles,
+                    r.follow_up, r.assistance_needed, r.reference_ticket, r.version,
+                    r.recap_computed_at, r.satker_id,
+                    t.code AS type_code, t.name AS type_name, t.kind AS type_kind, t.period_unit,
+                    s.name AS satker_name, s.code AS satker_code, s.level AS satker_level,
+                    h.name AS holder_name,
+                    u.name AS creator_name, u.rank AS creator_rank
+             FROM posko_reports r
+             JOIN posko_report_types t ON t.id = r.report_type_id
+             JOIN satkers s ON s.id = r.satker_id
+             LEFT JOIN satkers h ON h.id = r.holder_satker_id
+             LEFT JOIN users u ON u.id = r.created_by
+             WHERE {$sqlWhere}
+             ORDER BY COALESCE(r.submitted_at, r.updated_at) DESC, r.id DESC
+             LIMIT {$limit}",
+            $params
+        );
     }
 
     public function existsForPeriod(int $satkerId, int $typeId, string $periodStart, int $exceptId = 0, bool $isRecap = false): bool
