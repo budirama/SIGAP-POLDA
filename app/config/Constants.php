@@ -66,7 +66,7 @@ class Constants
             self::STATUS_INVESTIGATING => '<span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-yellow-950 text-yellow-300 border border-yellow-600">Proses Penyelidikan</span>',
             self::STATUS_CLOSED => '<span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-emerald-950 text-emerald-300 border border-emerald-600">Selesai (BAP)</span>',
             self::STATUS_REJECTED => '<span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-rose-950 text-rose-300 border border-rose-800">Ditolak</span>',
-            default => '<span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-gray-800 text-gray-300">'.$status.'</span>'
+            default => '<span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-gray-800 text-gray-300">'.htmlspecialchars($status, ENT_QUOTES, 'UTF-8').'</span>'
         };
     }
 
@@ -81,7 +81,7 @@ class Constants
             self::CHANNEL_FB => '<span class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded bg-indigo-900/60 text-indigo-200 border border-indigo-700/50"><i class="fab fa-facebook"></i> Facebook</span>',
             self::CHANNEL_TIKTOK => '<span class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded bg-slate-900/80 text-slate-200 border border-slate-600"><i class="fab fa-tiktok"></i> TikTok</span>',
             self::CHANNEL_110 => '<span class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded bg-red-900/60 text-red-200 border border-red-700/50"><i class="fas fa-phone-alt"></i> Call Center 110</span>',
-            default => '<span class="px-2 py-0.5 text-xs rounded bg-slate-800 text-slate-300">'.$channel.'</span>'
+            default => '<span class="px-2 py-0.5 text-xs rounded bg-slate-800 text-slate-300">'.htmlspecialchars($channel, ENT_QUOTES, 'UTF-8').'</span>'
         };
     }
 }

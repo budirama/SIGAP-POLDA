@@ -33,7 +33,7 @@ Lanjutan hasil code review 15 Oktober 2026. Setiap task dikerjakan di branch ter
 - **Kriteria selesai:** laporan paralel menghasilkan nomor unik berurutan; tiket baru melanjutkan nomor tertinggi yang ada.
 
 ### T4 — Escape di output, bukan di input
-- [ ] **Masalah:** `Controller::post()/get()` menjalankan `htmlspecialchars` sebelum data disimpan, lalu view meng-escape lagi → teks seperti `Tom & Jerry` tampil `Tom &amp; Jerry`; password yang mengandung `& < > " '` tidak cocok dengan hash-nya.
+- [x] **Masalah:** `Controller::post()/get()` menjalankan `htmlspecialchars` sebelum data disimpan, lalu view meng-escape lagi → teks seperti `Tom & Jerry` tampil `Tom &amp; Jerry`; password yang mengandung `& < > " '` tidak cocok dengan hash-nya.
 - **Solusi:** `post()/get()` hanya `trim`; pastikan seluruh output di view memakai `htmlspecialchars`.
 - **Kriteria selesai:** input dengan karakter khusus tersimpan apa adanya di DB dan tampil benar sekali-escape; tidak ada output user-controlled tanpa escape.
 - **Catatan:** data lama hasil input warga yang sudah tersimpan dalam bentuk ter-escape tidak dikonversi otomatis (data seed tidak terdampak).

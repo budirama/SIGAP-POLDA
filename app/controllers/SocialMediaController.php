@@ -134,7 +134,11 @@ class SocialMediaController extends Controller
             $this->redirect('/social');
         }
 
-        $platform =$this->post('platform', 'TWITTER_X');
+        $platform = $this->post('platform', Constants::CHANNEL_TWITTER);
+        if (!in_array($platform, [Constants::CHANNEL_TWITTER, Constants::CHANNEL_IG, Constants::CHANNEL_FB, Constants::CHANNEL_TIKTOK], true)) {
+            Session::setFlash('error', 'Platform media sosial tidak valid.');
+            $this->redirect('/social');
+        }
         $username = $this->post('username', 'warga_netizen');
         $content = $this->post('content', 'Lapor Pak ada pungli parkir liar meresahkan di depan stasiun!');
         $postUrl = $this->post('post_url', 'https://x.com/warga_netizen/status/' . time());

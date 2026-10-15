@@ -73,6 +73,9 @@ class ReportController extends Controller
         $lat = $this->post('latitude', null);
         $lng = $this->post('longitude', null);
         $urgency = $this->post('urgency_level', 'NORMAL');
+        if (!in_array($urgency, ['NORMAL', 'HIGH', 'EMERGENCY'], true)) {
+            $urgency = 'NORMAL';
+        }
 
         // Validasi input wajib
         if (empty($name) || empty($phone) || empty($categoryId) || empty($title) || empty($description) || empty($location)) {
