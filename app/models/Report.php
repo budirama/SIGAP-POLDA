@@ -223,7 +223,13 @@ class Report extends Model
      */
     public function getFilteredReports(array $filters = []): array
     {
-        $sql = "SELECT r.*, c.name AS category_name, s.name AS satker_name, 
+        // Kolom eksplisit: daftar backoffice tidak memuat PIN pelacakan & NIK pelapor
+        $sql = "SELECT r.id, r.ticket_number, r.source_channel, r.is_anonymous, r.reporter_name_raw, r.reporter_phone,
+                       r.category_id, r.title, r.description, r.incident_date, r.incident_location,
+                       r.latitude, r.longitude, r.status, r.urgency_level, r.sla_deadline,
+                       r.current_satker_id, r.assigned_investigator_id, r.is_kapolda_attention,
+                       r.created_at, r.closed_at,
+                       c.name AS category_name, s.name AS satker_name,
                        inv.name AS investigator_name, inv.rank AS investigator_rank
                 FROM reports r
                 JOIN report_categories c ON r.category_id = c.id

@@ -142,7 +142,7 @@
                   <div class="flex items-center justify-center gap-1.5">
                     
                     <!-- Tombol Disposisi -->
-                    <button onclick="openDispatchModal(<?= htmlspecialchars(json_encode($r)) ?>)"
+                    <button onclick="openDispatchModal(<?= htmlspecialchars(json_encode(['id' => (int)$r['id'], 'ticket_number' => $r['ticket_number'], 'title' => $r['title'], 'current_satker_id' => $r['current_satker_id'], 'assigned_investigator_id' => $r['assigned_investigator_id']])) ?>)"
                             class="px-2.5 py-1.5 bg-blue-900/60 hover:bg-blue-800 text-blue-200 font-bold rounded-lg transition-colors flex items-center gap-1"
                             title="Disposisi ke Satker">
                       <i class="fas fa-share-nodes text-xs"></i>
@@ -151,7 +151,7 @@
 
                     <?php if (in_array($r['status'], ['SUBMITTED', 'VERIFIED_SPKT'], true)): ?>
                       <!-- Tombol Tolak -->
-                      <button onclick="openRejectModal(<?= htmlspecialchars(json_encode($r)) ?>)"
+                      <button onclick="openRejectModal(<?= htmlspecialchars(json_encode(['id' => (int)$r['id'], 'ticket_number' => $r['ticket_number'], 'title' => $r['title'], 'current_satker_id' => $r['current_satker_id'], 'assigned_investigator_id' => $r['assigned_investigator_id']])) ?>)"
                               class="px-2.5 py-1.5 bg-rose-950/70 hover:bg-rose-900 text-rose-200 font-bold rounded-lg transition-colors flex items-center gap-1"
                               title="Tolak Laporan">
                         <i class="fas fa-ban text-xs"></i>

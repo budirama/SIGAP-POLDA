@@ -297,7 +297,8 @@
         <?php endif; ?>
       </div>
 
-      <!-- Form Kirim Pesan Klarifikasi -->
+      <!-- Form Kirim Pesan Klarifikasi (hanya pelapor; personil membalas lewat workspace kasus) -->
+      <?php if ($isReporter): ?>
       <form action="<?= $baseUrl ?>/report/sendMessage" method="POST" enctype="multipart/form-data" class="bg-[#070F1E]/90 p-4 rounded-xl border border-slate-700/80 space-y-3">
         <input type="hidden" name="_csrf_token" value="<?= $csrfToken ?>">
         <input type="hidden" name="ticket_number" value="<?= htmlspecialchars($report['ticket_number']) ?>">
@@ -328,6 +329,11 @@
           </button>
         </div>
       </form>
+      <?php else: ?>
+        <p class="text-xs text-slate-400 italic bg-[#070F1E]/60 p-3 rounded-xl border border-slate-700/60">
+          Mode tampilan personil: balasan klarifikasi dikirim melalui Workspace Kasus.
+        </p>
+      <?php endif; ?>
     </div>
 
     <!-- Feedback Survey Section (Jika Kasus Selesai / CLOSED) -->
@@ -351,10 +357,10 @@
                   <?php endfor; ?>
                   <span class="text-slate-300 font-bold ml-2">(<?= $feedback['rating_stars'] ?> / 5 Bintang)</span>
                 </div>
-                <p class="text-slate-300 italic">"<?= htmlspecialchars($feedback['comments']) ?>""</p>
+                <p class="text-slate-300 italic">"<?= htmlspecialchars($feedback['comments']) ?>"</p>
                 <span class="text-[10px] text-emerald-400 font-semibold block mt-1">✓ Ulasan Anda telah tersimpan</span>
               </div>
-            <?php else: ?>
+            <?php elseif ($isReporter): ?>
               <form action="<?= $baseUrl ?>/report/submitFeedback" method="POST" class="mt-4 space-y-4">
                 <input type="hidden" name="_csrf_token" value="<?= $csrfToken ?>">
                 <input type="hidden" name="ticket_number" value="<?= htmlspecialchars($report['ticket_number']) ?>">

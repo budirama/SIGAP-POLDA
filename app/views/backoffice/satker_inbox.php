@@ -90,7 +90,7 @@
 
                 <td class="p-4 text-center">
                   <div class="flex items-center justify-center gap-2">
-                    <button onclick="openAssignModal(<?= htmlspecialchars(json_encode($r)) ?>)"
+                    <button onclick="openAssignModal(<?= htmlspecialchars(json_encode(['id' => (int)$r['id'], 'ticket_number' => $r['ticket_number'], 'title' => $r['title'], 'current_satker_id' => $r['current_satker_id'], 'assigned_investigator_id' => $r['assigned_investigator_id']])) ?>)"
                             class="px-3 py-1.5 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-bold rounded-lg text-xs shadow transition-all flex items-center gap-1">
                       <i class="fas fa-user-plus text-[10px]"></i>
                       <span><?= empty($r['investigator_name']) ? 'Tunjuk Penyidik' : 'Ganti' ?></span>
