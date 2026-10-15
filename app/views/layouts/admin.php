@@ -106,11 +106,13 @@
           <span>Portal Pelacakan Warga</span>
         </a>
 
-        <a href="<?= $baseUrl ?>/auth/login" 
+        <?php if (\App\Config\Config::isDevelopment()): ?>
+        <a href="<?= $baseUrl ?>/auth/login"
            class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-400 hover:text-amber-400 hover:bg-[#0E1E38] transition-colors">
           <i class="fas fa-arrows-rotate text-amber-500 w-4"></i>
           <span>Ganti Role Pengujian</span>
         </a>
+        <?php endif; ?>
 
       </div>
     </div>

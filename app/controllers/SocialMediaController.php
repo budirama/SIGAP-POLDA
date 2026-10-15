@@ -8,6 +8,7 @@ namespace App\Controllers;
 use App\Core\Controller;
 use App\Core\Auth;
 use App\Core\Session;
+use App\Config\Config;
 use App\Config\Constants;
 use App\Models\SocialFeed;
 use App\Models\Report;
@@ -64,7 +65,17 @@ class SocialMediaController extends Controller
             $this->redirect('/social');
         }
 
+        if ($feed['status'] !== 'NEW') {
+            Session::setFlash('error', 'Postingan ini sudah diproses sebelumnya (dikonversi atau diabaikan).');
+            $this->redirect('/social');
+        }
+
         $categoryId = (int)$this->post('category_id', 1); // Default Kriminal Umum
+        $validCategories = array_map('intval', array_column($this->reportModel->getCategories(), 'id'));
+        if (!in_array($categoryId, $validCategories, true)) {
+            Session::setFlash('error', 'Kategori perkara tidak valid.');
+            $this->redirect('/social');
+        }
         $location = $this->post('incident_location', 'Wilayah Hukum Polda Metro Jaya');
         $title = $this->post('title', "Pengaduan Medsos {$feed['platform']}: @" . $feed['author_username']);
         $description = $feed['post_content'];
@@ -73,7 +84,8 @@ class SocialMediaController extends Controller
             $ticketNumber = $this->reportModel->createReport([
                 'source_channel'    => $feed['platform'],
                 'social_feed_id'    => $feed['id'],
-                'social_post_url'   => $feed['post_url'],
+                'social_post_url'   => SocialFeed::isSafeUrl($feed['post_url']) ? $feed['post_url'] : null,
+                'actor_id'          => Auth::id(),
                 'reporter_id'       => null,
                 'is_anonymous'      => 0,
                 'reporter_name_raw' => $feed['author_name'] ?: $feed['author_username'],
@@ -112,9 +124,10 @@ class SocialMediaController extends Controller
         }
 
         $feedId = (int)$this->post('feed_id', 0);
-        if ($feedId > 0) {
-            $this->socialModel->dismissFeed($feedId, Auth::id());
+        if ($feedId > 0 && $this->socialModel->dismissFeed($feedId, Auth::id())) {
             Session::setFlash('success', 'Postingan telah ditandai sebagai spam / diabaikan.');
+        } else {
+            Session::setFlash('error', 'Postingan tidak ditemukan atau sudah diproses sebelumnya.');
         }
 
         $this->redirect('/social');
@@ -125,7 +138,8 @@ class SocialMediaController extends Controller
      */
     public function simulate(): void
     {
-        if (!$this->isPost()) {
+        // Alat uji coba: hanya di lingkungan development (cegah injeksi postingan palsu di production)
+        if (!Config::isDevelopment() || !$this->isPost()) {
             $this->redirect('/social');
         }
 
@@ -142,6 +156,10 @@ class SocialMediaController extends Controller
         $username = $this->post('username', 'warga_netizen');
         $content = $this->post('content', 'Lapor Pak ada pungli parkir liar meresahkan di depan stasiun!');
         $postUrl = $this->post('post_url', 'https://x.com/warga_netizen/status/' . time());
+        if (!SocialFeed::isSafeUrl($postUrl)) {
+            Session::setFlash('error', 'URL postingan harus diawali http:// atau https://.');
+            $this->redirect('/social');
+        }
 
         $this->socialModel->createMockFeed($platform, $username, $username, $content, $postUrl);
 

@@ -36,12 +36,25 @@ class SocialFeed extends Model
         return $this->fetch("SELECT * FROM social_feeds WHERE id = ? LIMIT 1", [$id]);
     }
 
+    /**
+     * Tandai spam hanya bila postingan masih NEW (postingan terkonversi tidak dapat diabaikan)
+     */
     public function dismissFeed(int $id, int $userId): bool
     {
-        return $this->execute(
-            "UPDATE social_feeds SET status = 'DISMISSED_SPAM', handled_by_user_id = ?, handled_at = NOW() WHERE id = ?",
+        return $this->affected(
+            "UPDATE social_feeds SET status = 'DISMISSED_SPAM', handled_by_user_id = ?, handled_at = NOW() WHERE id = ? AND status = 'NEW'",
             [$userId, $id]
-        );
+        ) === 1;
+    }
+
+    /**
+     * URL postingan hanya boleh berskema http(s) (cegah javascript:/data: di atribut href)
+     */
+    public static function isSafeUrl(?string $url): bool
+    {
+        return is_string($url)
+            && filter_var($url, FILTER_VALIDATE_URL) !== false
+            && in_array(strtolower((string)parse_url($url, PHP_URL_SCHEME)), ['http', 'https'], true);
     }
 
     public function createMockFeed(string $platform, string $username, string $name, string $content, string $postUrl, ?string $mediaUrl = null): int

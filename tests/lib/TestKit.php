@@ -220,6 +220,7 @@ final class Db
             }
             self::exec("DELETE FROM reports WHERE id = ?", [$id]);
         }
+        self::exec("DELETE FROM social_feeds WHERE post_id_str LIKE 'zztest_%'");
         // Sequence diinisialisasi ulang dari tiket tertinggi saat laporan berikutnya dibuat
         self::exec("DELETE FROM ticket_sequences");
         self::exec("DELETE FROM throttle_events");

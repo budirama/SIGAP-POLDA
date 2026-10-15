@@ -173,19 +173,25 @@ class Report extends Model
             }
 
             // Catat Timeline Pertama (Laporan Terkirim)
-            $actorId = $data['reporter_id'] ?? 1; // Default sistem / reporter
+            $actorId = $data['actor_id'] ?? $data['reporter_id'] ?? 1; // Petugas konversi / pelapor / sistem
             $this->execute(
                 "INSERT INTO report_timeline (report_id, actor_id, status_from, status_to, title, public_notes, internal_notes)
                  VALUES (?, ?, 'NEW', 'SUBMITTED', 'Laporan Diterima Sistem', 'Laporan pengaduan Anda telah terdaftar dan menunggu verifikasi kelayakan oleh Petugas SPKT Polda.', 'Laporan baru masuk melalui portal publik.')",
                 [$reportId, $actorId]
             );
 
-            // Jika laporan berasal dari social_feed, update status social_feed
+            // Jika laporan berasal dari social_feed: tandai terkonversi, hanya bila masih NEW
+            // (mencegah satu postingan dikonversi menjadi beberapa tiket)
             if (!empty($data['social_feed_id'])) {
-                $this->execute(
-                    "UPDATE social_feeds SET status = 'CONVERTED_TO_TICKET', converted_report_id = ? WHERE id = ?",
-                    [$reportId, $data['social_feed_id']]
+                $converted = $this->affected(
+                    "UPDATE social_feeds
+                     SET status = 'CONVERTED_TO_TICKET', converted_report_id = ?, handled_by_user_id = ?, handled_at = NOW()
+                     WHERE id = ? AND status = 'NEW'",
+                    [$reportId, $data['actor_id'] ?? null, $data['social_feed_id']]
                 );
+                if ($converted !== 1) {
+                    throw new \RuntimeException('Postingan media sosial sudah diproses sebelumnya.');
+                }
             }
 
             $this->commit();
