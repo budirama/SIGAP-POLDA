@@ -31,10 +31,11 @@ spl_autoload_register(function (string $class) use ($root) {
 });
 require_once __DIR__ . '/lib/TestKit.php';
 
-define('TEST_BASE_URL', rtrim(getenv('TEST_BASE_URL') ?: 'http://localhost/SIGAP-Polda/public', '/'));
+$baseDir = basename($root);
+define('TEST_BASE_URL', rtrim(getenv('TEST_BASE_URL') ?: "http://localhost/{$baseDir}/public", '/'));
 
-$suite = $argv[1] ?? 'all';
-$dirs = match ($suite) {
+$filter = $argv[1] ?? 'all';
+$dirs = match ($filter) {
     'unit' => ['Unit'],
     'integration' => ['Integration'],
     default => ['Unit', 'Integration'],
@@ -50,14 +51,16 @@ $failures = [];
 
 foreach ($dirs as $dir) {
     $files = glob(__DIR__ . "/{$dir}/*Test.php");
+    if (!in_array($filter, ['all', 'unit', 'integration'], true)) {
+        $files = array_filter($files, fn($f) => stripos(basename($f), $filter) !== false);
+    }
     sort($files);
     $needsCleanup = $dir === 'Integration';
 
-    if ($needsCleanup) {
-        Tests\Db::cleanup();
-    }
-
     foreach ($files as $file) {
+        if ($needsCleanup) {
+            Tests\Db::cleanup();
+        }
         /** @var array<string, callable> $tests */
         $tests = require $file;
         $group = $dir . '/' . basename($file, '.php');

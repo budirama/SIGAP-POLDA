@@ -14,6 +14,8 @@ use App\Core\PoskoSchedule;
 use App\Core\Session;
 use App\Core\Upload;
 use App\Config\Constants;
+use App\Models\PoskoNotification;
+use App\Models\PoskoRecap;
 use App\Models\PoskoReport;
 use App\Models\PoskoReportType;
 use App\Models\Satker;
@@ -47,6 +49,7 @@ class PoskoReportController extends Controller
             'satker' => (int)$this->get('satker', 0),
             'month'  => (string)$this->get('month', ''),
             'search' => trim((string)$this->get('search', '')),
+            'kind'   => (string)$this->get('kind', ''),
         ];
         $scope = PoskoAccess::scopeSatkerIds();
 
@@ -89,6 +92,9 @@ class PoskoReportController extends Controller
     public function edit(int $id): void
     {
         $report = $this->editableReport($id);
+        if ((int)$report['is_recap']) {
+            $this->redirect("/posko-rekap/edit/{$id}");
+        }
         $type = $this->types->find((int)$report['report_type_id']);
         $old = Session::get('_posko_old', []);
         Session::remove('_posko_old');
@@ -105,6 +111,9 @@ class PoskoReportController extends Controller
         $report = $id ? $this->editableReport($id) : null;
         if (!$report) {
             $this->requireCreator();
+        } elseif ((int)$report['is_recap']) {
+            Session::setFlash('error', 'Rekap diubah dari halaman rekap; nilai agregat dihitung otomatis.');
+            $this->redirect("/posko-rekap/edit/{$id}");
         }
 
         $typeId = $report ? (int)$report['report_type_id'] : (int)$this->post('report_type_id', 0);
@@ -167,6 +176,7 @@ class PoskoReportController extends Controller
             'canEdit'     => $this->canEditReport($report),
             'missing'     => $this->canEditReport($report) ? $this->missingForSubmit($report, $type) : [],
             'history'     => $this->reports->history($id),
+            'recapSources' => (int)$report['is_recap'] ? (new PoskoRecap())->sources($id) : [],
             'versionCount' => count($this->reports->versions($id)),
             'actions'     => $this->availableActions($report),
         ], 'admin');
@@ -182,6 +192,15 @@ class PoskoReportController extends Controller
         $report = $this->editableReport($id);
         $type = $this->types->find((int)$report['report_type_id']);
 
+        if ((int)$report['is_recap']) {
+            $count = (new PoskoRecap())->compute($id);
+            if (!$count) {
+                Session::setFlash('error', 'Rekap belum memiliki laporan sumber yang disetujui untuk periode ini.');
+                $this->redirect("/posko-laporan/show/{$id}");
+            }
+            $report = $this->reports->find($id);
+        }
+
         $missing = $this->missingForSubmit($report, $type);
         if ($missing) {
             Session::setFlash('error', 'Laporan belum lengkap: ' . implode(', ', $missing) . '.');
@@ -195,7 +214,50 @@ class PoskoReportController extends Controller
         }
 
         Audit::log($report['status'] === 'DRAFT' ? 'posko.report.submit' : 'posko.report.resubmit', null, "Laporan posko #{$id} → {$number}");
+        $this->notifyAction($id, $report['status'] === 'DRAFT' ? 'submit' : 'resubmit');
         Session::setFlash('success', "Laporan {$number} terkirim ke unit induk untuk diverifikasi.");
+        $this->redirect("/posko-laporan/show/{$id}");
+    }
+
+    /**
+     * Nyatakan nihil (BRD 2.3, 4.5): pernyataan resmi tidak ada kejadian untuk jenis & periode ini.
+     * Dibuat dan langsung dikirim ke induk untuk diverifikasi; tidak pernah dibuat otomatis.
+     */
+    public function nil(): void
+    {
+        $this->requirePost('/posko-laporan');
+        $this->requireCreator();
+        $typeId = (int)$this->post('report_type_id', 0);
+        $type = $this->types->find($typeId);
+        $allowed = array_map('intval', array_column($this->types->forLevel((int)PoskoAccess::level()), 'id'));
+        if (!$type || !in_array($typeId, $allowed, true) || !(int)$type['allows_nil'] || $type['period_unit'] === 'NONE') {
+            Session::setFlash('error', 'Jenis laporan ini tidak dapat dinyatakan nihil.');
+            $this->redirect('/posko-laporan/create');
+        }
+
+        $satkerId = (int)Auth::satkerId();
+        $reason = mb_substr(trim((string)$this->post('nil_reason', '')), 0, 1000);
+        [$general, , $errors] = $this->validateInput($type, $satkerId, 0, false);
+        if ($reason === '') {
+            $errors[] = 'Alasan/keterangan nihil wajib diisi.';
+        }
+        if ($errors) {
+            Session::setFlash('error', implode(' ', $errors));
+            $this->redirect("/posko-laporan/create?type={$typeId}");
+        }
+
+        $general = array_merge($general, [
+            'region' => Auth::user()['satker_name'] ?? null,
+            'situation_summary' => $reason,
+            'description' => 'NIHIL — tidak terdapat kejadian/kegiatan yang perlu dilaporkan pada periode ini.',
+            'priority' => 'NORMAL',
+        ]);
+        $id = $this->reports->createDraft($typeId, $satkerId, $general, [], (int)Auth::id(), false, true);
+        $this->reports->logCreate($id, (int)Auth::id(), $satkerId);
+        $number = $this->reports->submit($id, (int)Auth::id(), $satkerId, $this->parentOf($satkerId));
+        Audit::log('posko.report.nil', null, "Laporan nihil #{$id} {$number}");
+        $this->notifyAction($id, 'nil');
+        Session::setFlash('success', "Pernyataan nihil {$number} terkirim ke unit induk untuk diverifikasi.");
         $this->redirect("/posko-laporan/show/{$id}");
     }
 
@@ -296,6 +358,12 @@ class PoskoReportController extends Controller
             fn($row) => ['version' => (int)$row['version'] + 1, 'holder_satker_id' => null,
                          'approved_by' => null, 'approved_at' => null, 'reviewed_by' => null],
             $notes, fn($row) => (int)$row['satker_id'] === Auth::satkerId());
+        if ($ok) {
+            $flagged = (new PoskoRecap())->flagContaining((int)$report['id']);
+            if ($flagged) {
+                Audit::log('posko.recap.flag_review', null, 'Rekap #' . implode(', #', $flagged) . " karena revisi laporan #{$report['id']}");
+            }
+        }
         $this->finish($ok, $report, 'posko.report.revise', 'Revisi dibuka sebagai versi baru. Perbarui laporan lalu kirim ulang untuk diverifikasi.', true);
     }
 
@@ -413,8 +481,27 @@ class PoskoReportController extends Controller
             $this->redirect("/posko-laporan/show/{$id}");
         }
         Audit::log($audit, null, 'Laporan posko #' . $id . ($report['report_number'] ? " {$report['report_number']}" : ''));
+        $action = substr($audit, strrpos($audit, '.') + 1);
+        if (in_array($action, ['approve', 'return', 'forward'], true)) {
+            $this->notifyAction($id, $action);
+        }
         Session::setFlash('success', $message);
         $this->redirect($toEdit ? "/posko-laporan/edit/{$id}" : "/posko-laporan/show/{$id}");
+    }
+
+    /**
+     * Notifikasi bagi pihak berwenang atas laporan setelah aksi (kegagalan notifikasi tidak boleh menggagalkan aksi)
+     */
+    private function notifyAction(int $id, string $action): void
+    {
+        try {
+            $fresh = $this->reports->find($id);
+            if ($fresh) {
+                (new PoskoNotification())->onAction($fresh, $action, (int)Auth::id());
+            }
+        } catch (\Throwable $e) {
+            error_log('Notifikasi posko gagal: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -610,6 +697,18 @@ class PoskoReportController extends Controller
      */
     private function missingForSubmit(array $report, array $type): array
     {
+        if ((int)$report['is_nil']) {
+            return trim((string)$report['situation_summary']) === '' ? ['alasan nihil'] : [];
+        }
+        if ((int)$report['is_recap']) {
+            $missing = [];
+            foreach (['situation_summary' => 'ringkasan situasi wilayah', 'description' => 'analisis/narasi rekap'] as $col => $label) {
+                if (trim((string)$report[$col]) === '') {
+                    $missing[] = $label;
+                }
+            }
+            return $missing;
+        }
         $missing = [];
         if ($type['period_unit'] === 'NONE' && empty($report['event_time'])) {
             $missing[] = 'waktu kejadian';

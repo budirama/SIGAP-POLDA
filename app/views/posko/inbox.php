@@ -34,7 +34,11 @@ $need = [
               <?= $poskoStatusBadge($r['status']) ?> <?= $poskoPriorityBadge($r['priority']) ?>
               <?php if ((int)$r['version'] > 1): ?><span class="text-[10px] text-amber-300">revisi v<?= (int)$r['version'] ?></span><?php endif; ?>
             </span>
-            <span class="block text-sm text-slate-100 mt-1"><?= htmlspecialchars($r['type_name']) ?> — <?= htmlspecialchars($r['satker_name']) ?></span>
+            <span class="block text-sm text-slate-100 mt-1">
+              <?= (int)$r['is_recap'] ? 'Rekap ' : '' ?><?= htmlspecialchars($r['type_name']) ?> — <?= htmlspecialchars($r['satker_name']) ?>
+              <?= (int)$r['is_nil'] ? '<span class="text-[10px] text-teal-300">· NIHIL</span>' : '' ?>
+              <?= (int)$r['needs_review'] ? '<span class="text-[10px] text-amber-300">· tinjau ulang</span>' : '' ?>
+            </span>
             <span class="block text-[11px] text-slate-400 truncate"><?= htmlspecialchars((string)$r['situation_summary']) ?></span>
           </span>
           <span class="text-[11px] text-slate-400 sm:text-right flex-shrink-0">

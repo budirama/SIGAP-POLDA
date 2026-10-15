@@ -12,6 +12,9 @@ class App
         'social' => 'SocialMediaController',
         'posko-laporan' => 'PoskoReportController',
         'posko-jenis' => 'PoskoTypeController',
+        'posko-rekap' => 'PoskoRecapController',
+        'posko-kepatuhan' => 'PoskoComplianceController',
+        'posko-notifikasi' => 'PoskoNotificationController',
     ];
 
     protected string $controller = 'HomeController';

@@ -35,6 +35,13 @@ $field = 'bg-[#0C0A08] border border-slate-700 rounded-xl px-3 py-2 text-slate-1
         <option value="<?= $k ?>" <?= $filters['status'] === $k ? 'selected' : '' ?>><?= $label ?></option>
       <?php endforeach; ?>
     </select>
+    <label class="sr-only" for="fKind">Bentuk</label>
+    <select id="fKind" name="kind" class="<?= $field ?>">
+      <option value="">Sumber & rekap</option>
+      <?php foreach (['source' => 'Laporan sumber', 'recap' => 'Rekap', 'nil' => 'Nihil'] as $k => $l): ?>
+        <option value="<?= $k ?>" <?= ($filters['kind'] ?? '') === $k ? 'selected' : '' ?>><?= $l ?></option>
+      <?php endforeach; ?>
+    </select>
     <?php if ($units): ?>
       <label class="sr-only" for="fUnit">Unit</label>
       <select id="fUnit" name="satker" class="<?= $field ?> max-w-[16rem]">
@@ -75,7 +82,11 @@ $field = 'bg-[#0C0A08] border border-slate-700 rounded-xl px-3 py-2 text-slate-1
                 <a href="<?= $baseUrl ?>/posko-laporan/show/<?= (int)$r['id'] ?>" class="font-mono font-bold text-amber-300 hover:underline">
                   <?= htmlspecialchars($r['report_number'] ?: 'DRAFT #' . $r['id']) ?>
                 </a>
-                <p class="text-slate-300"><?= htmlspecialchars($r['type_name']) ?> <?= $poskoPriorityBadge($r['priority']) ?></p>
+                <p class="text-slate-300">
+                  <?= (int)$r['is_recap'] ? '<span class="text-teal-300 font-bold">Rekap</span> ' : '' ?><?= htmlspecialchars($r['type_name']) ?> <?= $poskoPriorityBadge($r['priority']) ?>
+                  <?php if ((int)$r['is_nil']): ?><span class="text-[10px] px-1.5 rounded-full border border-teal-600/70 text-teal-200">NIHIL</span><?php endif; ?>
+                  <?php if ((int)$r['needs_review']): ?><span class="text-[10px] px-1.5 rounded-full border border-amber-600/70 text-amber-200">Tinjau ulang</span><?php endif; ?>
+                </p>
               </td>
               <td class="p-3 text-slate-300"><?= htmlspecialchars($r['satker_name']) ?></td>
               <td class="p-3 text-slate-300">

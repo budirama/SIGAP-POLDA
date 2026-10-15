@@ -11,6 +11,7 @@ use App\Core\Auth;
 use App\Core\PoskoAccess;
 use App\Core\Session;
 use App\Config\Constants;
+use App\Models\PoskoDashboard;
 use App\Models\Satker;
 use App\Models\User;
 
@@ -331,16 +332,31 @@ class PoskoController extends Controller
         // Leluhur di luar wilayah pengguna tetap ditampilkan sebagai teks (tanpa tautan)
         $ancestors = array_map(fn($a) => $a + ['linkable' => in_array((int)$a['id'], $scope, true)], $this->satkers->ancestors($id));
 
+        // Dashboard: unit ini + turunannya (id sudah divalidasi berada dalam wilayah pengguna)
+        $dashScope = $this->satkers->selfAndDescendantIds($id);
+        $dash = new PoskoDashboard();
+        $statusByChild = [];
+        foreach ($dash->childrenStatus($id) as $row) {
+            $statusByChild[$row['id']] = $row;
+        }
+
         $this->render('posko/home', [
             'pageTitle'  => 'Management Posko',
             'unit'       => $unit,
             'isHome'     => $id === $this->homeUnitId(),
             'ancestors'  => $ancestors,
             'children'   => $children,
-            'levelCounts' => $this->levelCounts($this->satkers->selfAndDescendantIds($id)),
+            'levelCounts' => $this->levelCounts($dashScope),
             'roleLabel'  => PoskoAccess::isPoskoUser()
                 ? Constants::poskoRoleLabel((string)Auth::role(), (int)PoskoAccess::level())
                 : 'System Administrator',
+            'cards'      => $dash->cards($dashScope),
+            'periods'    => $dash->activePeriods(),
+            'recent'     => $dash->recent($dashScope),
+            'events'     => $dash->importantEvents($dashScope),
+            'trend'      => $dash->trend($dashScope),
+            'childStatus' => $statusByChild,
+            'actions'    => PoskoAccess::isOperational() && $id === $this->homeUnitId() ? $dash->actionsFor($id) : null,
         ], 'admin');
     }
 

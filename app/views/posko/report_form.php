@@ -128,6 +128,27 @@ $req = '<span class="text-red-400" title="Wajib saat dikirim">*</span>';
     </div>
   </form>
 
+  <?php if (!$report && (int)$type['allows_nil'] && $type['period_unit'] !== 'NONE'): ?>
+    <!-- Nyatakan nihil (BRD 2.3.5): pernyataan resmi, langsung dikirim ke induk -->
+    <form method="POST" action="<?= $baseUrl ?>/posko-laporan/nil" class="polri-glass-card rounded-2xl border border-teal-700/50 p-5 text-xs space-y-3"
+          onsubmit="return confirm('Nyatakan NIHIL untuk periode ini? Pernyataan langsung dikirim ke unit induk.');">
+      <input type="hidden" name="_csrf_token" value="<?= $csrfToken ?>">
+      <input type="hidden" name="report_type_id" value="<?= (int)$type['id'] ?>">
+      <h3 class="text-[11px] font-bold uppercase tracking-wider text-teal-300">Tidak ada kejadian? Nyatakan Nihil</h3>
+      <p class="text-slate-400">Gunakan hanya bila memang tidak ada kejadian/kegiatan yang perlu dilaporkan. Laporan yang tidak dikirim tidak pernah dianggap nihil.</p>
+      <div class="grid sm:grid-cols-3 gap-3">
+        <?php if ($type['period_unit'] === 'MONTH'): ?>
+          <label class="block"><span class="block text-slate-300 mb-1">Bulan</span><input type="month" name="period_month" value="<?= $val('period_month') ?>" max="<?= date('Y-m') ?>" class="<?= $field ?>"></label>
+        <?php else: ?>
+          <label class="block"><span class="block text-slate-300 mb-1">Tanggal periode</span><input type="date" name="period_date" value="<?= $val('period_date') ?>" max="<?= date('Y-m-d') ?>" class="<?= $field ?>"></label>
+        <?php endif; ?>
+        <label class="block sm:col-span-2"><span class="block text-slate-300 mb-1">Alasan / keterangan nihil <span class="text-red-400">*</span></span>
+          <input name="nil_reason" required maxlength="1000" placeholder="Mis. tidak ada kejadian menonjol; situasi aman terkendali" class="<?= $field ?>"></label>
+      </div>
+      <button class="px-4 py-2 rounded-xl border border-teal-600/70 bg-teal-950/50 text-teal-100 font-bold"><i class="fas fa-circle-minus mr-1"></i> Nyatakan Nihil</button>
+    </form>
+  <?php endif; ?>
+
   <!-- Lampiran (tersedia setelah draft tersimpan) -->
   <section class="polri-glass-card rounded-2xl border border-[#3B2F1C] p-5 text-xs">
     <h3 class="text-[11px] font-bold uppercase tracking-wider text-amber-400 mb-3">Lampiran Foto / Dokumen</h3>

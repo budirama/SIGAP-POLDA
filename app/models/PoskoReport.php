@@ -72,6 +72,13 @@ class PoskoReport extends Model
             $where[] = "r.status = ?";
             $params[] = $filters['status'];
         }
+        if (($filters['kind'] ?? '') === 'recap') {
+            $where[] = "r.is_recap = 1";
+        } elseif (($filters['kind'] ?? '') === 'nil') {
+            $where[] = "r.is_nil = 1";
+        } elseif (($filters['kind'] ?? '') === 'source') {
+            $where[] = "r.is_recap = 0";
+        }
         if (!empty($filters['satker']) && in_array((int)$filters['satker'], $scopeIds, true)) {
             $where[] = "r.satker_id = ?";
             $params[] = (int)$filters['satker'];
@@ -96,7 +103,7 @@ class PoskoReport extends Model
         $offset = ($page - 1) * $perPage;
 
         $items = $this->fetchAll(
-            "SELECT r.id, r.report_number, r.status, r.priority, r.is_nil, r.period_start, r.period_end, r.event_time,
+            "SELECT r.id, r.report_number, r.status, r.priority, r.is_nil, r.is_recap, r.needs_review, r.period_start, r.period_end, r.event_time,
                     r.deadline_at, r.submitted_at, r.updated_at, r.situation_summary, r.satker_id,
                     t.name AS type_name, t.period_unit, s.name AS satker_name, s.level AS satker_level
              FROM posko_reports r
@@ -111,23 +118,36 @@ class PoskoReport extends Model
         return ['items' => $items, 'total' => $total, 'page' => $page, 'pages' => $pages, 'perPage' => $perPage];
     }
 
-    public function existsForPeriod(int $satkerId, int $typeId, string $periodStart, int $exceptId = 0): bool
+    public function existsForPeriod(int $satkerId, int $typeId, string $periodStart, int $exceptId = 0, bool $isRecap = false): bool
     {
         return $this->fetch(
-            "SELECT id FROM posko_reports WHERE satker_id = ? AND report_type_id = ? AND period_key = ? AND id <> ? LIMIT 1",
-            [$satkerId, $typeId, $periodStart, $exceptId]
+            "SELECT id FROM posko_reports
+             WHERE satker_id = ? AND report_type_id = ? AND period_key = ? AND is_recap = ? AND id <> ? LIMIT 1",
+            [$satkerId, $typeId, $periodStart, $isRecap ? 1 : 0, $exceptId]
         ) !== null;
+    }
+
+    /**
+     * Rekap aktif unit untuk jenis & periode (bila ada)
+     */
+    public function findRecap(int $satkerId, int $typeId, string $periodStart): ?array
+    {
+        return $this->fetch(
+            "SELECT id, status FROM posko_reports WHERE satker_id = ? AND report_type_id = ? AND period_key = ? AND is_recap = 1 LIMIT 1",
+            [$satkerId, $typeId, $periodStart]
+        );
     }
 
     /**
      * Buat draft beserta nilai isiannya
      */
-    public function createDraft(int $typeId, int $satkerId, array $general, array $values, int $userId): int
+    public function createDraft(int $typeId, int $satkerId, array $general, array $values, int $userId,
+                                bool $isRecap = false, bool $isNil = false): int
     {
         $this->beginTransaction();
         try {
-            $cols = array_merge(['report_type_id', 'satker_id', 'status', 'created_by', 'updated_by'], self::GENERAL_COLUMNS);
-            $params = array_merge([$typeId, $satkerId, 'DRAFT', $userId, $userId], $this->generalParams($general));
+            $cols = array_merge(['report_type_id', 'satker_id', 'status', 'is_recap', 'is_nil', 'created_by', 'updated_by'], self::GENERAL_COLUMNS);
+            $params = array_merge([$typeId, $satkerId, 'DRAFT', $isRecap ? 1 : 0, $isNil ? 1 : 0, $userId, $userId], $this->generalParams($general));
             $this->execute(
                 "INSERT INTO posko_reports (" . implode(', ', $cols) . ") VALUES (" . implode(', ', array_fill(0, count($cols), '?')) . ")",
                 $params
@@ -162,6 +182,30 @@ class PoskoReport extends Model
                 array_merge($this->generalParams($general), [$userId, $id])
             );
             $this->replaceValues($id, $values);
+            $this->commit();
+            return true;
+        } catch (\Throwable $e) {
+            $this->rollBack();
+            throw $e;
+        }
+    }
+
+    /**
+     * Perbarui narasi/analisis rekap; nilai agregat hanya diubah lewat penghitungan ulang
+     */
+    public function updateNarrative(int $id, array $narrative, int $userId): bool
+    {
+        $cols = ['region', 'situation_summary', 'description', 'obstacles', 'follow_up', 'assistance_needed', 'priority'];
+        $set = implode(', ', array_map(fn($c) => "{$c} = ?", $cols));
+        $params = array_map(fn($c) => ($narrative[$c] ?? null) === '' ? null : ($narrative[$c] ?? null), $cols);
+        $this->beginTransaction();
+        try {
+            $row = $this->lockRow($id);
+            if (!$row || !(int)$row['is_recap'] || !in_array($row['status'], self::EDITABLE_STATUSES, true)) {
+                $this->rollBack();
+                return false;
+            }
+            $this->execute("UPDATE posko_reports SET {$set}, updated_by = ?, updated_at = NOW() WHERE id = ?", array_merge($params, [$userId, $id]));
             $this->commit();
             return true;
         } catch (\Throwable $e) {
@@ -331,7 +375,7 @@ class PoskoReport extends Model
     {
         return $this->fetchAll(
             "SELECT r.id, r.report_number, r.status, r.priority, r.period_start, r.period_end, r.event_time, r.deadline_at,
-                    r.submitted_at, r.forwarded_at, r.version, r.situation_summary, r.satker_id,
+                    r.submitted_at, r.forwarded_at, r.version, r.situation_summary, r.satker_id, r.is_recap, r.is_nil, r.needs_review,
                     t.name AS type_name, t.period_unit, t.kind AS type_kind, s.name AS satker_name, s.parent_id AS satker_parent_id
              FROM posko_reports r
              JOIN posko_report_types t ON t.id = r.report_type_id

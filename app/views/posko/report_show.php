@@ -38,7 +38,10 @@ $late = $report['deadline_at'] && (($report['submitted_at'] ?: date('Y-m-d H:i:s
     <div class="flex flex-col md:flex-row md:items-start justify-between gap-4">
       <div>
         <p class="font-mono text-amber-300 font-bold text-sm"><?= htmlspecialchars($report['report_number'] ?: 'Belum bernomor (draft #' . $report['id'] . ')') ?></p>
-        <h2 class="text-lg font-black text-slate-100 font-heading"><?= htmlspecialchars($report['type_name']) ?></h2>
+        <h2 class="text-lg font-black text-slate-100 font-heading">
+          <?= (int)$report['is_recap'] ? 'Rekap ' : '' ?><?= htmlspecialchars($report['type_name']) ?>
+          <?php if ((int)$report['is_nil']): ?><span class="ml-1 align-middle text-[10px] px-2 py-0.5 rounded-full border border-teal-600/70 text-teal-200 bg-teal-950/50">NIHIL</span><?php endif; ?>
+        </h2>
         <p class="text-xs text-slate-400"><?= htmlspecialchars($report['satker_name']) ?> · dibuat oleh <?= htmlspecialchars(trim(($report['creator_rank'] ?? '') . ' ' . ($report['creator_name'] ?? '-'))) ?></p>
       </div>
       <div class="flex flex-wrap items-center gap-2"><?= $poskoStatusBadge($report['status']) ?> <?= $poskoPriorityBadge($report['priority']) ?></div>
@@ -66,6 +69,41 @@ $late = $report['deadline_at'] && (($report['submitted_at'] ?: date('Y-m-d H:i:s
     </dl>
   </section>
 
+  <?php if ((int)$report['is_recap'] && (int)$report['needs_review']): ?>
+    <div class="p-4 rounded-2xl border border-amber-600/70 bg-amber-950/40 text-xs text-amber-100" role="alert">
+      <i class="fas fa-triangle-exclamation mr-1"></i> <b>Rekap perlu ditinjau ulang:</b> satu atau lebih laporan sumbernya telah direvisi setelah rekap disusun.
+      <?= $canEdit ? 'Hitung ulang nilai agregat sebelum mengirim.' : 'Unit penyusun perlu mengajukan revisi & menghitung ulang rekap.' ?>
+    </div>
+  <?php endif; ?>
+
+  <?php if ((int)$report['is_recap']): ?>
+    <section class="polri-glass-card rounded-2xl border border-[#3B2F1C] overflow-hidden">
+      <header class="px-5 py-3 border-b border-[#3B2F1C] flex flex-wrap items-center justify-between gap-2">
+        <h3 class="text-[11px] font-bold uppercase tracking-wider text-amber-400">Laporan Sumber Rekap (<?= count($recapSources) ?>)</h3>
+        <span class="text-[10px] text-slate-500">Nilai agregat dihitung <?= $report['recap_computed_at'] ? date('d/m/Y H:i', strtotime($report['recap_computed_at'])) . ' WIB' : '-' ?></span>
+      </header>
+      <ul class="divide-y divide-slate-800/80 text-xs">
+        <?php foreach ($recapSources as $s): ?>
+          <li class="px-5 py-2.5 flex items-center gap-3">
+            <a href="<?= $baseUrl ?>/posko-laporan/show/<?= (int)$s['id'] ?>" class="font-mono text-amber-300 hover:underline"><?= htmlspecialchars((string)$s['report_number']) ?></a>
+            <span class="flex-1 text-slate-300"><?= htmlspecialchars($s['satker_name']) ?><?= (int)$s['is_recap'] ? ' · rekap' : '' ?><?= (int)$s['is_nil'] ? ' · nihil' : '' ?></span>
+            <?php if ((int)$s['source_version'] !== (int)$s['version']): ?>
+              <span class="text-[10px] text-amber-300">direvisi v<?= (int)$s['source_version'] ?>→v<?= (int)$s['version'] ?></span>
+            <?php endif; ?>
+            <?= $poskoStatusBadge($s['status']) ?>
+          </li>
+        <?php endforeach; ?>
+      </ul>
+      <?php if ($canEdit): ?>
+        <form method="POST" action="<?= $baseUrl ?>/posko-rekap/refresh" class="px-5 py-3 border-t border-[#3B2F1C]">
+          <input type="hidden" name="_csrf_token" value="<?= $csrfToken ?>">
+          <input type="hidden" name="id" value="<?= (int)$report['id'] ?>">
+          <button class="px-3 py-2 rounded-xl bg-[#241D14] border border-slate-700 text-slate-100 text-xs font-bold"><i class="fas fa-rotate mr-1"></i> Hitung Ulang Agregat</button>
+        </form>
+      <?php endif; ?>
+    </section>
+  <?php endif; ?>
+
   <?php require __DIR__ . '/_workflow.php'; ?>
 
   <section class="polri-glass-card rounded-2xl border border-[#3B2F1C] p-5 space-y-4 text-sm">
@@ -83,7 +121,7 @@ $late = $report['deadline_at'] && (($report['submitted_at'] ?: date('Y-m-d H:i:s
 
   <?php if ($fields): ?>
     <section class="polri-glass-card rounded-2xl border border-[#3B2F1C] overflow-hidden">
-      <h3 class="px-5 py-3 border-b border-[#3B2F1C] text-[11px] font-bold uppercase tracking-wider text-amber-400">Data Laporan</h3>
+      <h3 class="px-5 py-3 border-b border-[#3B2F1C] text-[11px] font-bold uppercase tracking-wider text-amber-400"><?= (int)$report['is_recap'] ? 'Nilai Agregat (otomatis dari laporan sumber)' : 'Data Laporan' ?></h3>
       <table class="w-full text-xs">
         <tbody class="divide-y divide-slate-800/80">
           <?php foreach ($fields as $f): ?>
