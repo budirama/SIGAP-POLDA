@@ -2,7 +2,7 @@
 # Hanya folder public/ yang boleh diakses dari web.
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteRule ^(\.env|\.git|app|database|docs)(/|$) - [F,L]
+    RewriteRule ^(\.env|\.git|app|database|docs|storage)(/|$) - [F,L]
 </IfModule>
 
 <FilesMatch "^\.(env|git)">

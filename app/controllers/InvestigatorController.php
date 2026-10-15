@@ -8,6 +8,7 @@ namespace App\Controllers;
 use App\Core\Controller;
 use App\Core\Auth;
 use App\Core\Session;
+use App\Core\Upload;
 use App\Config\Constants;
 use App\Models\Report;
 
@@ -144,15 +145,18 @@ class InvestigatorController extends Controller
         $senderName = (!empty($user['rank']) ? $user['rank'] . ' ' : '') . $user['name'];
 
         $attachmentPath = null;
-        if (!empty($_FILES['clarification_file']['name']) && $_FILES['clarification_file']['error'] === UPLOAD_ERR_OK) {
-            $uploadDir = \App\Config\Config::getUploadDir();
-            $ext = strtolower(pathinfo($_FILES['clarification_file']['name'], PATHINFO_EXTENSION));
-            if (in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'pdf'], true)) {
-                $newFileName = 'KLARIFIKASI_POLRI_' . time() . '_' . random_int(1000, 9999) . '.' . $ext;
-                if (move_uploaded_file($_FILES['clarification_file']['tmp_name'], $uploadDir . DIRECTORY_SEPARATOR . $newFileName)) {
-                    $attachmentPath = 'uploads/' . $newFileName;
-                }
+        if (!empty($_FILES['clarification_file']['name'])) {
+            $stored = Upload::store(
+                $_FILES['clarification_file']['tmp_name'],
+                $_FILES['clarification_file']['error'],
+                (int)$_FILES['clarification_file']['size'],
+                ['image/jpeg', 'image/png', 'image/webp', 'application/pdf']
+            );
+            if ($stored === null) {
+                Session::setFlash('error', 'Lampiran tidak dapat dikirim (format harus JPG/PNG/WEBP/PDF, maksimal 20 MB).');
+                $this->redirect("/investigator/detail/{$reportId}#ruang-klarifikasi");
             }
+            $attachmentPath = $stored['file_path'];
         }
 
         $this->reportModel->addCaseMessage(

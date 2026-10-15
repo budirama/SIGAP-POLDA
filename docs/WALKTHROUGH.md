@@ -135,7 +135,6 @@ SIGAP-Polda/
 └── public/
     ├── index.php                   # Single Entry Point (PSR-4 Autoloader)
     ├── .htaccess                   # Rewrite Engine Apache
-    ├── uploads/                    # Folder File Bukti Digital
     └── assets/
         ├── css/custom-polri.css    # Styling Token Resmi Polri, Palet Marun/Gold & Ribbon Merah Putih
         └── img/

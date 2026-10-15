@@ -73,9 +73,10 @@ SIGAP-POLDA/
 │   └── WALKTHROUGH.md      # Panduan Pengoperasian & Verifikasi Sistem
 ├── public/
 │   ├── assets/             # CSS Tema Resmi Polri, Logo Polisi Bersama Masyarakat, Icon
-│   ├── uploads/            # Direktori Unggahan Bukti Digital Pelapor
 │   ├── .htaccess           # Apache URL Rewriting
 │   └── index.php           # Front Controller / Single Entry Point
+├── storage/
+│   └── uploads/            # Unggahan Bukti Digital (privat, diunduh via /file/* dengan kontrol akses)
 ├── .gitignore
 └── README.md
 ```

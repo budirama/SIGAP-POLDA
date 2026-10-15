@@ -8,6 +8,8 @@ namespace App\Controllers;
 use App\Core\Controller;
 use App\Core\Session;
 use App\Core\Auth;
+use App\Core\ReportAccess;
+use App\Core\Upload;
 use App\Config\Config;
 use App\Config\Constants;
 use App\Models\Report;
@@ -93,40 +95,41 @@ class ReportController extends Controller
             $reporterId = $citizenUser['id'];
         }
 
-        // Handle File Upload Bukti
+        // Handle File Upload Bukti (disimpan privat, tipe divalidasi dari isi file)
         $attachments = [];
+        $rejectedFiles = 0;
         if (!empty($_FILES['proof_files']['name'][0])) {
-            $uploadDir = Config::getUploadDir();
-            if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0755, true);
-            }
-
             $totalFiles = count($_FILES['proof_files']['name']);
             for ($i = 0; $i < $totalFiles; $i++) {
-                if ($_FILES['proof_files']['error'][$i] === UPLOAD_ERR_OK) {
-                    $originalName = $_FILES['proof_files']['name'][$i];
-                    $ext = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
-                    $allowedExts = ['jpg', 'jpeg', 'png', 'webp', 'mp4', 'pdf'];
-
-                    if (in_array($ext, $allowedExts, true)) {
-                        $newFileName = 'BUKTI_' . time() . '_' . random_int(1000, 9999) . '.' . $ext;
-                        $destination = $uploadDir . DIRECTORY_SEPARATOR . $newFileName;
-
-                        if (move_uploaded_file($_FILES['proof_files']['tmp_name'][$i], $destination)) {
-                            $fileType = 'IMAGE';
-                            if (in_array($ext, ['mp4', 'mov'], true)) $fileType = 'VIDEO';
-                            if ($ext === 'pdf') $fileType = 'DOCUMENT_PDF';
-
-                            $attachments[] = [
-                                'file_type'          => $fileType,
-                                'file_path'          => 'uploads/' . $newFileName,
-                                'file_name_original' => $originalName,
-                                'file_size_kb'       => (int)round($_FILES['proof_files']['size'][$i] / 1024),
-                                'caption'            => 'Bukti lampiran pelapor'
-                            ];
-                        }
-                    }
+                if ($_FILES['proof_files']['error'][$i] === UPLOAD_ERR_NO_FILE) {
+                    continue;
                 }
+
+                $stored = Upload::store(
+                    $_FILES['proof_files']['tmp_name'][$i],
+                    $_FILES['proof_files']['error'][$i],
+                    (int)$_FILES['proof_files']['size'][$i],
+                    array_keys(Upload::MIME_EXTENSIONS)
+                );
+
+                if ($stored === null) {
+                    $rejectedFiles++;
+                    continue;
+                }
+
+                $fileType = match ($stored['mime']) {
+                    'video/mp4' => 'VIDEO',
+                    'application/pdf' => 'DOCUMENT_PDF',
+                    default => 'IMAGE',
+                };
+
+                $attachments[] = [
+                    'file_type'          => $fileType,
+                    'file_path'          => $stored['file_path'],
+                    'file_name_original' => mb_substr($_FILES['proof_files']['name'][$i], 0, 200),
+                    'file_size_kb'       => (int)round($stored['size'] / 1024),
+                    'caption'            => 'Bukti lampiran pelapor'
+                ];
             }
         }
 
@@ -151,9 +154,12 @@ class ReportController extends Controller
             ]);
 
             // Pelapor yang baru membuat laporan langsung mendapat akses ke tiketnya
-            $this->grantReportAccess($ticketNumber);
+            ReportAccess::grantReporter($ticketNumber);
 
             Session::setFlash('success', 'Laporan Anda berhasil dikirim ke Command Center SPKT Polda!');
+            if ($rejectedFiles > 0) {
+                Session::setFlash('error', "{$rejectedFiles} file bukti tidak dapat dilampirkan (format harus JPG/PNG/WEBP/PDF/MP4, maksimal 20 MB per file).");
+            }
             $this->redirect("/report/success?ticket={$ticketNumber}");
         } catch (\Throwable $e) {
             error_log('[SIGAP-POLDA] Gagal membuat laporan: ' . $e);
@@ -210,7 +216,7 @@ class ReportController extends Controller
                         $isLocked = true;
                     } elseif (hash_equals((string)$report['security_pin'], $pin)) {
                         $this->pinAttemptModel->clearFailures($ticket);
-                        $this->grantReportAccess($ticket);
+                        ReportAccess::grantReporter($ticket);
                     } else {
                         $this->pinAttemptModel->recordFailure($ticket, $ip);
                     }
@@ -285,17 +291,7 @@ class ReportController extends Controller
             $senderName = Auth::user()['name'];
         }
 
-        $attachmentPath = null;
-        if (!empty($_FILES['clarification_file']['name']) && $_FILES['clarification_file']['error'] === UPLOAD_ERR_OK) {
-            $uploadDir = Config::getUploadDir();
-            $ext = strtolower(pathinfo($_FILES['clarification_file']['name'], PATHINFO_EXTENSION));
-            if (in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'pdf'], true)) {
-                $newFileName = 'KLARIFIKASI_' . time() . '_' . random_int(1000, 9999) . '.' . $ext;
-                if (move_uploaded_file($_FILES['clarification_file']['tmp_name'], $uploadDir . DIRECTORY_SEPARATOR . $newFileName)) {
-                    $attachmentPath = 'uploads/' . $newFileName;
-                }
-            }
-        }
+        $attachmentPath = $this->storeClarificationFile();
 
         $this->reportModel->addCaseMessage(
             $report['id'],
@@ -376,28 +372,32 @@ class ReportController extends Controller
     }
 
     /**
-     * Cek hak akses ke laporan: personil dinas, akun pelapor pemilik laporan,
-     * atau sesi yang telah memverifikasi PIN tiket tersebut.
+     * Cek hak akses ke halaman publik laporan (catatan publik): personil dinas,
+     * akun pelapor pemilik laporan, atau sesi yang telah memverifikasi PIN tiket.
      */
     private function canAccessReport(array $report): bool
     {
-        if (Auth::check()) {
-            if (Auth::role() !== Constants::ROLE_CITIZEN) {
-                return true;
-            }
-            if (!empty($report['reporter_id']) && (int)$report['reporter_id'] === Auth::id()) {
-                return true;
-            }
-        }
-
-        $granted = Session::get('report_access', []);
-        return !empty($granted[$report['ticket_number']]);
+        return (Auth::check() && Auth::role() !== Constants::ROLE_CITIZEN)
+            || ReportAccess::reporterCanView($report);
     }
 
-    private function grantReportAccess(string $ticketNumber): void
+    private function storeClarificationFile(): ?string
     {
-        $granted = Session::get('report_access', []);
-        $granted[$ticketNumber] = true;
-        Session::set('report_access', $granted);
+        if (empty($_FILES['clarification_file']['name'])) {
+            return null;
+        }
+
+        $stored = Upload::store(
+            $_FILES['clarification_file']['tmp_name'],
+            $_FILES['clarification_file']['error'],
+            (int)$_FILES['clarification_file']['size'],
+            ['image/jpeg', 'image/png', 'image/webp', 'application/pdf']
+        );
+
+        if ($stored === null) {
+            Session::setFlash('error', 'Lampiran tidak dapat dikirim (format harus JPG/PNG/WEBP/PDF, maksimal 20 MB).');
+        }
+
+        return $stored['file_path'] ?? null;
     }
 }
