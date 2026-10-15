@@ -18,10 +18,6 @@ $field = 'bg-[#0C0A08] border border-slate-700 rounded-xl px-3 py-2 text-slate-1
          class="px-3.5 py-2 rounded-xl bg-[#241D14] border border-emerald-700/60 hover:border-emerald-500 text-emerald-300 font-bold text-xs inline-flex items-center gap-1.5 transition shadow-sm">
         <i class="fas fa-file-excel"></i> Ekspor Excel
       </a>
-      <a href="<?= $baseUrl ?>/posko-laporan/export-pdf?<?= http_build_query($filters) ?>"
-         class="px-3.5 py-2 rounded-xl bg-[#241D14] border border-red-700/60 hover:border-red-500 text-red-300 font-bold text-xs inline-flex items-center gap-1.5 transition shadow-sm">
-        <i class="fas fa-file-pdf"></i> Ekspor PDF
-      </a>
       <a href="<?= $baseUrl ?>/posko-laporan/print-list?<?= http_build_query($filters) ?>" target="_blank"
          class="px-3.5 py-2 rounded-xl bg-[#241D14] border border-amber-600/60 hover:border-amber-400 text-amber-300 font-bold text-xs inline-flex items-center gap-1.5 transition shadow-sm">
         <i class="fas fa-print"></i> Cetak Daftar

@@ -37,8 +37,8 @@ Rujukan: BRD Bab 4.1 (dashboard posko), 4.6 (notifikasi), 4.7 (laporan & ekspor)
 
 ### P5-04 — Ekspor PDF & Excel
 - [x] **Solusi:**
-  - Excel: format `.xlsx` via **PhpSpreadsheet** (Composer, asumsi A11) — `/posko-laporan/export-excel`, `App\Core\PoskoExport::sendXlsx()`; teks isian disimpan sebagai string (tidak dievaluasi sebagai rumus).
-  - PDF: **Dompdf** dari template `posko/pdf_list.php` (daftar, A4 lanskap, maks. 1.000 baris — selebihnya arahkan ke Excel) & `posko/pdf_report.php` (dokumen tunggal) — `/posko-laporan/export-pdf`, `/posko-laporan/pdf/{id}`; sumber remote dimatikan, gambar lokal dibatasi ke `public/`.
+  - Excel: format `.xlsx` (mis. PhpSpreadsheet via Composer, atau generator XML SpreadsheetML tanpa dependensi bila Composer belum dipakai — putuskan saat implementasi).
+  - PDF: dari template cetak (mis. Dompdf), atau "Simpan sebagai PDF" dari halaman cetak sebagai tahap awal.
   - Ekspor **selalu** menerapkan filter & `scopeSatkerIds()` yang sama dengan tampilan; ekspor dicatat di audit (`posko.export`) — termasuk ekspor data sensitif (BRD 4.8).
 - **Kriteria selesai:**
   - [x] Test: isi ekspor = isi tampilan untuk filter yang sama dan tidak memuat data di luar wilayah (kriteria BRD 12.10).

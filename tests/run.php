@@ -31,9 +31,6 @@ spl_autoload_register(function (string $class) use ($root) {
         }
     }
 });
-if (is_file($root . '/vendor/autoload.php')) {
-    require_once $root . '/vendor/autoload.php'; // PhpSpreadsheet untuk membaca hasil ekspor .xlsx
-}
 require_once __DIR__ . '/lib/TestKit.php';
 
 $baseDir = basename($root);

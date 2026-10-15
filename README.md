@@ -126,13 +126,6 @@ DB_PASS=
 
 Bila database sudah terpasang dari versi sebelumnya, jalankan migrasi di `database/migrations/` (file `.sql` via MySQL, file `.php` via `php <file>`).
 
-### 3b. Pustaka Ekspor (Composer)
-Ekspor laporan posko memakai **PhpSpreadsheet** (Excel `.xlsx`) dan **Dompdf** (PDF). Pasang sekali di root proyek ([Composer](https://getcomposer.org/download/), PHP ≥ 8.1 dengan ekstensi `zip`, `gd`, `mbstring`, `dom`):
-```bash
-composer install --no-dev
-```
-Folder `vendor/` tidak di-commit. Tanpa `vendor/`, aplikasi tetap berjalan dan tombol ekspor menampilkan petunjuk pemasangan.
-
 ### 4. Menjalankan Test Otomatis
 Test runner PHP CLI tanpa dependensi (unit test + integration test HTTP):
 ```bash

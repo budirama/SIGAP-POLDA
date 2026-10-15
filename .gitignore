@@ -20,6 +20,3 @@ desktop.ini
 
 # Temporary / Scratch scripts
 /scratch/
-
-# Dependensi Composer (pasang dengan: composer install)
-/vendor/

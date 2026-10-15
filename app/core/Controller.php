@@ -47,21 +47,6 @@ abstract class Controller
     }
 
     /**
-     * Render view tanpa layout menjadi string (mis. HTML sumber PDF)
-     */
-    protected function renderToString(string $view, array $data = []): string
-    {
-        ob_start();
-        try {
-            $this->render($view, $data, 'none');
-            return (string)ob_get_clean();
-        } catch (\Throwable $e) {
-            ob_end_clean();
-            throw $e;
-        }
-    }
-
-    /**
      * Return RESTful JSON Response
      */
     protected function json(mixed $data, int $statusCode = 200): void

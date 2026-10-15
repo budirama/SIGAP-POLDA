@@ -27,12 +27,6 @@ spl_autoload_register(function (string $class) {
     }
 });
 
-// Pustaka Composer (PhpSpreadsheet, Dompdf) — opsional; tanpa vendor/ fitur ekspor menampilkan petunjuk pemasangan
-$composerAutoload = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
-if (is_file($composerAutoload)) {
-    require_once $composerAutoload;
-}
-
 // Error Reporting: detail error hanya ditampilkan di lingkungan development
 $isDevelopment = \App\Config\Config::isDevelopment();
 error_reporting(E_ALL);
