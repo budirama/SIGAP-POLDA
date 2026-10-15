@@ -51,7 +51,7 @@ return [
         $submit = function (int $i) use ($client) {
             return $client->post('/report/store', [
                 '_csrf_token' => $client->get('/report/create')->csrf(),
-                'reporter_name' => 'Penguji', 'reporter_phone' => '080000000000', 'category_id' => '1',
+                'reporter_nik' => '3171000000000001', 'reporter_name' => 'Penguji','reporter_phone' => '080000000000', 'category_id' => '1',
                 'title' => Db::PREFIX . "spam {$i}", 'description' => 'uji', 'incident_location' => 'uji',
             ]);
         };
@@ -68,9 +68,9 @@ return [
         Db::exec("DELETE FROM throttle_events");
         $guest = new Http(TEST_BASE_URL);
         for ($i = 1; $i <= Throttle::LIMITS['pin_ip'][0]; $i++) {
-            $guest->get('/report/track?ticket=LP-POLDA-000000-' . str_pad((string)$i, 4, '0', STR_PAD_LEFT) . '&pin=123456');
+            $guest->trackWithPin('LP-POLDA-000000-' . str_pad((string)$i, 4, '0', STR_PAD_LEFT), '123456');
         }
-        T::contains('Terlalu banyak percobaan PIN', $guest->get("/report/track?ticket={$ticket1}&pin={$pin1}")->body);
+        T::contains('Terlalu banyak percobaan PIN', $guest->trackWithPin($ticket1, $pin1)->body);
         Db::exec("DELETE FROM throttle_events");
     },
 ];

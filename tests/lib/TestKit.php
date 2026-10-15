@@ -101,6 +101,20 @@ final class Http
         return $this->request('POST', $path, $fields);
     }
 
+    /** Verifikasi PIN tiket via formulir (POST); mengembalikan respons POST (redirect) */
+    public function unlock(string $ticket, string $pin): Response
+    {
+        $csrf = $this->get('/report/track')->csrf();
+        return $this->post('/report/track', ['_csrf_token' => $csrf, 'ticket' => $ticket, 'pin' => $pin]);
+    }
+
+    /** Verifikasi PIN lalu buka halaman tiket (mengikuti redirect) */
+    public function trackWithPin(string $ticket, string $pin): Response
+    {
+        $this->unlock($ticket, $pin);
+        return $this->get('/report/track?ticket=' . urlencode($ticket));
+    }
+
     /** Ambil pesan flash pertama (error lalu success) dari halaman ber-layout publik */
     public function flash(): string
     {
@@ -183,6 +197,7 @@ final class Db
         $client = new Http(TEST_BASE_URL);
         $fields = array_merge([
             '_csrf_token'       => $client->get('/report/create')->csrf(),
+            'reporter_nik'      => '3171000000000001',
             'reporter_name'     => 'Penguji Otomatis',
             'reporter_phone'    => '080000000000',
             'category_id'       => '1',

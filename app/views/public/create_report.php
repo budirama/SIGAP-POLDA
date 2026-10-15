@@ -47,7 +47,7 @@
             NIK KTP (16 Digit) <span class="text-rose-400">*</span>
           </label>
           <input type="text" id="reporter_nik" name="reporter_nik" maxlength="16" required
-                 value="<?= htmlspecialchars($authUser['nik'] ?? '') ?>"
+                 value="<?= htmlspecialchars($old['reporter_nik'] ?? $authUser['nik'] ?? '') ?>" inputmode="numeric" pattern="\d{16}"
                  placeholder="3171012304950001"
                  class="w-full bg-[#070F1E] border border-[#1E355B] focus:border-amber-500 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-600 outline-none">
         </div>
@@ -58,7 +58,7 @@
             Nama Lengkap Sesuai KTP <span class="text-rose-400">*</span>
           </label>
           <input type="text" id="reporter_name" name="reporter_name" required
-                 value="<?= htmlspecialchars($authUser['name'] ?? '') ?>"
+                 value="<?= htmlspecialchars($old['reporter_name'] ?? $authUser['name'] ?? '') ?>" maxlength="150"
                  placeholder="Contoh: Budi Santoso"
                  class="w-full bg-[#070F1E] border border-[#1E355B] focus:border-amber-500 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-600 outline-none">
         </div>
@@ -71,7 +71,7 @@
           <div class="relative">
             <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-emerald-400 text-sm"><i class="fab fa-whatsapp"></i></span>
             <input type="tel" id="reporter_phone" name="reporter_phone" required
-                   value="<?= htmlspecialchars($authUser['phone'] ?? '') ?>"
+                   value="<?= htmlspecialchars($old['reporter_phone'] ?? $authUser['phone'] ?? '') ?>"
                    placeholder="081298765432"
                    class="w-full bg-[#070F1E] border border-[#1E355B] focus:border-amber-500 rounded-xl pl-9 pr-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-600 outline-none">
           </div>
@@ -85,16 +85,16 @@
           </label>
           <select id="urgency_level" name="urgency_level"
                   class="w-full bg-[#070F1E] border border-[#1E355B] focus:border-amber-500 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 outline-none">
-            <option value="NORMAL">Normal (Pelaporan Standar)</option>
-            <option value="HIGH">Tinggi (Pelaku Masih di Lokasi / Ancaman Jiwa)</option>
-            <option value="EMERGENCY">Darurat (Butuh Tindakan Cepat 1x24 Jam)</option>
+            <?php foreach (['NORMAL' => 'Normal (Pelaporan Standar)', 'HIGH' => 'Tinggi (Pelaku Masih di Lokasi / Ancaman Jiwa)', 'EMERGENCY' => 'Darurat (Butuh Tindakan Cepat 1x24 Jam)'] as $val => $label): ?>
+              <option value="<?= $val ?>" <?= ($old['urgency_level'] ?? 'NORMAL') === $val ? 'selected' : '' ?>><?= $label ?></option>
+            <?php endforeach; ?>
           </select>
         </div>
       </div>
 
       <!-- Whistleblower Protection Box -->
       <div class="mt-4 p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-3">
-        <input type="checkbox" id="is_anonymous" name="is_anonymous" value="1"
+        <input type="checkbox" id="is_anonymous" name="is_anonymous" value="1" <?= !empty($old['is_anonymous']) ? 'checked' : '' ?>
                class="mt-1 w-4 h-4 rounded text-amber-500 focus:ring-amber-400 bg-slate-900 border-slate-700">
         <div>
           <label for="is_anonymous" class="text-xs font-bold text-amber-300 cursor-pointer">
@@ -127,7 +127,7 @@
                   class="w-full bg-[#070F1E] border border-[#1E355B] focus:border-amber-500 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 outline-none">
             <option value="">-- Pilih Jenis Pengaduan / Perkara --</option>
             <?php foreach ($categories as $cat): ?>
-              <option value="<?= $cat['id'] ?>">
+              <option value="<?= (int)$cat['id'] ?>" <?= (string)($old['category_id'] ?? '') === (string)$cat['id'] ? 'selected' : '' ?>>
                 <?= htmlspecialchars($cat['name']) ?> (SLA Respon: <?= $cat['sla_hours'] ?> Jam)
               </option>
             <?php endforeach; ?>
@@ -139,7 +139,8 @@
           <label class="block text-xs font-semibold text-slate-300 mb-1" for="title">
             Judul Ringkas Peristiwa <span class="text-rose-400">*</span>
           </label>
-          <input type="text" id="title" name="title" required
+          <input type="text" id="title" name="title" required maxlength="200"
+                 value="<?= htmlspecialchars($old['title'] ?? '') ?>"
                  placeholder="Contoh: Pencurian Sepeda Motor Honda Beat di Parkiran Ruko Cengkareng"
                  class="w-full bg-[#070F1E] border border-[#1E355B] focus:border-amber-500 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-600 outline-none">
         </div>
@@ -151,14 +152,14 @@
               Tanggal Kejadian <span class="text-rose-400">*</span>
             </label>
             <input type="date" id="incident_date" name="incident_date" required max="<?= date('Y-m-d') ?>"
-                   value="<?= date('Y-m-d') ?>"
+                   value="<?= htmlspecialchars($old['incident_date'] ?? date('Y-m-d')) ?>"
                    class="w-full bg-[#070F1E] border border-[#1E355B] focus:border-amber-500 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 outline-none">
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-300 mb-1" for="incident_time">
               Perkiraan Waktu (WIB)
             </label>
-            <input type="time" id="incident_time" name="incident_time" value="<?= date('H:i') ?>"
+            <input type="time" id="incident_time" name="incident_time" value="<?= htmlspecialchars($old['incident_time'] ?? date('H:i')) ?>"
                    class="w-full bg-[#070F1E] border border-[#1E355B] focus:border-amber-500 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 outline-none">
           </div>
         </div>
@@ -170,7 +171,7 @@
           </label>
           <textarea id="description" name="description" rows="5" required
                     placeholder="Uraikan apa yang terjadi, siapa pelakunya (jika mengenali/melihat ciri fisik), barang apa saja yang hilang/dirusak, serta saksi-saksi yang berada di lokasi kejadian..."
-                    class="w-full bg-[#070F1E] border border-[#1E355B] focus:border-amber-500 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-600 outline-none leading-relaxed"></textarea>
+                    class="w-full bg-[#070F1E] border border-[#1E355B] focus:border-amber-500 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-600 outline-none leading-relaxed"><?= htmlspecialchars($old['description'] ?? '') ?></textarea>
         </div>
       </div>
     </div>
@@ -189,7 +190,8 @@
           <label class="block text-xs font-semibold text-slate-300 mb-1" for="incident_location">
             Alamat / Patokan Lokasi TKP <span class="text-rose-400">*</span>
           </label>
-          <input type="text" id="incident_location" name="incident_location" required
+          <input type="text" id="incident_location" name="incident_location" required maxlength="1000"
+                 value="<?= htmlspecialchars($old['incident_location'] ?? '') ?>"
                  placeholder="Contoh: Jl. Daan Mogot KM 12 depan Halte TransJakarta Pesing, Cengkareng"
                  class="w-full bg-[#070F1E] border border-[#1E355B] focus:border-amber-500 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-600 outline-none">
         </div>

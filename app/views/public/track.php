@@ -23,7 +23,8 @@
       </div>
     <?php endif; ?>
 
-    <form action="<?= $baseUrl ?>/report/track" method="GET" class="grid sm:grid-cols-12 gap-3 items-end">
+    <form action="<?= $baseUrl ?>/report/track" method="POST" autocomplete="off" class="grid sm:grid-cols-12 gap-3 items-end">
+      <input type="hidden" name="_csrf_token" value="<?= $csrfToken ?>">
       <div class="sm:col-span-6">
         <label class="block text-xs font-semibold text-slate-300 mb-1" for="ticketInput">
           Nomor Registrasi Tiket:
@@ -43,8 +44,7 @@
         </label>
         <div class="relative">
           <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-500"><i class="fas fa-lock text-sm"></i></span>
-          <input type="password" id="pinInput" name="pin"
-                 value="<?= htmlspecialchars($pin) ?>"
+          <input type="password" id="pinInput" name="pin" required inputmode="numeric" maxlength="6"
                  placeholder="6-Digit PIN"
                  class="w-full bg-[#070F1E] border border-[#1E355B] focus:border-amber-500 rounded-xl pl-9 pr-3 py-2.5 text-xs sm:text-sm text-slate-100 placeholder-slate-600 outline-none font-mono">
         </div>

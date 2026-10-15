@@ -54,13 +54,13 @@
 
     <!-- Actions -->
     <div class="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-      <a href="<?= $baseUrl ?>/report/track?ticket=<?= urlencode($report['ticket_number']) ?>&pin=<?= urlencode($report['security_pin']) ?>"
+      <a href="<?= $baseUrl ?>/report/track?ticket=<?= urlencode($report['ticket_number']) ?>"
          class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-black rounded-xl text-xs transition-all shadow-lg flex items-center justify-center gap-2">
         <i class="fas fa-magnifying-glass"></i>
         <span>Lacak Progres Laporan Sekarang</span>
       </a>
 
-      <a href="https://api.whatsapp.com/send?text=Laporan+Kepolisian+Saya%3A+<?= urlencode($report['ticket_number']) ?>+PIN%3A+<?= urlencode($report['security_pin']) ?>" target="_blank"
+      <a href="https://api.whatsapp.com/send?text=Nomor+Tiket+Laporan+Kepolisian+Saya%3A+<?= urlencode($report['ticket_number']) ?>" target="_blank" rel="noopener noreferrer"
          class="w-full sm:w-auto px-5 py-3 bg-emerald-950 hover:bg-emerald-900 border border-emerald-700 text-emerald-300 font-bold rounded-xl text-xs transition-all flex items-center justify-center gap-2">
         <i class="fab fa-whatsapp text-sm"></i>
         <span>Simpan Catatan ke WhatsApp</span>
