@@ -362,6 +362,9 @@ CREATE TABLE IF NOT EXISTS `posko_reports` (
     `reference_ticket` VARCHAR(50) NULL COMMENT 'Opsional: nomor tiket aduan SIGAP terkait',
     `status` ENUM('DRAFT', 'SUBMITTED', 'IN_REVIEW', 'NEEDS_REVISION', 'APPROVED', 'FORWARDED', 'CANCELLED') NOT NULL DEFAULT 'DRAFT',
     `is_nil` TINYINT(1) NOT NULL DEFAULT 0,
+    `is_recap` TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'Laporan rekapitulasi wilayah (nilai agregat otomatis)',
+    `needs_review` TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'Rekap perlu ditinjau ulang karena laporan sumbernya direvisi',
+    `recap_computed_at` DATETIME NULL COMMENT 'Waktu nilai agregat terakhir dihitung',
     `version` INT NOT NULL DEFAULT 1,
     `deadline_at` DATETIME NULL,
     `submitted_at` DATETIME NULL,
@@ -374,8 +377,8 @@ CREATE TABLE IF NOT EXISTS `posko_reports` (
     `updated_by` INT NULL,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    -- Satu laporan aktif per unit, jenis & periode (dibatalkan/tanpa periode: period_key NULL, tidak dibatasi)
-    UNIQUE KEY `uq_posko_report_period_key` (`satker_id`, `report_type_id`, `period_key`),
+    -- Satu laporan sumber & satu rekap aktif per unit, jenis & periode (dibatalkan/tanpa periode: period_key NULL)
+    UNIQUE KEY `uq_posko_report_period_recap` (`satker_id`, `report_type_id`, `period_key`, `is_recap`),
     INDEX `idx_posko_reports_holder` (`holder_satker_id`, `status`),
     INDEX `idx_posko_reports_status` (`status`, `deadline_at`),
     INDEX `idx_posko_reports_type_period` (`report_type_id`, `period_start`),
@@ -446,3 +449,52 @@ CREATE TABLE IF NOT EXISTS `posko_report_versions` (
     UNIQUE KEY `uq_posko_version` (`report_id`, `version`),
     CONSTRAINT `fk_posko_version_report` FOREIGN KEY (`report_id`) REFERENCES `posko_reports`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 24. SUMBER REKAPITULASI (jejak dari setiap angka rekap ke laporan sumber & versinya; BRD 4.4, 12.8)
+CREATE TABLE IF NOT EXISTS `posko_recap_sources` (
+    `recap_report_id` INT NOT NULL,
+    `source_report_id` INT NOT NULL,
+    `source_version` INT NOT NULL,
+    PRIMARY KEY (`recap_report_id`, `source_report_id`),
+    INDEX `idx_posko_recap_source` (`source_report_id`),
+    CONSTRAINT `fk_posko_recap_report` FOREIGN KEY (`recap_report_id`) REFERENCES `posko_reports`(`id`) ON DELETE CASCADE,
+    CONSTRAINT `fk_posko_recap_source` FOREIGN KEY (`source_report_id`) REFERENCES `posko_reports`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 25. NOTIFIKASI DALAM APLIKASI (satu baris per penerima; dedupe_key mencegah pengingat ganda)
+CREATE TABLE IF NOT EXISTS `posko_notifications` (
+    `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `user_id` INT NOT NULL,
+    `type` VARCHAR(40) NOT NULL COMMENT 'report_submitted, report_returned, report_approved, report_forwarded, high_priority, deadline_soon, deadline_late',
+    `title` VARCHAR(150) NOT NULL,
+    `body` VARCHAR(500) NULL,
+    `link` VARCHAR(255) NULL COMMENT 'Path relatif aplikasi, mis. /posko-laporan/show/12',
+    `dedupe_key` VARCHAR(120) NULL,
+    `read_at` DATETIME NULL,
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY `uq_posko_notif_dedupe` (`user_id`, `dedupe_key`),
+    INDEX `idx_posko_notif_user` (`user_id`, `read_at`, `id`),
+    CONSTRAINT `fk_posko_notif_user` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 26. ANTREAN EMAIL (dikirim oleh scripts/posko_mailer.php agar request pengguna tidak menunggu SMTP)
+CREATE TABLE IF NOT EXISTS `posko_notification_outbox` (
+    `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `user_id` INT NULL,
+    `to_email` VARCHAR(150) NOT NULL,
+    `subject` VARCHAR(200) NOT NULL,
+    `body` TEXT NOT NULL,
+    `dedupe_key` VARCHAR(120) NULL,
+    `status` ENUM('PENDING', 'SENT', 'FAILED') NOT NULL DEFAULT 'PENDING',
+    `attempts` TINYINT NOT NULL DEFAULT 0,
+    `last_error` VARCHAR(255) NULL,
+    `next_attempt_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `sent_at` DATETIME NULL,
+    UNIQUE KEY `uq_posko_outbox_dedupe` (`to_email`, `dedupe_key`),
+    INDEX `idx_posko_outbox_due` (`status`, `next_attempt_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Indeks tambahan untuk kueri dashboard (status & waktu kirim per unit)
+ALTER TABLE `posko_reports` ADD INDEX IF NOT EXISTS `idx_posko_report_submitted` (`satker_id`, `submitted_at`);
+ALTER TABLE `posko_reports` ADD INDEX IF NOT EXISTS `idx_posko_report_status` (`status`, `priority`);

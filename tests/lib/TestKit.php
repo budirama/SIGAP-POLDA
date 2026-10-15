@@ -238,14 +238,20 @@ final class Db
     }
 
     private static ?int $auditMark = null;
+    private static int $notifMark = 0;
+    private static int $outboxMark = 0;
 
     public static function cleanup(): void
     {
         // Jejak audit: tandai posisi di awal suite, hapus entri yang dibuat test di akhir suite
         if (self::$auditMark === null) {
             self::$auditMark = (int)self::value("SELECT COALESCE(MAX(id), 0) FROM audit_logs");
+            self::$notifMark = (int)self::value("SELECT COALESCE(MAX(id), 0) FROM posko_notifications");
+            self::$outboxMark = (int)self::value("SELECT COALESCE(MAX(id), 0) FROM posko_notification_outbox");
         } else {
             self::exec("DELETE FROM audit_logs WHERE id > ?", [self::$auditMark]);
+            self::exec("DELETE FROM posko_notifications WHERE id > ?", [self::$notifMark]);
+            self::exec("DELETE FROM posko_notification_outbox WHERE id > ?", [self::$outboxMark]);
             self::$auditMark = null;
         }
 
@@ -264,13 +270,17 @@ final class Db
             self::exec("DELETE FROM reports WHERE id = ?", [$id]);
         }
         self::exec("DELETE FROM social_feeds WHERE post_id_str LIKE 'zztest_%'");
-        // Laporan posko uji (wilayah berawalan ZZTEST_) beserta berkas lampirannya; nilai & lampiran ikut via CASCADE
-        $poskoIds = self::pdo()->query("SELECT id FROM posko_reports WHERE region LIKE '" . self::PREFIX . "%'")->fetchAll(PDO::FETCH_COLUMN);
+        // Laporan posko uji (wilayah berawalan ZZTEST_ atau jenis berawalan ZZTEST) beserta berkas lampirannya
+        $poskoIds = self::pdo()->query("SELECT id FROM posko_reports WHERE region LIKE '" . self::PREFIX . "%' OR report_type_id IN (SELECT id FROM posko_report_types WHERE code LIKE 'ZZTEST%')")->fetchAll(PDO::FETCH_COLUMN);
         foreach ($poskoIds as $pid) {
             $paths = self::pdo()->query("SELECT file_path FROM posko_report_attachments WHERE report_id = " . (int)$pid)->fetchAll(PDO::FETCH_COLUMN);
             foreach ($paths as $path) {
                 @unlink(\App\Core\Upload::absolutePath($path));
             }
+            self::exec("DELETE FROM posko_report_history WHERE report_id = ?", [$pid]);
+            self::exec("DELETE FROM posko_report_values WHERE report_id = ?", [$pid]);
+            self::exec("DELETE FROM posko_report_attachments WHERE report_id = ?", [$pid]);
+            self::exec("DELETE FROM posko_recap_sources WHERE recap_report_id = ? OR source_report_id = ?", [$pid, $pid]);
             self::exec("DELETE FROM posko_reports WHERE id = ?", [$pid]);
         }
         self::exec("DELETE FROM posko_report_types WHERE code LIKE 'ZZTEST%'");

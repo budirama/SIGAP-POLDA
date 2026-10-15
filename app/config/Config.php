@@ -13,7 +13,7 @@ class Config
     public const APP_NAME = 'SIGAP-POLRI';
     public const APP_FULL_NAME = 'Sistem Informasi & Pengaduan Terpadu Polri';
     public const APP_MOTTO = 'Rastra Sewakotama - Polri Presisi';
-    public const APP_VERSION = '1.1.0';
+    public const APP_VERSION = '1.2.0';
 
     /**
      * Baca nilai konfigurasi dari file .env di root proyek (fallback ke environment server)

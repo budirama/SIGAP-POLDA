@@ -28,6 +28,7 @@ BRD menggambarkan **pelaporan operasional internal posko** yang mengalir **dari 
 | A2 | Daftar jenis laporan & isiannya | Mulai dengan 4 jenis contoh: Laporan Harian, Laporan Periodik (Mingguan), Laporan Kejadian Khusus, Laporan Insidentil | ✅ Pakai contoh dulu (15 Okt 2026) |
 | A9 | Akun posko vs akun SIGAP | **Akun posko terpisah**, satu akun satu role | ✅ Dikonfirmasi 15 Okt 2026 |
 | A10 | Jalur eskalasi laporan mendesak | **Tetap berjenjang** (tidak melompati tingkat); diprioritaskan & penerimaan tiap tingkat tercatat | ✅ Dikonfirmasi 15 Okt 2026 |
+| A11 | Ekspor PDF/Excel | **Dengan library** Composer: PhpSpreadsheet (.xlsx) & Dompdf (PDF) | ✅ Dikonfirmasi 15 Okt 2026 |
 | A3 | Tenggat pelaporan | Harian: pukul 23.59 hari yang sama; Mingguan: Senin 12.00 minggu berikutnya | Menunggu ketentuan resmi |
 | A4 | Persetujuan sebelum diteruskan | **Dapat dikonfigurasi per jenis laporan** (BRD 2.2); default: wajib disetujui | Sesuai BRD |
 | A5 | Data organisasi | Nama satuan dari Wikipedia bahasa Indonesia: 36 Polda, Polres lengkap 5 Polda, Polsek contoh Polrestabes Surabaya | ✅ Diputuskan 15 Okt 2026 (ganti data resmi sebelum produksi) |
@@ -46,8 +47,8 @@ BRD menggambarkan **pelaporan operasional internal posko** yang mengalir **dari 
 | 1 ✅ | [POSKO_01_ORGANISASI_ROLE.md](POSKO_01_ORGANISASI_ROLE.md) | Hierarki 4 tingkat, role per tingkat, pembatasan wilayah, manajemen pengguna & organisasi | — | Bab 2.1, 3, 9.1 |
 | 2 ✅ | [POSKO_02_INPUT_LAPORAN.md](POSKO_02_INPUT_LAPORAN.md) | Jenis laporan terkonfigurasi, formulir dinamis, draft, lampiran, nomor laporan, periode & tenggat | Tahap 1 | Bab 4.2, 7.3, 9.3 |
 | 3 ✅ | [POSKO_03_WORKFLOW_BERJENJANG.md](POSKO_03_WORKFLOW_BERJENJANG.md) | Kirim, verifikasi, kembalikan, setujui, teruskan, revisi & versi, eskalasi mendesak | Tahap 2 | Bab 4.3, 5, 9.3 |
-| 4 | [POSKO_04_REKAP_NIHIL_KEPATUHAN.md](POSKO_04_REKAP_NIHIL_KEPATUHAN.md) | Rekapitulasi berjenjang, laporan nihil, monitoring kepatuhan | Tahap 3 | Bab 2.2–2.3, 4.4–4.5 |
-| 5 | [POSKO_05_DASHBOARD_EKSPOR_NOTIFIKASI.md](POSKO_05_DASHBOARD_EKSPOR_NOTIFIKASI.md) | Dashboard per tingkat + drill-down, ekspor PDF/Excel, notifikasi | Tahap 4 | Bab 4.1, 4.6–4.7, 7.2, 7.5 |
+| 4 ✅ | [POSKO_04_REKAP_NIHIL_KEPATUHAN.md](POSKO_04_REKAP_NIHIL_KEPATUHAN.md) | Rekapitulasi berjenjang, laporan nihil, monitoring kepatuhan | Tahap 3 | Bab 2.2–2.3, 4.4–4.5 |
+| 5 ✅ | [POSKO_05_DASHBOARD_EKSPOR_NOTIFIKASI.md](POSKO_05_DASHBOARD_EKSPOR_NOTIFIKASI.md) | Dashboard per tingkat + drill-down, ekspor PDF/Excel, notifikasi | Tahap 4 | Bab 4.1, 4.6–4.7, 7.2, 7.5 |
 | 6 | [POSKO_06_API_KEAMANAN_UAT.md](POSKO_06_API_KEAMANAN_UAT.md) | REST API v1, pemulihan akses, audit lanjutan, backup, kinerja, kriteria penerimaan | Tahap 1–5 | Bab 6, 8, 9, 10, 12 |
 
 ## 📐 Konvensi Teknis Modul

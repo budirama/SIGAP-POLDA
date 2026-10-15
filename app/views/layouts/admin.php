@@ -124,6 +124,18 @@
             <i class="fas fa-file-lines text-amber-400 w-4"></i>
             <span>Laporan Posko</span>
           </a>
+          <a href="<?= $baseUrl ?>/posko-kepatuhan"
+             class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-300 hover:text-slate-100 hover:bg-[#1B1610] transition-colors">
+            <i class="fas fa-table-cells text-amber-400 w-4"></i>
+            <span>Kepatuhan Pelaporan</span>
+          </a>
+          <?php if (\App\Core\PoskoAccess::isOperational() && (int)\App\Core\PoskoAccess::level() >= \App\Config\Constants::LEVEL_POLRES): ?>
+            <a href="<?= $baseUrl ?>/posko-rekap/create"
+               class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-300 hover:text-slate-100 hover:bg-[#1B1610] transition-colors">
+              <i class="fas fa-layer-group text-amber-400 w-4"></i>
+              <span>Susun Rekap</span>
+            </a>
+          <?php endif; ?>
           <?php if (\App\Core\PoskoAccess::isOperational()): ?>
             <?php $poskoQueue = count((new \App\Models\PoskoReport())->inbox((int)\App\Core\Auth::satkerId())); ?>
             <a href="<?= $baseUrl ?>/posko-laporan/inbox"
@@ -228,6 +240,15 @@
           <i class="fas fa-circle text-[8px] animate-pulse"></i> LIVE SERVER
         </span>
 
+        <?php if (\App\Core\PoskoAccess::isPoskoUser()): ?>
+          <?php $poskoUnread = (new \App\Models\PoskoNotification())->unreadCount((int)\App\Core\Auth::id()); ?>
+          <a href="<?= $baseUrl ?>/posko-notifikasi" id="poskoBell" class="relative text-slate-300 hover:text-amber-300 p-2 rounded-lg border border-[#3B2F1C] bg-[#1B1610]"
+             aria-label="Notifikasi posko" data-summary="<?= $baseUrl ?>/posko-notifikasi/summary">
+            <i class="fas fa-bell"></i>
+            <span id="poskoBellCount" class="absolute -top-1.5 -right-1.5 px-1.5 min-w-[1.1rem] text-center rounded-full bg-red-600 text-white text-[10px] leading-4 <?= $poskoUnread > 0 ? '' : 'hidden' ?>"><?= $poskoUnread > 99 ? '99+' : $poskoUnread ?></span>
+          </a>
+        <?php endif; ?>
+
         <a href="<?= $baseUrl ?>/auth/logout" class="text-xs text-rose-400 hover:text-rose-300 font-bold px-3 py-1.5 rounded-lg bg-rose-950/40 border border-rose-800/40 flex items-center gap-1.5 transition-colors">
           <i class="fas fa-power-off"></i> <span class="hidden sm:inline">Logout</span>
         </a>
@@ -266,6 +287,21 @@
       document.getElementById('sidebarToggle').setAttribute('aria-expanded', String(show));
     }
     document.addEventListener('keydown', e => { if (e.key === 'Escape') toggleSidebar(false); });
+
+    // Lonceng notifikasi posko: polling ringan; header X-SIGAP-Poll agar tidak dihitung sebagai aktivitas (batas idle tetap berlaku)
+    (function () {
+      const bell = document.getElementById('poskoBell');
+      if (!bell) return;
+      const badge = document.getElementById('poskoBellCount');
+      const refresh = () => fetch(bell.dataset.summary, { headers: { 'X-SIGAP-Poll': '1', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
+        .then(r => r.ok ? r.json() : null)
+        .then(d => {
+          if (!d) return;
+          badge.textContent = d.unread > 99 ? '99+' : d.unread;
+          badge.classList.toggle('hidden', d.unread < 1);
+        }).catch(() => {});
+      setInterval(() => { if (!document.hidden) refresh(); }, 60000);
+    })();
   </script>
 
 </body>

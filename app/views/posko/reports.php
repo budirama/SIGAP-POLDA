@@ -13,11 +13,21 @@ $field = 'bg-[#0C0A08] border border-slate-700 rounded-xl px-3 py-2 text-slate-1
       <h2 class="mt-1 text-lg font-black text-slate-100 font-heading">Laporan Posko</h2>
       <p class="text-xs text-slate-400">Laporan unit Anda dan unit di bawahnya. Draft hanya terlihat oleh unit pembuatnya.</p>
     </div>
-    <?php if ($canCreate): ?>
-      <a href="<?= $baseUrl ?>/posko-laporan/create" class="btn-gold px-4 py-2.5 rounded-xl font-extrabold text-sm inline-flex items-center gap-2">
-        <i class="fas fa-file-circle-plus"></i> Buat Laporan
+    <div class="flex flex-wrap items-center gap-2">
+      <a href="<?= $baseUrl ?>/posko-laporan/export-excel?<?= http_build_query($filters) ?>"
+         class="px-3.5 py-2 rounded-xl bg-[#241D14] border border-emerald-700/60 hover:border-emerald-500 text-emerald-300 font-bold text-xs inline-flex items-center gap-1.5 transition shadow-sm">
+        <i class="fas fa-file-excel"></i> Ekspor Excel
       </a>
-    <?php endif; ?>
+      <a href="<?= $baseUrl ?>/posko-laporan/print-list?<?= http_build_query($filters) ?>" target="_blank"
+         class="px-3.5 py-2 rounded-xl bg-[#241D14] border border-amber-600/60 hover:border-amber-400 text-amber-300 font-bold text-xs inline-flex items-center gap-1.5 transition shadow-sm">
+        <i class="fas fa-print"></i> Cetak Daftar
+      </a>
+      <?php if ($canCreate): ?>
+        <a href="<?= $baseUrl ?>/posko-laporan/create" class="btn-gold px-4 py-2 rounded-xl font-extrabold text-xs inline-flex items-center gap-1.5">
+          <i class="fas fa-file-circle-plus"></i> Buat Laporan
+        </a>
+      <?php endif; ?>
+    </div>
   </div>
 
   <form method="GET" action="<?= $baseUrl ?>/posko-laporan" class="polri-glass-card p-4 rounded-2xl border border-[#3B2F1C] flex flex-wrap gap-2 text-xs">
@@ -33,6 +43,13 @@ $field = 'bg-[#0C0A08] border border-slate-700 rounded-xl px-3 py-2 text-slate-1
       <option value="">Semua status</option>
       <?php foreach (PoskoReport::STATUS_LABELS as $k => $label): ?>
         <option value="<?= $k ?>" <?= $filters['status'] === $k ? 'selected' : '' ?>><?= $label ?></option>
+      <?php endforeach; ?>
+    </select>
+    <label class="sr-only" for="fKind">Bentuk</label>
+    <select id="fKind" name="kind" class="<?= $field ?>">
+      <option value="">Sumber & rekap</option>
+      <?php foreach (['source' => 'Laporan sumber', 'recap' => 'Rekap', 'nil' => 'Nihil'] as $k => $l): ?>
+        <option value="<?= $k ?>" <?= ($filters['kind'] ?? '') === $k ? 'selected' : '' ?>><?= $l ?></option>
       <?php endforeach; ?>
     </select>
     <?php if ($units): ?>
@@ -75,7 +92,11 @@ $field = 'bg-[#0C0A08] border border-slate-700 rounded-xl px-3 py-2 text-slate-1
                 <a href="<?= $baseUrl ?>/posko-laporan/show/<?= (int)$r['id'] ?>" class="font-mono font-bold text-amber-300 hover:underline">
                   <?= htmlspecialchars($r['report_number'] ?: 'DRAFT #' . $r['id']) ?>
                 </a>
-                <p class="text-slate-300"><?= htmlspecialchars($r['type_name']) ?> <?= $poskoPriorityBadge($r['priority']) ?></p>
+                <p class="text-slate-300">
+                  <?= (int)$r['is_recap'] ? '<span class="text-teal-300 font-bold">Rekap</span> ' : '' ?><?= htmlspecialchars($r['type_name']) ?> <?= $poskoPriorityBadge($r['priority']) ?>
+                  <?php if ((int)$r['is_nil']): ?><span class="text-[10px] px-1.5 rounded-full border border-teal-600/70 text-teal-200">NIHIL</span><?php endif; ?>
+                  <?php if ((int)$r['needs_review']): ?><span class="text-[10px] px-1.5 rounded-full border border-amber-600/70 text-amber-200">Tinjau ulang</span><?php endif; ?>
+                </p>
               </td>
               <td class="p-3 text-slate-300"><?= htmlspecialchars($r['satker_name']) ?></td>
               <td class="p-3 text-slate-300">
