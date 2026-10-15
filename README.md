@@ -65,7 +65,7 @@ SIGAP-POLDA/
 │   └── views/              # Views (auth, backoffice, executive, public, layouts)
 ├── database/
 │   ├── migrations/         # Migrasi SQL untuk database yang sudah terpasang
-│   ├── schema.sql          # DDL Skema Relasional MySQL (11 Tabel)
+│   ├── schema.sql          # DDL Skema Relasional MySQL (12 Tabel)
 │   └── seeders.sql         # Data Seeder Satker, Akun Pengujian 9 Roles, & Contoh Kasus
 ├── docs/
 │   ├── PRD_SIGAP_POLDA.md  # Dokumen Spesifikasi Kebutuhan Produk (PRD)

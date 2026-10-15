@@ -96,13 +96,7 @@ class Report extends Model
         $this->beginTransaction();
         try {
             // Generate Nomor Tiket: LP-POLDA-YYYYMM-XXXX
-            $datePrefix = date('Ym');
-            $countRow = $this->fetch(
-                "SELECT COUNT(*) AS total FROM reports WHERE ticket_number LIKE ?",
-                ["LP-POLDA-{$datePrefix}-%"]
-            );
-            $seq = str_pad((string)($countRow['total'] + 1), 4, '0', STR_PAD_LEFT);
-            $ticketNumber = "LP-POLDA-{$datePrefix}-{$seq}";
+            $ticketNumber = $this->nextTicketNumber(date('Ym'));
 
             // PIN Keamanan 6 Digit
             $securityPin = (string)random_int(100000, 999999);
@@ -190,6 +184,28 @@ class Report extends Model
             $this->rollBack();
             throw $e;
         }
+    }
+
+    /**
+     * Ambil nomor urut tiket berikutnya secara atomik (aman untuk laporan bersamaan).
+     * Baris sequence periode dikunci hingga transaksi selesai; bila belum ada,
+     * diinisialisasi dari nomor tiket tertinggi yang sudah tersimpan.
+     * Wajib dipanggil di dalam transaksi pembuatan laporan.
+     */
+    private function nextTicketNumber(string $period): string
+    {
+        $prefix = "LP-POLDA-{$period}-";
+
+        $this->execute(
+            "INSERT INTO ticket_sequences (period, last_seq)
+             SELECT ?, LAST_INSERT_ID(COALESCE(MAX(CAST(SUBSTRING(ticket_number, ?) AS UNSIGNED)), 0) + 1)
+             FROM reports WHERE ticket_number LIKE ?
+             ON DUPLICATE KEY UPDATE last_seq = LAST_INSERT_ID(last_seq + 1)",
+            [$period, strlen($prefix) + 1, $prefix . '%']
+        );
+
+        $seq = (int)$this->db->query("SELECT LAST_INSERT_ID()")->fetchColumn();
+        return $prefix . str_pad((string)$seq, 4, '0', STR_PAD_LEFT);
     }
 
     /**
