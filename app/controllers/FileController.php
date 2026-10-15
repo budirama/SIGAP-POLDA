@@ -60,22 +60,8 @@ class FileController extends Controller
 
     private function stream(string $storedPath, string $downloadName): never
     {
-        $file = Upload::absolutePath($storedPath);
-        if (!is_file($file)) {
-            $this->notFound();
-        }
-
-        $mime = (new \finfo(FILEINFO_MIME_TYPE))->file($file);
-        $inline = isset(Upload::MIME_EXTENSIONS[$mime]);
-        $safeName = preg_replace('/[^A-Za-z0-9._-]/', '_', $downloadName) ?: 'lampiran';
-
-        header('Content-Type: ' . ($inline ? $mime : 'application/octet-stream'));
-        header('Content-Length: ' . filesize($file));
-        header('Content-Disposition: ' . ($inline ? 'inline' : 'attachment') . '; filename="' . $safeName . '"');
-        header('X-Content-Type-Options: nosniff');
-        header('Cache-Control: private, no-store');
-        readfile($file);
-        exit;
+        Upload::stream($storedPath, $downloadName);
+        $this->notFound();
     }
 
     private function notFound(): never

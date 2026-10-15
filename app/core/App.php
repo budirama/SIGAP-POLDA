@@ -10,6 +10,8 @@ class App
     // Alias segmen URL ke nama controller yang tidak mengikuti pola {Segmen}Controller
     private const ROUTE_ALIASES = [
         'social' => 'SocialMediaController',
+        'posko-laporan' => 'PoskoReportController',
+        'posko-jenis' => 'PoskoTypeController',
     ];
 
     protected string $controller = 'HomeController';

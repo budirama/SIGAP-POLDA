@@ -30,7 +30,7 @@ class PoskoController extends Controller
 
         // Akun dengan kata sandi sementara wajib menggantinya sebelum memakai modul
         $path = (string)parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
-        if (!empty(Auth::user()['must_change_password']) && !str_ends_with(rtrim($path, '/'), '/posko/password')) {
+        if (PoskoAccess::mustChangePassword() && !str_ends_with(rtrim($path, '/'), '/posko/password')) {
             Session::setFlash('error', 'Demi keamanan, ganti kata sandi sementara Anda terlebih dahulu.');
             $this->redirect('/posko/password');
         }

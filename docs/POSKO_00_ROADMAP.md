@@ -43,7 +43,7 @@ BRD menggambarkan **pelaporan operasional internal posko** yang mengalir **dari 
 | Tahap | File | Isi | Bergantung pada | Rujukan BRD |
 |---|---|---|---|---|
 | 1 ✅ | [POSKO_01_ORGANISASI_ROLE.md](POSKO_01_ORGANISASI_ROLE.md) | Hierarki 4 tingkat, role per tingkat, pembatasan wilayah, manajemen pengguna & organisasi | — | Bab 2.1, 3, 9.1 |
-| 2 | [POSKO_02_INPUT_LAPORAN.md](POSKO_02_INPUT_LAPORAN.md) | Jenis laporan terkonfigurasi, formulir dinamis, draft, lampiran, nomor laporan, periode & tenggat | Tahap 1 | Bab 4.2, 7.3, 9.3 |
+| 2 ✅ | [POSKO_02_INPUT_LAPORAN.md](POSKO_02_INPUT_LAPORAN.md) | Jenis laporan terkonfigurasi, formulir dinamis, draft, lampiran, nomor laporan, periode & tenggat | Tahap 1 | Bab 4.2, 7.3, 9.3 |
 | 3 | [POSKO_03_WORKFLOW_BERJENJANG.md](POSKO_03_WORKFLOW_BERJENJANG.md) | Kirim, verifikasi, kembalikan, setujui, teruskan, revisi & versi, eskalasi mendesak | Tahap 2 | Bab 4.3, 5, 9.3 |
 | 4 | [POSKO_04_REKAP_NIHIL_KEPATUHAN.md](POSKO_04_REKAP_NIHIL_KEPATUHAN.md) | Rekapitulasi berjenjang, laporan nihil, monitoring kepatuhan | Tahap 3 | Bab 2.2–2.3, 4.4–4.5 |
 | 5 | [POSKO_05_DASHBOARD_EKSPOR_NOTIFIKASI.md](POSKO_05_DASHBOARD_EKSPOR_NOTIFIKASI.md) | Dashboard per tingkat + drill-down, ekspor PDF/Excel, notifikasi | Tahap 4 | Bab 4.1, 4.6–4.7, 7.2, 7.5 |

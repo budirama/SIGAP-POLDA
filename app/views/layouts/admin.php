@@ -119,6 +119,11 @@
             <i class="fas fa-sitemap text-amber-400 w-4"></i>
             <span>Beranda Posko</span>
           </a>
+          <a href="<?= $baseUrl ?>/posko-laporan"
+             class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-300 hover:text-slate-100 hover:bg-[#1B1610] transition-colors">
+            <i class="fas fa-file-lines text-amber-400 w-4"></i>
+            <span>Laporan Posko</span>
+          </a>
           <?php if (\App\Core\Auth::hasRole([\App\Config\Constants::ROLE_POSKO_ADMIN, \App\Config\Constants::ROLE_SUPERADMIN])): ?>
             <a href="<?= $baseUrl ?>/posko/users"
                class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-300 hover:text-slate-100 hover:bg-[#1B1610] transition-colors">
@@ -131,6 +136,11 @@
                class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-300 hover:text-slate-100 hover:bg-[#1B1610] transition-colors">
               <i class="fas fa-building-shield text-amber-400 w-4"></i>
               <span>Organisasi Posko</span>
+            </a>
+            <a href="<?= $baseUrl ?>/posko-jenis"
+               class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-300 hover:text-slate-100 hover:bg-[#1B1610] transition-colors">
+              <i class="fas fa-list-check text-amber-400 w-4"></i>
+              <span>Jenis Laporan</span>
             </a>
           <?php endif; ?>
           <?php if (\App\Core\PoskoAccess::isPoskoUser()): ?>
