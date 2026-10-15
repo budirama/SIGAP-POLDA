@@ -79,29 +79,75 @@ return [
         T::notContains('Polres Metro Jakarta Selatan', $res->body, 'tidak memuat data satker lain');
     },
 
-    'ekspor excel: valid SpreadsheetML XML, terfilter, batas wilayah & tercatat di audit' => function () {
-        $admin = (int)Db::value("SELECT COALESCE(MAX(id), 0) FROM audit_logs");
+    'ekspor excel: .xlsx (PhpSpreadsheet), isi = tampilan, batas wilayah & tercatat di audit' => function () {
+        T::true(class_exists(\PhpOffice\PhpSpreadsheet\IOFactory::class), 'vendor/ terpasang (composer install)');
+        $mark = (int)Db::value("SELECT COALESCE(MAX(id), 0) FROM audit_logs");
         $op = Http::as('poskoOpSby');
 
-        // Panggil ekspor excel dengan filter status
         $res = $op->get('/posko-laporan/export-excel?status=SUBMITTED');
         T::same(200, $res->status);
-        T::contains('application/vnd.ms-excel', $res->header('content-type') ?? '', 'tipe konten excel');
-        T::contains('attachment; filename="laporan_posko_', $res->header('content-disposition') ?? '', 'disposisi unduhan');
+        T::contains('spreadsheetml.sheet', $res->header('content-type') ?? '', 'tipe konten xlsx');
+        T::contains('.xlsx"', $res->header('content-disposition') ?? '', 'nama berkas .xlsx');
+        T::same("PK\x03\x04", substr($res->body, 0, 4), 'berkas zip OOXML');
 
-        // Validasi struktur SpreadsheetML 2003 XML
-        T::contains('<?xml version="1.0" encoding="UTF-8"?>', $res->body);
-        T::contains('<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"', $res->body);
-        T::contains('<Worksheet ss:Name="Laporan Posko">', $res->body);
-        T::contains('Nomor Laporan', $res->body);
-        T::contains('Satker', $res->body);
+        $tmp = tempnam(sys_get_temp_dir(), 'xlsx');
+        file_put_contents($tmp, $res->body);
+        $sheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($tmp)->getSheetByName('Laporan Posko');
+        unlink($tmp);
+        T::true($sheet !== null, 'lembar "Laporan Posko"');
+        T::same('Nomor Laporan', $sheet->getCell('B4')->getValue(), 'baris judul kolom');
 
-        // Isolasi wilayah: operator Surabaya tidak boleh mendapat satker Metro Jaya/Jaksel
-        T::notContains('Polres Metro Jakarta Selatan', $res->body, 'satker luar wilayah tidak ikut tereksport');
+        $exported = [];
+        $satkers = [];
+        for ($row = 5; $row <= $sheet->getHighestDataRow(); $row++) {
+            $exported[] = (string)$sheet->getCell([2, $row])->getValue();
+            $satkers[] = (string)$sheet->getCell([3, $row])->getValue();
+            T::same('Dikirim', $sheet->getCell([9, $row])->getValue(), 'filter status diterapkan');
+        }
+        T::true(count($exported) > 0, 'ada data terekspor');
 
-        // Verifikasi jejak audit posko.export
-        $audit = Db::row("SELECT action, detail FROM audit_logs WHERE id > ? AND action = 'posko.export' ORDER BY id DESC LIMIT 1", [$admin]);
+        // Isi ekspor = isi tampilan cetak daftar untuk filter yang sama (BRD 12.10)
+        $view = $op->get('/posko-laporan/print-list?status=SUBMITTED')->body;
+        preg_match_all('~font-mono font-bold text-slate-900">([^<]+)</td>~', $view, $m);
+        $shown = array_map(fn($s) => html_entity_decode(trim($s)), $m[1]);
+        sort($shown);
+        $sortedExport = $exported;
+        sort($sortedExport);
+        T::same($shown, $sortedExport, 'nomor laporan ekspor sama dengan tampilan');
+
+        foreach ($satkers as $name) {
+            T::true(!str_contains($name, 'Jakarta') && !str_contains($name, 'Metro'), "satker luar wilayah tidak ikut: {$name}");
+        }
+
+        $audit = Db::row("SELECT detail FROM audit_logs WHERE id > ? AND action = 'posko.export' ORDER BY id DESC LIMIT 1", [$mark]);
         T::true($audit !== null, 'audit log posko.export tercatat');
         T::contains('Ekspor Excel', $audit['detail']);
+    },
+
+    'ekspor pdf (Dompdf): daftar terfilter & dokumen tunggal, batas wilayah & audit' => function () {
+        $mark = (int)Db::value("SELECT COALESCE(MAX(id), 0) FROM audit_logs");
+        $op = Http::as('poskoOpSby');
+
+        $list = $op->get('/posko-laporan/export-pdf?status=SUBMITTED');
+        T::same(200, $list->status);
+        T::same('application/pdf', $list->header('content-type'), 'tipe konten pdf');
+        T::same('%PDF-', substr($list->body, 0, 5), 'berkas PDF valid');
+        T::contains('Ekspor PDF', (string)Db::value("SELECT detail FROM audit_logs WHERE id > ? AND action = 'posko.export' ORDER BY id DESC LIMIT 1", [$mark]));
+
+        $id = (int)Db::value("SELECT id FROM posko_reports WHERE satker_id = ? AND report_number IS NOT NULL ORDER BY id LIMIT 1", [EXPORT_GUBENG]);
+        $number = (string)Db::value("SELECT report_number FROM posko_reports WHERE id = ?", [$id]);
+        $one = Http::as('poskoOpGubeng')->get("/posko-laporan/pdf/{$id}");
+        T::same(200, $one->status);
+        T::same('%PDF-', substr($one->body, 0, 5), 'dokumen tunggal PDF');
+        T::contains('_v', $one->header('content-disposition') ?? '', 'nama berkas memuat penanda versi');
+        T::same(200, Http::as('poskoOpSby')->get("/posko-laporan/pdf/{$id}")->status, 'induk dapat mengunduh PDF bawahan');
+
+        // Lintas wilayah ditolak & tidak menghasilkan PDF
+        $jaksel = Http::as('poskoOpJaksel')->get("/posko-laporan/pdf/{$id}");
+        T::same(302, $jaksel->status, 'lintas wilayah ditolak');
+        T::true(!str_starts_with($jaksel->body, '%PDF'), 'tidak ada PDF untuk wilayah lain');
+
+        $audit = Db::row("SELECT detail FROM audit_logs WHERE id > ? AND action = 'posko.export' AND detail LIKE ? ORDER BY id DESC LIMIT 1", [$mark, "%{$number}%"]);
+        T::true($audit !== null, 'unduh PDF dokumen tercatat di audit');
     },
 ];
