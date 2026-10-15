@@ -10,6 +10,7 @@ use App\Core\Controller;
 use App\Core\Audit;
 use App\Core\Auth;
 use App\Core\PoskoAccess;
+use App\Core\PoskoExport;
 use App\Core\PoskoSchedule;
 use App\Core\Session;
 use App\Core\Upload;
@@ -23,6 +24,7 @@ use App\Models\Satker;
 class PoskoReportController extends Controller
 {
     private const TEXT_MAX = 5000;
+    private const PDF_MAX_ROWS = 1000; // daftar lebih besar: gunakan ekspor Excel
 
     private PoskoReport $reports;
     private PoskoReportType $types;
@@ -213,14 +215,7 @@ class PoskoReportController extends Controller
      */
     public function printList(): void
     {
-        $filters = [
-            'type'   => (int)$this->get('type', 0),
-            'status' => (string)$this->get('status', ''),
-            'satker' => (int)$this->get('satker', 0),
-            'month'  => (string)$this->get('month', ''),
-            'search' => trim((string)$this->get('search', '')),
-            'kind'   => (string)$this->get('kind', ''),
-        ];
+        $filters = $this->listFilters();
         $scope = PoskoAccess::scopeSatkerIds();
         $items = $this->reports->allForExport($scope, PoskoAccess::unitId(), $filters);
 
@@ -236,12 +231,72 @@ class PoskoReportController extends Controller
     }
 
     /**
-     * Ekspor daftar laporan posko ke format Excel (SpreadsheetML XML 2003) (P5-04)
+     * Ekspor daftar laporan posko ke Excel .xlsx (PhpSpreadsheet) (P5-04)
      * Mengikuti filter & scopeSatkerIds() aktif, mencatat log audit posko.export.
      */
     public function exportExcel(): void
     {
-        $filters = [
+        $this->requireExportLibrary();
+        $filters = $this->listFilters();
+        $items = $this->reports->allForExport(PoskoAccess::scopeSatkerIds(), PoskoAccess::unitId(), $filters);
+
+        $filterDesc = $this->describeFilters($filters);
+        Audit::log('posko.export', null, 'Ekspor Excel ' . count($items) . ' baris laporan posko' . ($filterDesc ? " ({$filterDesc})" : ''));
+
+        $user = Auth::user();
+        PoskoExport::sendXlsx($items, $filterDesc, trim(($user['rank'] ?? '') . ' ' . ($user['name'] ?? 'Petugas')));
+    }
+
+    /**
+     * Ekspor daftar laporan posko terfilter ke PDF (Dompdf, A4 lanskap) (P5-04)
+     */
+    public function exportPdf(): void
+    {
+        $this->requireExportLibrary();
+        $filters = $this->listFilters();
+        $items = $this->reports->allForExport(PoskoAccess::scopeSatkerIds(), PoskoAccess::unitId(), $filters);
+        $total = count($items);
+        $items = array_slice($items, 0, self::PDF_MAX_ROWS);
+
+        $filterDesc = $this->describeFilters($filters);
+        Audit::log('posko.export', null, "Ekspor PDF {$total} baris laporan posko" . ($filterDesc ? " ({$filterDesc})" : ''));
+
+        $unit = (new Satker())->findById(PoskoAccess::unitId() ?? 1);
+        $html = $this->renderToString('posko/pdf_list', [
+            'rows'              => PoskoExport::rows($items),
+            'items'             => $items,
+            'total'             => $total,
+            'filterDesc'        => $filterDesc,
+            'currentSatkerName' => $unit ? $unit['name'] : 'MABES POLRI',
+        ]);
+        PoskoExport::sendPdf($html, 'laporan_posko_' . date('Ymd_His') . '.pdf', 'landscape');
+    }
+
+    /**
+     * Unduh satu dokumen laporan posko sebagai PDF (template setara cetak resmi)
+     */
+    public function pdf(int $id): void
+    {
+        $this->requireExportLibrary();
+        $report = $this->viewableReport($id);
+        $type = $this->types->find((int)$report['report_type_id']);
+        $number = $report['report_number'] ?: ('DRAFT-' . $report['id']);
+        Audit::log('posko.export', $id, "Ekspor PDF laporan {$number} v" . (int)$report['version']);
+
+        $html = $this->renderToString('posko/pdf_report', [
+            'report'       => $report,
+            'fields'       => $this->types->fields((int)$type['id'], false),
+            'values'       => $this->reports->values($id),
+            'attachments'  => $this->reports->attachments($id),
+            'recapSources' => (int)$report['is_recap'] ? (new PoskoRecap())->sources($id) : [],
+        ]);
+        $safe = preg_replace('/[^A-Za-z0-9._-]+/', '_', $number);
+        PoskoExport::sendPdf($html, "laporan_posko_{$safe}_v" . (int)$report['version'] . '.pdf');
+    }
+
+    private function listFilters(): array
+    {
+        return [
             'type'   => (int)$this->get('type', 0),
             'status' => (string)$this->get('status', ''),
             'satker' => (int)$this->get('satker', 0),
@@ -249,21 +304,14 @@ class PoskoReportController extends Controller
             'search' => trim((string)$this->get('search', '')),
             'kind'   => (string)$this->get('kind', ''),
         ];
-        $scope = PoskoAccess::scopeSatkerIds();
-        $items = $this->reports->allForExport($scope, PoskoAccess::unitId(), $filters);
+    }
 
-        $filterDesc = $this->describeFilters($filters);
-        $count = count($items);
-        Audit::log('posko.export', null, "Ekspor Excel {$count} baris laporan posko" . ($filterDesc ? " ({$filterDesc})" : ''));
-
-        $filename = 'laporan_posko_' . date('Ymd_His') . '.xls';
-        header('Content-Type: application/vnd.ms-excel; charset=UTF-8');
-        header("Content-Disposition: attachment; filename=\"{$filename}\"");
-        header('Cache-Control: max-age=0, no-cache, must-revalidate');
-        header('Pragma: public');
-
-        echo $this->generateSpreadsheetXml($items, $filterDesc);
-        exit;
+    private function requireExportLibrary(): void
+    {
+        if (!PoskoExport::available()) {
+            Session::setFlash('error', 'Pustaka ekspor belum terpasang. Jalankan "composer install" di folder aplikasi.');
+            $this->redirect('/posko-laporan');
+        }
     }
 
     /**
@@ -297,135 +345,6 @@ class PoskoReportController extends Controller
             $parts[] = 'Cari: "' . $filters['search'] . '"';
         }
         return implode(', ', $parts);
-    }
-
-    /**
-     * Bangun dokumen SpreadsheetML 2003 XML standar (kompatibel Excel, LibreOffice, WPS, Google Sheets)
-     */
-    private function generateSpreadsheetXml(array $items, string $filterDesc): string
-    {
-        $xmlEscape = fn(?string $s): string => htmlspecialchars((string)$s, ENT_XML1, 'UTF-8');
-        $dateNow = date('Y-m-d H:i:s');
-        $user = Auth::user();
-        $userName = $xmlEscape(($user['rank'] ?? '') . ' ' . ($user['name'] ?? 'Petugas'));
-
-        $rows = [];
-        // Header dokumen
-        $rows[] = '<Row ss:Height="24"><Cell ss:StyleID="Title" ss:MergeAcross="12"><Data ss:Type="String">KEPOLISIAN NEGARA REPUBLIK INDONESIA - LAPORAN POSKO PRESISI</Data></Cell></Row>';
-        $rows[] = '<Row ss:Height="18"><Cell ss:StyleID="SubTitle" ss:MergeAcross="12"><Data ss:Type="String">Tanggal Ekspor: ' . $xmlEscape($dateNow) . ' WIB | Oleh: ' . $userName . ($filterDesc ? ' | Filter: ' . $xmlEscape($filterDesc) : '') . ' | Total: ' . count($items) . ' Data</Data></Cell></Row>';
-        $rows[] = '<Row ss:Height="8"/>'; // spasi kosong
-
-        // Header kolom tabel
-        $headers = [
-            'No', 'Nomor Laporan', 'Satker', 'Tingkat', 'Jenis Laporan', 'Bentuk',
-            'Periode / Waktu Kejadian', 'Prioritas', 'Status', 'Tenggat Waktu',
-            'Waktu Dikirim', 'Pembuat', 'Pemegang Berkas', 'Versi',
-            'Ringkasan Situasi', 'Uraian Kejadian / Kegiatan', 'Kendala',
-            'Tindak Lanjut', 'Bantuan Yang Diperlukan', 'Alasan Nihil', 'Tiket Terkait'
-        ];
-        $headerCells = [];
-        foreach ($headers as $h) {
-            $headerCells[] = '<Cell ss:StyleID="Header"><Data ss:Type="String">' . $xmlEscape($h) . '</Data></Cell>';
-        }
-        $rows[] = '<Row ss:Height="22">' . implode('', $headerCells) . '</Row>';
-
-        // Baris data
-        $no = 1;
-        foreach ($items as $r) {
-            $periodeStr = $r['period_start']
-                ? PoskoSchedule::label($r['period_unit'], $r['period_start'], $r['period_end'])
-                : ($r['event_time'] ? date('d/m/Y H:i', strtotime($r['event_time'])) : '-');
-
-            $bentuk = (int)$r['is_recap'] ? 'Rekap' : ((int)$r['is_nil'] ? 'Nihil' : 'Sumber');
-            $statusLabel = PoskoReport::STATUS_LABELS[$r['status']] ?? $r['status'];
-            $creator = trim(($r['creator_rank'] ?? '') . ' ' . ($r['creator_name'] ?? '-'));
-
-            $levelLabel = match ((int)$r['satker_level']) {
-                Constants::LEVEL_POLSEK => 'Polsek',
-                Constants::LEVEL_POLRES => 'Polres',
-                Constants::LEVEL_POLDA  => 'Polda',
-                Constants::LEVEL_PUSAT  => 'Pusat / Mabes',
-                default                 => '-',
-            };
-
-            $cells = [
-                '<Cell ss:StyleID="CellCenter"><Data ss:Type="Number">' . ($no++) . '</Data></Cell>',
-                '<Cell ss:StyleID="CellMono"><Data ss:Type="String">' . $xmlEscape($r['report_number'] ?: ('DRAFT #' . $r['id'])) . '</Data></Cell>',
-                '<Cell ss:StyleID="CellBold"><Data ss:Type="String">' . $xmlEscape($r['satker_name']) . '</Data></Cell>',
-                '<Cell ss:StyleID="CellCenter"><Data ss:Type="String">' . $xmlEscape($levelLabel) . '</Data></Cell>',
-                '<Cell ss:StyleID="Cell"><Data ss:Type="String">' . $xmlEscape($r['type_name']) . '</Data></Cell>',
-                '<Cell ss:StyleID="CellCenter"><Data ss:Type="String">' . $xmlEscape($bentuk) . '</Data></Cell>',
-                '<Cell ss:StyleID="Cell"><Data ss:Type="String">' . $xmlEscape($periodeStr) . '</Data></Cell>',
-                '<Cell ss:StyleID="CellCenter"><Data ss:Type="String">' . $xmlEscape($r['priority']) . '</Data></Cell>',
-                '<Cell ss:StyleID="CellCenter"><Data ss:Type="String">' . $xmlEscape($statusLabel) . '</Data></Cell>',
-                '<Cell ss:StyleID="Cell"><Data ss:Type="String">' . $xmlEscape($r['deadline_at'] ? date('d/m/Y H:i', strtotime($r['deadline_at'])) : '-') . '</Data></Cell>',
-                '<Cell ss:StyleID="Cell"><Data ss:Type="String">' . $xmlEscape($r['submitted_at'] ? date('d/m/Y H:i', strtotime($r['submitted_at'])) : '-') . '</Data></Cell>',
-                '<Cell ss:StyleID="Cell"><Data ss:Type="String">' . $xmlEscape($creator) . '</Data></Cell>',
-                '<Cell ss:StyleID="Cell"><Data ss:Type="String">' . $xmlEscape($r['holder_name'] ?: '-') . '</Data></Cell>',
-                '<Cell ss:StyleID="CellCenter"><Data ss:Type="String">v' . (int)$r['version'] . '</Data></Cell>',
-                '<Cell ss:StyleID="Cell"><Data ss:Type="String">' . $xmlEscape($r['situation_summary']) . '</Data></Cell>',
-                '<Cell ss:StyleID="Cell"><Data ss:Type="String">' . $xmlEscape($r['description']) . '</Data></Cell>',
-                '<Cell ss:StyleID="Cell"><Data ss:Type="String">' . $xmlEscape($r['obstacles']) . '</Data></Cell>',
-                '<Cell ss:StyleID="Cell"><Data ss:Type="String">' . $xmlEscape($r['follow_up']) . '</Data></Cell>',
-                '<Cell ss:StyleID="Cell"><Data ss:Type="String">' . $xmlEscape($r['assistance_needed']) . '</Data></Cell>',
-                '<Cell ss:StyleID="Cell"><Data ss:Type="String">' . $xmlEscape((int)$r['is_nil'] ? $r['situation_summary'] : '') . '</Data></Cell>',
-                '<Cell ss:StyleID="CellMono"><Data ss:Type="String">' . $xmlEscape($r['reference_ticket']) . '</Data></Cell>',
-            ];
-
-            $rows[] = '<Row ss:Height="18">' . implode('', $cells) . '</Row>';
-        }
-
-        $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n"
-             . '<?mso-application progid="Excel.Sheet"?>' . "\n"
-             . '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"' . "\n"
-             . ' xmlns:o="urn:schemas-microsoft-com:office:office"' . "\n"
-             . ' xmlns:x="urn:schemas-microsoft-com:office:excel"' . "\n"
-             . ' xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"' . "\n"
-             . ' xmlns:html="http://www.w3.org/TR/REC-html40">' . "\n"
-             . '<DocumentProperties xmlns="urn:schemas-microsoft-com:office:office">' . "\n"
-             . ' <Title>Ekspor Laporan Posko SIGAP-POLRI</Title>' . "\n"
-             . ' <Author>SIGAP POLRI</Author>' . "\n"
-             . ' <Created>' . date('c') . '</Created>' . "\n"
-             . '</DocumentProperties>' . "\n"
-             . '<Styles>' . "\n"
-             . ' <Style ss:ID="Default" ss:Name="Normal"><Alignment ss:Vertical="Center"/><Font ss:FontName="Calibri" ss:Size="10" ss:Color="#000000"/></Style>' . "\n"
-             . ' <Style ss:ID="Title"><Font ss:FontName="Calibri" ss:Size="14" ss:Bold="1" ss:Color="#0F172A"/><Alignment ss:Vertical="Center"/></Style>' . "\n"
-             . ' <Style ss:ID="SubTitle"><Font ss:FontName="Calibri" ss:Size="10" ss:Italic="1" ss:Color="#475569"/><Alignment ss:Vertical="Center"/></Style>' . "\n"
-             . ' <Style ss:ID="Header"><Font ss:FontName="Calibri" ss:Size="10" ss:Bold="1" ss:Color="#FFFFFF"/><Interior ss:Color="#1E293B" ss:Pattern="Solid"/><Alignment ss:Horizontal="Center" ss:Vertical="Center"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#0F172A"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#0F172A"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#0F172A"/><Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#0F172A"/></Borders></Style>' . "\n"
-             . ' <Style ss:ID="Cell"><Font ss:FontName="Calibri" ss:Size="10" ss:Color="#0F172A"/><Alignment ss:Vertical="Center"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/></Borders></Style>' . "\n"
-             . ' <Style ss:ID="CellBold"><Font ss:FontName="Calibri" ss:Size="10" ss:Bold="1" ss:Color="#0F172A"/><Alignment ss:Vertical="Center"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/></Borders></Style>' . "\n"
-             . ' <Style ss:ID="CellCenter"><Font ss:FontName="Calibri" ss:Size="10" ss:Color="#0F172A"/><Alignment ss:Horizontal="Center" ss:Vertical="Center"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/></Borders></Style>' . "\n"
-             . ' <Style ss:ID="CellMono"><Font ss:FontName="Consolas" ss:Size="9" ss:Bold="1" ss:Color="#0F172A"/><Alignment ss:Vertical="Center"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/></Borders></Style>' . "\n"
-             . '</Styles>' . "\n"
-             . '<Worksheet ss:Name="Laporan Posko">' . "\n"
-             . ' <Table x:FullColumns="1" x:FullRows="1" ss:DefaultRowHeight="16">' . "\n"
-             . '  <Column ss:Width="30"/>' . "\n"  // No
-             . '  <Column ss:Width="160"/>' . "\n" // Nomor Laporan
-             . '  <Column ss:Width="170"/>' . "\n" // Satker
-             . '  <Column ss:Width="70"/>' . "\n"  // Tingkat
-             . '  <Column ss:Width="150"/>' . "\n" // Jenis Laporan
-             . '  <Column ss:Width="65"/>' . "\n"  // Bentuk
-             . '  <Column ss:Width="130"/>' . "\n" // Periode
-             . '  <Column ss:Width="65"/>' . "\n"  // Prioritas
-             . '  <Column ss:Width="90"/>' . "\n"  // Status
-             . '  <Column ss:Width="110"/>' . "\n" // Tenggat
-             . '  <Column ss:Width="110"/>' . "\n" // Dikirim
-             . '  <Column ss:Width="130"/>' . "\n" // Pembuat
-             . '  <Column ss:Width="130"/>' . "\n" // Holder
-             . '  <Column ss:Width="45"/>' . "\n"  // Versi
-             . '  <Column ss:Width="200"/>' . "\n" // Ringkasan Situasi
-             . '  <Column ss:Width="200"/>' . "\n" // Uraian
-             . '  <Column ss:Width="150"/>' . "\n" // Kendala
-             . '  <Column ss:Width="150"/>' . "\n" // Tindak Lanjut
-             . '  <Column ss:Width="150"/>' . "\n" // Bantuan
-             . '  <Column ss:Width="150"/>' . "\n" // Alasan Nihil
-             . '  <Column ss:Width="100"/>' . "\n" // Tiket Terkait
-             . implode("\n", $rows) . "\n"
-             . ' </Table>' . "\n"
-             . '</Worksheet>' . "\n"
-             . '</Workbook>';
-
-        return $xml;
     }
 
     /**
