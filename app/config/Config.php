@@ -64,6 +64,18 @@ class Config
         return self::env('APP_ENV', 'production') === 'development';
     }
 
+    // API key Google Maps JavaScript dari .env; kosong/tidak valid = peta memakai Leaflet + OpenStreetMap
+    public static function googleMapsKey(): string
+    {
+        return self::sanitizeMapsKey(self::env('GOOGLE_MAPS_API_KEY', ''));
+    }
+
+    public static function sanitizeMapsKey(string $key): string
+    {
+        $key = trim($key);
+        return preg_match('/^[A-Za-z0-9_-]{20,100}$/', $key) ? $key : '';
+    }
+
     // Path Base URL (Deteksi Otomatis atau Fallback)
     public static function getBaseUrl(): string
     {
