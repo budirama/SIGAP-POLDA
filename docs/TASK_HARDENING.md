@@ -23,7 +23,7 @@ Lanjutan hasil code review 15 Oktober 2026. Setiap task dikerjakan di branch ter
 - **Kriteria selesai:** `/social` membuka Omnichannel Medsos untuk Humas; `/xyz`, `/report/render`, `/investigator/detail`, `/investigator/detail/abc` → 404.
 
 ### T2 — `.htaccess` portabel (tanpa `RewriteBase` hardcode)
-- [ ] **Masalah:** `RewriteBase /SIGAP-Polda/public/` membuat aplikasi rusak bila dipasang di folder/domain lain.
+- [x] **Masalah:** `RewriteBase /SIGAP-Polda/public/` membuat aplikasi rusak bila dipasang di folder/domain lain.
 - **Solusi:** hapus `RewriteBase`; rewrite relatif terhadap direktori `public/`.
 - **Kriteria selesai:** semua rute tetap berfungsi di `http://localhost/SIGAP-Polda/public/`.
 
