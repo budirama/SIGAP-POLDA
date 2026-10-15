@@ -536,4 +536,64 @@ INSERT INTO `users` (`id`, `nrp`, `nik`, `name`, `email`, `phone`, `password_has
 ON DUPLICATE KEY UPDATE `name`=VALUES(`name`), `email`=VALUES(`email`), `role`=VALUES(`role`), `satker_id`=VALUES(`satker_id`),
     `rank`=VALUES(`rank`), `position`=VALUES(`position`), `is_active`=VALUES(`is_active`);
 
+-- 12. JENIS LAPORAN POSKO (CONTOH; dapat diubah dari menu Jenis Laporan) & ISIANNYA
+INSERT INTO `posko_report_types` (`id`, `code`, `name`, `kind`, `period_unit`, `deadline_offset_days`, `deadline_time`, `deadline_hours`, `requires_approval`, `allows_nil`, `applies_to_levels`, `description`, `sort_order`, `is_active`) VALUES
+(1, 'LAP-HARIAN', 'Laporan Harian Posko', 'ROUTINE', 'DAY', 0, '23:59:00', NULL, 1, 1, '1,2,3', 'Situasi kamtibmas & kegiatan posko dalam satu hari; tenggat pukul 23.59 WIB hari yang sama.', 10, 1),
+(2, 'LAP-MINGGUAN', 'Laporan Periodik Mingguan', 'PERIODIC', 'WEEK', 1, '12:00:00', NULL, 1, 1, '1,2,3', 'Rekap kegiatan & tren kejadian Senin–Minggu; tenggat Senin berikutnya pukul 12.00 WIB.', 20, 1),
+(3, 'LAP-KEJADIAN-KHUSUS', 'Laporan Kejadian Khusus', 'SPECIAL_EVENT', 'NONE', 0, NULL, 6, 1, 0, '1,2,3', 'Kejadian menonjol yang perlu diketahui pimpinan; wajib dilaporkan maksimal 6 jam setelah kejadian.', 30, 1),
+(4, 'LAP-INSIDENTIL', 'Laporan Insidentil', 'INCIDENTAL', 'NONE', 0, NULL, 24, 1, 0, '1,2,3', 'Bencana, unjuk rasa, kebakaran, atau insiden lain; maksimal 24 jam setelah kejadian.', 40, 1)
+ON DUPLICATE KEY UPDATE `name`=VALUES(`name`), `kind`=VALUES(`kind`), `period_unit`=VALUES(`period_unit`),
+    `deadline_offset_days`=VALUES(`deadline_offset_days`), `deadline_time`=VALUES(`deadline_time`), `deadline_hours`=VALUES(`deadline_hours`),
+    `applies_to_levels`=VALUES(`applies_to_levels`), `description`=VALUES(`description`), `sort_order`=VALUES(`sort_order`);
+
+INSERT INTO `posko_report_fields` (`report_type_id`, `field_key`, `label`, `type`, `required`, `options`, `aggregate`, `unit_label`, `sort_order`) VALUES
+(1, 'situasi_kamtibmas', 'Situasi kamtibmas', 'select', 1, 'Aman terkendali\nWaspada\nRawan', 'NONE', NULL, 10),
+(1, 'jumlah_kejadian', 'Jumlah kejadian menonjol', 'number', 1, NULL, 'SUM', 'kejadian', 20),
+(1, 'jumlah_laka_lantas', 'Jumlah kecelakaan lalu lintas', 'number', 1, NULL, 'SUM', 'kejadian', 30),
+(1, 'personel_siaga', 'Personel siaga', 'number', 1, NULL, 'SUM', 'personel', 40),
+(1, 'kegiatan_patroli', 'Kegiatan patroli', 'number', 0, NULL, 'SUM', 'kali', 50),
+(2, 'total_kejadian', 'Total kejadian dalam seminggu', 'number', 1, NULL, 'SUM', 'kejadian', 10),
+(2, 'tersangka_diamankan', 'Tersangka diamankan', 'number', 1, NULL, 'SUM', 'orang', 20),
+(2, 'kegiatan_preventif', 'Kegiatan preventif (sambang, penyuluhan)', 'number', 1, NULL, 'SUM', 'kegiatan', 30),
+(2, 'rata_waktu_respons', 'Rata-rata waktu respons aduan', 'number', 0, NULL, 'AVG', 'menit', 40),
+(2, 'catatan_tren', 'Catatan tren & analisis', 'textarea', 0, NULL, 'NONE', NULL, 50),
+(3, 'korban_meninggal', 'Korban meninggal', 'number', 1, NULL, 'SUM', 'orang', 10),
+(3, 'korban_luka', 'Korban luka', 'number', 1, NULL, 'SUM', 'orang', 20),
+(3, 'estimasi_kerugian', 'Estimasi kerugian', 'number', 0, NULL, 'SUM', 'Rp', 30),
+(3, 'status_situasi', 'Status situasi', 'select', 1, 'Terkendali\nBelum terkendali', 'NONE', NULL, 40),
+(4, 'jenis_insiden', 'Jenis insiden', 'select', 1, 'Bencana alam\nUnjuk rasa\nKebakaran\nKonflik sosial\nLainnya', 'NONE', NULL, 10),
+(4, 'warga_terdampak', 'Warga terdampak', 'number', 1, NULL, 'SUM', 'jiwa', 20),
+(4, 'personel_dikerahkan', 'Personel dikerahkan', 'number', 1, NULL, 'SUM', 'personel', 30),
+(4, 'kebutuhan_logistik', 'Kebutuhan bantuan logistik', 'textarea', 0, NULL, 'NONE', NULL, 40)
+ON DUPLICATE KEY UPDATE `label`=VALUES(`label`), `type`=VALUES(`type`), `required`=VALUES(`required`), `options`=VALUES(`options`),
+    `aggregate`=VALUES(`aggregate`), `unit_label`=VALUES(`unit_label`), `sort_order`=VALUES(`sort_order`);
+
+-- 13. CONTOH LAPORAN POSKO (Polsek Benowo & Gubeng, Polrestabes Surabaya). Waktu relatif terhadap NOW().
+--     Laporan contoh dibuat ulang setiap seeder dijalankan (nomor PSK/... bersifat demo).
+-- FOREIGN_KEY_CHECKS dimatikan selama seeder, jadi data turunan dihapus eksplisit (bukan via CASCADE)
+DELETE FROM `posko_report_values` WHERE `report_id` BETWEEN 1 AND 99;
+DELETE FROM `posko_report_attachments` WHERE `report_id` BETWEEN 1 AND 99;
+DELETE FROM `posko_reports` WHERE `id` BETWEEN 1 AND 99;
+INSERT INTO `posko_reports` (`id`, `report_number`, `report_type_id`, `satker_id`, `period_start`, `period_end`, `event_time`, `region`, `situation_summary`, `description`, `obstacles`, `follow_up`, `assistance_needed`, `priority`, `status`, `deadline_at`, `submitted_at`, `created_by`, `updated_by`) VALUES
+(1, CONCAT('PSK/POLSEK-SBY-BENOWO/', DATE_FORMAT(CURDATE() - INTERVAL 1 DAY, '%Y%m'), '/9001'), 1, 1000, CURDATE() - INTERVAL 1 DAY, CURDATE() - INTERVAL 1 DAY, NULL,
+    'Kecamatan Benowo', 'Situasi aman terkendali; satu kejadian curanmor di permukiman Romokalisari.',
+    'Patroli malam 3 kali di jalur Benowo–Romokalisari. Satu laporan curanmor ditindaklanjuti olah TKP oleh unit reskrim.',
+    'Penerangan jalan di beberapa titik padam.', 'Koordinasi dengan kelurahan untuk perbaikan PJU.', NULL,
+    'NORMAL', 'SUBMITTED', CONCAT(CURDATE() - INTERVAL 1 DAY, ' 23:59:00'), CONCAT(CURDATE() - INTERVAL 1 DAY, ' 21:40:00'), 109, 109),
+(2, NULL, 1, 1000, CURDATE(), CURDATE(), NULL,
+    'Kecamatan Benowo', 'Draft laporan hari ini.', NULL, NULL, NULL, NULL,
+    'NORMAL', 'DRAFT', CONCAT(CURDATE(), ' 23:59:00'), NULL, 109, 109),
+(3, CONCAT('PSK/POLSEK-SBY-GUBENG/', DATE_FORMAT(CURDATE(), '%Y%m'), '/9001'), 3, 1005, NULL, NULL, NOW() - INTERVAL 5 HOUR,
+    'Jl. Raya Gubeng', 'Kebakaran ruko dua lantai, api berhasil dipadamkan.',
+    'Kebakaran ruko pukul dini hari diduga korsleting listrik. 4 unit damkar dikerahkan, lalu lintas dialihkan sementara.',
+    'Akses mobil damkar sempit akibat parkir liar.', 'Penyelidikan penyebab bersama Inafis; penertiban parkir liar.',
+    'Dukungan personel pengaturan lalu lintas dari Satlantas.', 'HIGH', 'SUBMITTED', NOW() + INTERVAL 1 HOUR, NOW() - INTERVAL 3 HOUR, 110, 110);
+
+INSERT INTO `posko_report_values` (`report_id`, `field_key`, `value_number`, `value_text`) VALUES
+(1, 'situasi_kamtibmas', NULL, 'Aman terkendali'), (1, 'jumlah_kejadian', 1, NULL), (1, 'jumlah_laka_lantas', 0, NULL),
+(1, 'personel_siaga', 18, NULL), (1, 'kegiatan_patroli', 3, NULL),
+(2, 'situasi_kamtibmas', NULL, 'Aman terkendali'), (2, 'personel_siaga', 16, NULL),
+(3, 'korban_meninggal', 0, NULL), (3, 'korban_luka', 1, NULL), (3, 'estimasi_kerugian', 350000000, NULL),
+(3, 'status_situasi', NULL, 'Terkendali');
+
 SET FOREIGN_KEY_CHECKS = 1;

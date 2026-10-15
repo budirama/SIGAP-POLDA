@@ -55,6 +55,30 @@ class Upload
     }
 
     /**
+     * Kirim file tersimpan ke browser (inline untuk tipe yang dikenal) lalu hentikan request.
+     * Kembali tanpa mengirim apa pun bila file tidak ada (pemanggil merespons 404).
+     */
+    public static function stream(string $storedPath, string $downloadName): void
+    {
+        $file = self::absolutePath($storedPath);
+        if (!is_file($file)) {
+            return;
+        }
+
+        $mime = (new \finfo(FILEINFO_MIME_TYPE))->file($file);
+        $inline = isset(self::MIME_EXTENSIONS[$mime]);
+        $safeName = preg_replace('/[^A-Za-z0-9._-]/', '_', $downloadName) ?: 'lampiran';
+
+        header('Content-Type: ' . ($inline ? $mime : 'application/octet-stream'));
+        header('Content-Length: ' . filesize($file));
+        header('Content-Disposition: ' . ($inline ? 'inline' : 'attachment') . '; filename="' . $safeName . '"');
+        header('X-Content-Type-Options: nosniff');
+        header('Cache-Control: private, no-store');
+        readfile($file);
+        exit;
+    }
+
+    /**
      * Path absolut file tersimpan dari nilai file_path/attachment_path di database
      */
     public static function absolutePath(string $storedPath): string

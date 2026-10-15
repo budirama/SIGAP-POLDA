@@ -40,6 +40,15 @@ class PoskoAccess
         return $level !== null ? (int)$level : null;
     }
 
+    /**
+     * Operator/Admin Posko (pencocokan role persis: System Administrator tidak memiliki hak operasional
+     * laporan meskipun Auth::hasRole memberinya akses universal; BRD 9.1)
+     */
+    public static function isOperational(): bool
+    {
+        return Auth::check() && in_array(Auth::role(), [Constants::ROLE_POSKO_OPERATOR, Constants::ROLE_POSKO_ADMIN], true);
+    }
+
     public static function unitId(): ?int
     {
         return self::isPoskoUser() ? Auth::satkerId() : null;
@@ -83,8 +92,7 @@ class PoskoAccess
      */
     public static function canEditForUnit(int $satkerId): bool
     {
-        return Auth::hasRole([Constants::ROLE_POSKO_OPERATOR, Constants::ROLE_POSKO_ADMIN])
-            && Auth::satkerId() === $satkerId;
+        return self::isOperational() && Auth::satkerId() === $satkerId;
     }
 
     /**
@@ -92,7 +100,7 @@ class PoskoAccess
      */
     public static function canVerifyUnit(int $satkerId): bool
     {
-        if (!Auth::hasRole([Constants::ROLE_POSKO_OPERATOR, Constants::ROLE_POSKO_ADMIN]) || !Auth::satkerId()) {
+        if (!self::isOperational() || !Auth::satkerId()) {
             return false;
         }
         $unit = (new Satker())->findById($satkerId);
@@ -119,6 +127,14 @@ class PoskoAccess
     {
         return self::isSystemAdmin()
             || (Auth::role() === Constants::ROLE_POSKO_ADMIN && self::level() === Constants::LEVEL_PUSAT);
+    }
+
+    /**
+     * Akun memakai kata sandi sementara dan wajib menggantinya sebelum memakai modul posko
+     */
+    public static function mustChangePassword(): bool
+    {
+        return Auth::check() && !empty(Auth::user()['must_change_password']);
     }
 
     /**

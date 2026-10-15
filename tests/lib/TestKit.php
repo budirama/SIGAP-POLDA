@@ -123,6 +123,24 @@ final class Http
         return html_entity_decode(implode(' | ', $m[1]));
     }
 
+    /**
+     * Ratakan field bersarang ke kunci bertanda kurung (values[a], levels[0]) seperti formulir browser;
+     * CURLFile dipertahankan agar unggahan multipart tetap bekerja.
+     */
+    private static function flattenFields(array $fields, string $prefix = ''): array
+    {
+        $flat = [];
+        foreach ($fields as $key => $value) {
+            $name = $prefix === '' ? (string)$key : "{$prefix}[{$key}]";
+            if (is_array($value)) {
+                $flat += self::flattenFields($value, $name);
+            } else {
+                $flat[$name] = $value;
+            }
+        }
+        return $flat;
+    }
+
     private function request(string $method, string $path, array $fields = []): Response
     {
         $headers = [];
@@ -143,7 +161,7 @@ final class Http
         ]);
         if ($method === 'POST') {
             curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, self::flattenFields($fields));
         }
 
         $body = curl_exec($ch);
@@ -246,6 +264,16 @@ final class Db
             self::exec("DELETE FROM reports WHERE id = ?", [$id]);
         }
         self::exec("DELETE FROM social_feeds WHERE post_id_str LIKE 'zztest_%'");
+        // Laporan posko uji (wilayah berawalan ZZTEST_) beserta berkas lampirannya; nilai & lampiran ikut via CASCADE
+        $poskoIds = self::pdo()->query("SELECT id FROM posko_reports WHERE region LIKE '" . self::PREFIX . "%'")->fetchAll(PDO::FETCH_COLUMN);
+        foreach ($poskoIds as $pid) {
+            $paths = self::pdo()->query("SELECT file_path FROM posko_report_attachments WHERE report_id = " . (int)$pid)->fetchAll(PDO::FETCH_COLUMN);
+            foreach ($paths as $path) {
+                @unlink(\App\Core\Upload::absolutePath($path));
+            }
+            self::exec("DELETE FROM posko_reports WHERE id = ?", [$pid]);
+        }
+        self::exec("DELETE FROM posko_report_types WHERE code LIKE 'ZZTEST%'");
         // Akun & satuan posko uji (Polsek uji tidak memiliki sub-unit)
         self::exec("DELETE FROM users WHERE email LIKE 'zztest%'");
         self::exec("DELETE FROM satkers WHERE code LIKE 'ZZTEST%'");
