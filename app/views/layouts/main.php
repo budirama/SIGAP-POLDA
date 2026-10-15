@@ -49,16 +49,31 @@
       </a>
 
       <!-- Navigation Links -->
-      <div class="hidden md:flex items-center gap-6 text-sm font-semibold text-slate-300">
+      <div class="hidden xl:flex items-center gap-5 text-sm font-semibold text-slate-300 whitespace-nowrap">
         <a href="<?= $baseUrl ?>/" class="hover:text-amber-400 transition-colors">Beranda</a>
-        <a href="<?= $baseUrl ?>/report/create" class="hover:text-amber-400 transition-colors">Buat Laporan Baru</a>
-        <a href="<?= $baseUrl ?>/report/track" class="hover:text-amber-400 transition-colors">Lacak Status (SP2HP)</a>
+        <a href="<?= $baseUrl ?>/#layanan-warga" class="hover:text-amber-400 transition-colors">Layanan Warga</a>
+        <a href="<?= $baseUrl ?>/report/track" class="hover:text-amber-400 transition-colors">Lacak SP2HP</a>
         <a href="<?= $baseUrl ?>/#alur-pelayanan" class="hover:text-amber-400 transition-colors">Alur Pelayanan</a>
+        <a href="<?= $baseUrl ?>/#management-posko" class="hover:text-amber-400 transition-colors flex items-center gap-1.5">Management Posko <span class="text-[9px] font-black px-1 py-0.5 rounded bg-amber-500 text-slate-950">BARU</span></a>
       </div>
 
       <!-- Action Buttons -->
-      <div class="flex items-center gap-3">
-        <a href="<?= $baseUrl ?>/report/track" class="hidden sm:inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 text-xs font-bold text-slate-200 border border-slate-700 transition-all">
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Menu ringkas untuk layar < xl -->
+        <details class="xl:hidden relative group">
+          <summary class="list-none cursor-pointer p-2 rounded-xl bg-[#1B1610] hover:bg-[#241D14] text-slate-200 border border-[#3B2F1C] text-xs" aria-label="Buka menu navigasi">
+            <i class="fas fa-bars text-sm"></i>
+          </summary>
+          <div class="absolute right-0 mt-2 w-60 p-2 rounded-2xl bg-[#14100C] border border-[#3B2F1C] shadow-2xl text-sm font-semibold text-slate-300 flex flex-col">
+            <a href="<?= $baseUrl ?>/" class="px-3 py-2 rounded-lg hover:bg-[#1B1610] hover:text-amber-400">Beranda</a>
+            <a href="<?= $baseUrl ?>/#layanan-warga" class="px-3 py-2 rounded-lg hover:bg-[#1B1610] hover:text-amber-400">Layanan Warga</a>
+            <a href="<?= $baseUrl ?>/report/track" class="px-3 py-2 rounded-lg hover:bg-[#1B1610] hover:text-amber-400">Lacak SP2HP</a>
+            <a href="<?= $baseUrl ?>/#alur-pelayanan" class="px-3 py-2 rounded-lg hover:bg-[#1B1610] hover:text-amber-400">Alur Pelayanan</a>
+            <a href="<?= $baseUrl ?>/#management-posko" class="px-3 py-2 rounded-lg hover:bg-[#1B1610] hover:text-amber-400 flex items-center justify-between">Management Posko <span class="text-[9px] font-black px-1 py-0.5 rounded bg-amber-500 text-slate-950">BARU</span></a>
+            <a href="<?= $baseUrl ?>/auth/login" class="px-3 py-2 rounded-lg hover:bg-[#1B1610] hover:text-amber-400 border-t border-[#3B2F1C] mt-1 pt-2.5"><i class="fas fa-user-shield text-amber-400 mr-1.5"></i>Login Personil &amp; Posko</a>
+          </div>
+        </details>
+        <a href="<?= $baseUrl ?>/report/track" class="hidden sm:inline-flex whitespace-nowrap items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 text-xs font-bold text-slate-200 border border-slate-700 transition-all">
           <i class="fas fa-magnifying-glass text-amber-400"></i> Lacak Tiket
         </a>
         <a href="<?= $baseUrl ?>/report/create" class="btn-gold inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black transition-all shadow-md hover:shadow-amber-500/30">
@@ -130,6 +145,7 @@
           <li><a href="<?= $baseUrl ?>/report/create" class="hover:text-amber-400 transition-colors">Pengaduan Tindak Pidana</a></li>
           <li><a href="<?= $baseUrl ?>/report/track" class="hover:text-amber-400 transition-colors">Cek Status SP2HP Online</a></li>
           <li><a href="<?= $baseUrl ?>/auth/login" class="hover:text-amber-400 transition-colors">Portal Personil & Penyidik</a></li>
+          <li><a href="<?= $baseUrl ?>/#management-posko" class="hover:text-amber-400 transition-colors">Management Posko Berjenjang</a></li>
           <li><a href="tel:110" class="hover:text-rose-400 transition-colors">Layanan Darurat Bebas Pulsa 110</a></li>
         </ul>
       </div>
@@ -155,9 +171,16 @@
     <!-- Bottom Copyright -->
     <div class="border-t border-[#3B2F1C]/40 max-w-7xl mx-auto px-4 pt-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px]">
       <p>&copy; <?= date('Y') ?> Kepolisian Negara Republik Indonesia. Rastra Sewakotama.</p>
-      <p class="text-slate-500 flex items-center gap-2"><span class="cube-3d" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></span> Dikembangkan bersama Divisi TIK Polri • <span class="font-mono">V1.2.0</span></p>
+      <p class="text-slate-500 flex items-center gap-2"><span class="cube-3d" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></span> Dikembangkan bersama Divisi TIK Polri • <span class="font-mono">v<?= htmlspecialchars(\App\Config\Config::APP_VERSION) ?></span></p>
     </div>
   </footer>
+
+  <script>
+    // Tutup menu ringkas setelah link dipilih (link anchor tidak memuat ulang halaman)
+    document.querySelectorAll('nav details a').forEach(function (a) {
+      a.addEventListener('click', function () { a.closest('details').removeAttribute('open'); });
+    });
+  </script>
 
   <?php require __DIR__ . '/_livechat_widget.php'; ?>
 

@@ -34,6 +34,24 @@ class Satker extends Model
         return $this->fetchAll("SELECT * FROM satkers WHERE type = 'POLDA' ORDER BY name ASC");
     }
 
+    /**
+     * Jumlah satuan aktif per tipe (untuk statistik publik landing page)
+     *
+     * @return array{POLDA:int, POLRES:int, POLSEK:int}
+     */
+    public function countActiveByType(): array
+    {
+        $counts = ['POLDA' => 0, 'POLRES' => 0, 'POLSEK' => 0];
+        $rows = $this->fetchAll(
+            "SELECT type, COUNT(*) AS c FROM satkers
+             WHERE is_active = 1 AND type IN ('POLDA', 'POLRES', 'POLSEK') GROUP BY type"
+        );
+        foreach ($rows as $row) {
+            $counts[$row['type']] = (int)$row['c'];
+        }
+        return $counts;
+    }
+
     public function findById(int $id): ?array
     {
         return $this->fetch("SELECT * FROM satkers WHERE id = ? LIMIT 1", [$id]);

@@ -51,6 +51,10 @@ $late = $report['deadline_at'] && (($report['submitted_at'] ?: date('Y-m-d H:i:s
            class="px-3 py-1.5 rounded-xl bg-[#241D14] border border-amber-600/60 hover:border-amber-400 text-amber-200 text-xs font-bold inline-flex items-center gap-1.5 shadow-sm transition">
           <i class="fas fa-print"></i> Cetak Dokumen
         </a>
+        <a href="<?= $baseUrl ?>/posko-laporan/pdf/<?= (int)$report['id'] ?>"
+           class="px-3 py-1.5 rounded-xl bg-[#241D14] border border-red-700/60 hover:border-red-500 text-red-200 text-xs font-bold inline-flex items-center gap-1.5 shadow-sm transition">
+          <i class="fas fa-file-pdf"></i> Unduh PDF
+        </a>
       </div>
     </div>
 
