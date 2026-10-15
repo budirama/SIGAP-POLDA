@@ -37,7 +37,7 @@ Hasil review ulang 15 Oktober 2026 setelah PR #1–#11 (lihat `docs/TASK_HARDENI
 - **Solusi:** muat ulang user (aktif/role/satker) tiap request, timeout idle 30 menit & absolut 8 jam, `Secure` saat HTTPS, `use_strict_mode`, regenerasi ID sesi saat PIN diverifikasi, fingerprint tanpa IP.
 
 ### U6 — Akses baca per role & navigasi
-- [ ] **Masalah:** link Kapolda ke SPKT/Medsos/"Lihat Progres" ditolak; Kasatker & Itwasda tidak dapat membuka workspace kasus; Kanit hanya melihat kasus miliknya sendiri; daftar penyidik untuk Superadmin kosong.
+- [x] **Masalah:** link Kapolda ke SPKT/Medsos/"Lihat Progres" ditolak; Kasatker & Itwasda tidak dapat membuka workspace kasus; Kanit hanya melihat kasus miliknya sendiri; daftar penyidik untuk Superadmin kosong.
 - **Solusi:** workspace kasus mode baca untuk personil berwenang (`officerCanView`), aksi tetap hanya untuk penangan; navigasi sesuai hak akses; Kanit melihat seluruh kasus Satker-nya; daftar penyidik sesuai Satker laporan.
 
 ### U7 — Modul Media Sosial

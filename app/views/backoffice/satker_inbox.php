@@ -90,11 +90,13 @@
 
                 <td class="p-4 text-center">
                   <div class="flex items-center justify-center gap-2">
+                    <?php if (in_array($r['status'], ['DISPATCHED', 'ASSIGNED'], true)): ?>
                     <button onclick="openAssignModal(<?= htmlspecialchars(json_encode(['id' => (int)$r['id'], 'ticket_number' => $r['ticket_number'], 'title' => $r['title'], 'current_satker_id' => $r['current_satker_id'], 'assigned_investigator_id' => $r['assigned_investigator_id']])) ?>)"
                             class="px-3 py-1.5 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-bold rounded-lg text-xs shadow transition-all flex items-center gap-1">
                       <i class="fas fa-user-plus text-[10px]"></i>
                       <span><?= empty($r['investigator_name']) ? 'Tunjuk Penyidik' : 'Ganti' ?></span>
                     </button>
+                    <?php endif; ?>
 
                     <a href="<?= $baseUrl ?>/investigator/detail/<?= $r['id'] ?>"
                        class="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs transition-colors"
@@ -148,7 +150,7 @@
                 class="w-full bg-[#070F1E] border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 outline-none focus:border-amber-500">
           <option value="">-- Pilih Anggota Penyidik --</option>
           <?php foreach ($investigators as $inv): ?>
-            <option value="<?= $inv['id'] ?>">
+            <option value="<?= (int)$inv['id'] ?>" data-satker="<?= (int)$inv['satker_id'] ?>">
               <?= htmlspecialchars($inv['rank'] . ' ' . $inv['name'] . ' (NRP: ' . $inv['nrp'] . ')') ?>
             </option>
           <?php endforeach; ?>
@@ -173,9 +175,14 @@
   function openAssignModal(report) {
     document.getElementById('assign_report_id').value = report.id;
     document.getElementById('assign_ticket_label').innerText = report.ticket_number + ' - ' + report.title;
-    if (report.assigned_investigator_id) {
-      document.getElementById('assign_investigator_id').value = report.assigned_investigator_id;
-    }
+    const select = document.getElementById('assign_investigator_id');
+    // Hanya penyidik dari Satker pemilik laporan yang dapat dipilih
+    Array.from(select.options).forEach(opt => {
+      if (opt.dataset.satker) {
+        opt.hidden = opt.disabled = String(opt.dataset.satker) !== String(report.current_satker_id);
+      }
+    });
+    select.value = report.assigned_investigator_id ? String(report.assigned_investigator_id) : '';
     document.getElementById('modalAssign').classList.remove('hidden');
   }
 </script>

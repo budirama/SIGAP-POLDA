@@ -41,6 +41,26 @@ class ReportAccess
     }
 
     /**
+     * Berkas perkara lengkap (workspace kasus, termasuk catatan internal):
+     * pimpinan & pengawas semua kasus, Satker kasus disposisinya, Penyidik kasusnya.
+     * Operator SPKT tidak termasuk (cukup halaman publik laporan).
+     */
+    public static function canViewCaseFile(array $report): bool
+    {
+        if (!Auth::check()) {
+            return false;
+        }
+
+        return match (Auth::role()) {
+            Constants::ROLE_SUPERADMIN, Constants::ROLE_EXECUTIVE, Constants::ROLE_INTERNAL_AFFAIRS => true,
+            Constants::ROLE_SATKER_HEAD, Constants::ROLE_SATKER_ADMIN => !empty($report['current_satker_id'])
+                && (int)$report['current_satker_id'] === Auth::satkerId(),
+            Constants::ROLE_INVESTIGATOR => (int)($report['assigned_investigator_id'] ?? 0) === Auth::id(),
+            default => false,
+        };
+    }
+
+    /**
      * Pelapor: akun warga pemilik laporan, atau sesi yang telah memverifikasi PIN tiket
      */
     public static function reporterCanView(array $report): bool

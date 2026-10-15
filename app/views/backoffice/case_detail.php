@@ -3,7 +3,7 @@
   <!-- Breadcrumb & Back -->
   <div class="flex items-center justify-between">
     <nav class="flex items-center gap-2 text-xs text-slate-400">
-      <a href="<?= $baseUrl ?>/investigator" class="hover:text-amber-400">Workspace Kasus</a>
+      <a href="<?= $baseUrl ?><?= htmlspecialchars($backUrl) ?>" class="hover:text-amber-400">Kembali</a>
       <i class="fas fa-chevron-right text-[10px] text-slate-600"></i>
       <span class="text-amber-400 font-mono font-bold"><?= htmlspecialchars($report['ticket_number']) ?></span>
     </nav>
@@ -115,6 +115,11 @@
 
   </div>
 
+  <?php if (!$canHandle): ?>
+    <div class="p-3 rounded-xl bg-sky-950/60 border border-sky-800/60 text-sky-200 text-xs flex items-center gap-2">
+      <i class="fas fa-eye"></i> Mode baca: Anda dapat memantau berkas perkara ini, tetapi tindakan penyidikan hanya oleh penyidik/Kanit penangan.
+    </div>
+  <?php else: ?>
   <!-- Workspace Forms: Terbitkan SP2HP & Selesaikan Kasus -->
   <div class="grid lg:grid-cols-12 gap-6">
     
@@ -212,6 +217,7 @@
     </div>
 
   </div>
+  <?php endif; ?>
 
   <!-- Ruang Klarifikasi & Komunikasi Dua Arah (Polisi Bersama Masyarakat) -->
   <div id="ruang-klarifikasi" class="polri-glass-card rounded-2xl p-6 border border-amber-500/40 shadow-2xl relative overflow-hidden">
@@ -293,6 +299,7 @@
     </div>
 
     <!-- Form Kirim Pesan Penyidik ke Pelapor -->
+    <?php if ($canHandle): ?>
     <form action="<?= $baseUrl ?>/investigator/sendMessage" method="POST" enctype="multipart/form-data" class="bg-[#070F1E] p-4 rounded-xl border border-slate-700/80 space-y-3">
       <input type="hidden" name="_csrf_token" value="<?= $csrfToken ?>">
       <input type="hidden" name="report_id" value="<?= $report['id'] ?>">
@@ -323,6 +330,7 @@
         </button>
       </div>
     </form>
+    <?php endif; ?>
   </div>
 
   <!-- Complete Timeline (Public + Internal Notes) -->

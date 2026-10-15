@@ -7,6 +7,7 @@ namespace App\Controllers;
 
 use App\Core\Controller;
 use App\Core\Auth;
+use App\Core\ReportAccess;
 use App\Core\Session;
 use App\Core\Upload;
 use App\Config\Constants;
@@ -18,9 +19,13 @@ class InvestigatorController extends Controller
 
     public function __construct()
     {
+        // Penangan kasus + pembaca berkas perkara (pimpinan & pengawas, mode baca)
         Auth::requireRole([
             Constants::ROLE_INVESTIGATOR,
             Constants::ROLE_SATKER_ADMIN,
+            Constants::ROLE_SATKER_HEAD,
+            Constants::ROLE_EXECUTIVE,
+            Constants::ROLE_INTERNAL_AFFAIRS,
             Constants::ROLE_SUPERADMIN
         ]);
 
@@ -32,12 +37,15 @@ class InvestigatorController extends Controller
      */
     public function index(): void
     {
-        $myId = Auth::id();
-        $isSuper = Auth::role() === Constants::ROLE_SUPERADMIN;
+        Auth::requireRole([Constants::ROLE_INVESTIGATOR, Constants::ROLE_SATKER_ADMIN, Constants::ROLE_SUPERADMIN], $this->homeUrl());
 
-        $reports = $this->reportModel->getFilteredReports([
-            'investigator_id' => $isSuper ? null : $myId
-        ]);
+        // Penyidik: kasus yang ditugaskan kepadanya; Kanit: seluruh kasus Satker-nya
+        $filters = match (Auth::role()) {
+            Constants::ROLE_INVESTIGATOR => ['investigator_id' => Auth::id()],
+            Constants::ROLE_SATKER_ADMIN => ['satker_id' => Auth::satkerId() ?? -1],
+            default => [],
+        };
+        $reports = $this->reportModel->getFilteredReports($filters);
 
         $this->render('backoffice/investigator_list', [
             'pageTitle' => 'Workspace Kasus Aktif Penyidik',
@@ -50,7 +58,11 @@ class InvestigatorController extends Controller
      */
     public function detail(int $id): void
     {
-        $report = $this->findAuthorizedReport($id);
+        $report = $this->reportModel->findById($id);
+        if (!$report || !ReportAccess::canViewCaseFile($report)) {
+            Session::setFlash('error', 'Data perkara tidak ditemukan atau bukan dalam kewenangan Anda.');
+            $this->redirect($this->homeUrl());
+        }
 
         // Ambil timeline lengkap (termasuk rahasia internal)
         $timeline = $this->reportModel->getTimeline($id, true);
@@ -62,7 +74,9 @@ class InvestigatorController extends Controller
             'report'      => $report,
             'timeline'    => $timeline,
             'attachments' => $attachments,
-            'messages'    => $messages
+            'messages'    => $messages,
+            'canHandle'   => $this->canHandle($report),
+            'backUrl'     => $this->homeUrl()
         ], 'admin');
     }
 
@@ -213,7 +227,7 @@ class InvestigatorController extends Controller
 
         if (!$report || !$this->canHandle($report)) {
             Session::setFlash('error', 'Data perkara tidak ditemukan atau bukan dalam kewenangan Anda.');
-            $this->redirect('/investigator');
+            $this->redirect($this->homeUrl());
         }
 
         return $report;
@@ -239,5 +253,18 @@ class InvestigatorController extends Controller
             Session::setFlash('error', 'Perkara ini tidak dalam tahap penyelidikan aktif.');
             $this->redirect("/investigator/detail/{$report['id']}");
         }
+    }
+
+    /**
+     * Halaman asal sesuai role (tujuan kembali / pengalihan saat akses ditolak)
+     */
+    private function homeUrl(): string
+    {
+        return match (Auth::role()) {
+            Constants::ROLE_EXECUTIVE => '/executive',
+            Constants::ROLE_SATKER_HEAD => '/satker',
+            Constants::ROLE_INTERNAL_AFFAIRS => '/spkt',
+            default => '/investigator',
+        };
     }
 }
