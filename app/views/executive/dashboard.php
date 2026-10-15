@@ -249,7 +249,8 @@
       maxZoom: 19
     }).addTo(map);
 
-    const points = <?= json_encode($heatmapPoints) ?>;
+    const points = <?= json_encode($heatmapPoints, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+    const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
 
     points.forEach(p => {
       if (p.latitude && p.longitude) {
@@ -271,10 +272,10 @@
 
         const popupContent = `
           <div style="font-family: sans-serif; font-size: 11px; color: #1e293b; max-width: 200px;">
-            <b style="color: ${color};">${p.ticket_number}</b><br>
-            <b>${p.title}</b><br>
-            <span style="color: #64748b;">${p.incident_location}</span><br>
-            <span style="font-size: 9px; color: #94a3b8;">Status: ${p.status}</span>
+            <b style="color: ${color};">${esc(p.ticket_number)}</b><br>
+            <b>${esc(p.title)}</b><br>
+            <span style="color: #64748b;">${esc(p.incident_location)}</span><br>
+            <span style="font-size: 9px; color: #94a3b8;">Status: ${esc(p.status)}</span>
           </div>
         `;
         circleMarker.bindPopup(popupContent);

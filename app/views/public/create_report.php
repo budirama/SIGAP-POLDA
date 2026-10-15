@@ -321,7 +321,8 @@
         const file = input.files[i];
         const item = document.createElement('div');
         item.className = 'flex items-center justify-between p-2 rounded-lg bg-[#070F1E] border border-slate-800 text-xs text-slate-300';
-        item.innerHTML = `<span><i class="fas fa-file text-amber-400 mr-2"></i> ${file.name}</span><span class="text-slate-500 font-mono text-[10px]">${(file.size / 1024).toFixed(1)} KB</span>`;
+        item.innerHTML = `<span><i class="fas fa-file text-amber-400 mr-2"></i> <span class="file-name"></span></span><span class="text-slate-500 font-mono text-[10px]">${(file.size / 1024).toFixed(1)} KB</span>`;
+        item.querySelector('.file-name').textContent = file.name;
         list.appendChild(item);
       }
     }

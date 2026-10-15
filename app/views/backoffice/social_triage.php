@@ -59,7 +59,7 @@
                 <?php if (!empty($feed['author_avatar'])): ?>
                   <img src="<?= htmlspecialchars($feed['author_avatar']) ?>" alt="Avatar" class="w-full h-full object-cover">
                 <?php else: ?>
-                  <?= strtoupper(substr($feed['author_username'], 0, 2)) ?>
+                  <?= htmlspecialchars(strtoupper(substr($feed['author_username'], 0, 2))) ?>
                 <?php endif; ?>
               </div>
               <div class="overflow-hidden">

@@ -69,7 +69,8 @@ abstract class Controller
     }
 
     /**
-     * Input Sanitization Helper
+     * Input Helper: nilai mentah (hanya di-trim). Data disimpan apa adanya;
+     * escape HTML WAJIB dilakukan di view saat output (htmlspecialchars).
      */
     protected function post(string $key, mixed $default = null): mixed
     {
@@ -78,10 +79,7 @@ abstract class Controller
         }
 
         $val = $_POST[$key];
-        if (is_string($val)) {
-            return trim(htmlspecialchars($val, ENT_QUOTES, 'UTF-8'));
-        }
-        return $val;
+        return is_string($val) ? trim($val) : $val;
     }
 
     protected function get(string $key, mixed $default = null): mixed
@@ -91,10 +89,7 @@ abstract class Controller
         }
 
         $val = $_GET[$key];
-        if (is_string($val)) {
-            return trim(htmlspecialchars($val, ENT_QUOTES, 'UTF-8'));
-        }
-        return $val;
+        return is_string($val) ? trim($val) : $val;
     }
 
     protected function isPost(): bool
