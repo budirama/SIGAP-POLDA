@@ -1,7 +1,8 @@
 # 🎬 Video Demo Alur Proses SIGAP-POLRI — Teks Penjelasan & Narasi
 
-**File video:** `docs/demo/SIGAP-POLRI-Demo-Alur-Proses.mp4` (1280×720, ±7 menit 25 detik, tanpa suara)
-**Subtitle:** `docs/demo/SIGAP-POLRI-Demo-Alur-Proses.srt` (bisa dimuat di VLC atau YouTube)
+**File video (dengan voice-over):** `docs/demo/SIGAP-POLRI-Demo-Alur-Proses-VO.mp4` (1280×720, ±8 menit 42 detik, narasi suara bahasa Indonesia)
+**Subtitle:** `docs/demo/SIGAP-POLRI-Demo-Alur-Proses-VO.srt` (bisa dimuat di VLC atau YouTube)
+**Versi tanpa suara:** `docs/demo/SIGAP-POLRI-Demo-Alur-Proses.mp4` dan `.srt` (±7 menit 25 detik)
 **Contoh perkara di video:** Tiket `LP-POLRI-202610-0021`, *Pencurian Sepeda Motor di Depan Minimarket*
 
 Video ini merekam satu perkara dari awal sampai akhir: warga melapor, perkaranya diverifikasi, diberi atensi pimpinan, ditangani penyidik, lalu selesai dan dinilai warga. Setiap adegan menampilkan keterangan langkah di bagian bawah layar dan label peran pengguna di pojok kanan atas.
@@ -23,7 +24,7 @@ Kanal masuk lain: **Media Sosial** (dikonversi oleh Humas) dan **Live Chat** (di
 
 ## Naskah Narasi per Adegan
 
-Kolom *Narasi* dapat dibacakan sebagai *voice-over* saat presentasi. Waktu mengikuti posisi di video.
+Video ber-*voice-over* membacakan teks keterangan yang tampil di layar. Kolom *Narasi* di bawah adalah naskah alternatif yang lebih panjang untuk dibacakan langsung saat presentasi memakai versi tanpa suara. Waktu mengikuti posisi di versi tanpa suara.
 
 | Waktu | Langkah | Peran | Yang Tampil di Layar | Narasi |
 |---|---|---|---|---|
@@ -63,10 +64,12 @@ Kolom *Narasi* dapat dibacakan sebagai *voice-over* saat presentasi. Waktu mengi
 
 ## Merekam Ulang Video
 
-Video direkam otomatis dengan Playwright (`record.js`) lalu digabung dengan FFmpeg (`build.js`).
+Video direkam otomatis dengan Playwright (`record.js`), lalu digabung dengan FFmpeg (`build.js` untuk versi tanpa suara, `build-vo.js` untuk versi ber-voice-over).
 
 1. Jalankan Apache & MySQL di XAMPP, lalu pastikan `http://localhost/SIGAP-Polda/public` dapat dibuka.
-2. Di folder kerja terpisah: `npm i playwright@1.56.1`, salin `record.js` dan `build.js`, lalu siapkan gambar bukti `bukti-cctv.png`.
-3. Jalankan `node record.js`, kemudian `node build.js`. Keduanya membutuhkan `ffmpeg` di PATH.
+2. Di folder kerja terpisah: `npm i playwright@1.56.1`, salin ketiga skrip, lalu siapkan gambar bukti `bukti-cctv.png`.
+3. Jalankan `node record.js`, kemudian `node build.js` dan/atau `node build-vo.js`. Semuanya membutuhkan `ffmpeg` di PATH.
+
+**Voice-over:** `build-vo.js` membuat suara dengan `edge-tts` (`pip install edge-tts`, suara `id-ID-ArdiNeural`; bisa diganti lewat variabel lingkungan `VOICE`, misalnya `id-ID-GadisNeural` untuk suara perempuan, dan kecepatannya lewat `RATE`). Layanan ini membutuhkan koneksi internet karena teks narasi dikirim ke layanan TTS Microsoft. Bila narasi lebih panjang daripada adegannya, frame terakhir adegan ditahan sampai narasi selesai, sehingga suara dan gambar tetap sinkron.
 
 > ⚠️ Setiap perekaman membuat data baru di database (laporan, chat, dan atensi). Jalankan hanya di database demo/lokal.

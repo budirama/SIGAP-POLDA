@@ -1,0 +1,232 @@
+1
+00:00:00,400 --> 00:00:10,932
+Inilah SIGAP Polri, Sistem Integrasi Pengaduan dan Dumas Terpadu Polri. Video ini menunjukkan perjalanan satu laporan warga, dari pelaporan hingga perkara selesai.
+
+2
+00:00:10,932 --> 00:00:26,155
+Portal Publik Warga
+Halaman depan SIGAP: akses pengaduan satu pintu, alur penanganan yang transparan, dan hotline darurat 110.
+
+3
+00:00:30,530 --> 00:00:39,694
+Formulir Pengaduan Masyarakat
+Warga mengisi identitas pelapor: NIK, nama, nomor WhatsApp, dan tingkat kedaruratan.
+
+4
+00:00:39,694 --> 00:00:49,194
+Perlindungan Whistleblower
+Opsional: pelapor dapat merahasiakan identitasnya. Pada demo ini identitas tetap ditampilkan.
+
+5
+00:00:49,194 --> 00:00:58,931
+Detail Kejadian
+Pilih kategori perkara, isi judul, tanggal & jam kejadian, serta kronologi singkat.
+
+6
+00:00:58,931 --> 00:01:07,039
+Lokasi TKP & Pinpoint Peta
+Alamat TKP diisi, lalu titik koordinat ditandai langsung pada peta interaktif.
+
+7
+00:01:07,039 --> 00:01:14,907
+Unggah Bukti & Kirim
+Bukti foto/rekaman dilampirkan, kemudian laporan dikirim ke Command Center SPKT.
+
+8
+00:01:14,907 --> 00:01:23,207
+Nomor Tiket & PIN Pelacakan Terbit
+Sistem menerbitkan Nomor Tiket LP-POLRI-202610-0021 dan PIN rahasia 6 digit untuk melacak perkembangan laporan.
+
+9
+00:01:27,785 --> 00:01:35,677
+Lacak Status Laporan
+Warga memasukkan Nomor Tiket & PIN untuk memantau progres laporan kapan saja tanpa perlu login.
+
+10
+00:01:35,677 --> 00:01:46,113
+Status: Menunggu Verifikasi
+Laporan tercatat dan menunggu diverifikasi petugas SPKT. Linimasa penanganan tampil secara transparan.
+
+11
+00:01:46,113 --> 00:01:58,589
+Kanal Media Sosial (Omnichannel)
+Selain portal, aduan juga masuk dari X/Twitter, Instagram, Facebook & TikTok. Petugas Humas login ke backoffice.
+
+12
+00:01:58,589 --> 00:02:06,985
+Workspace Social Media Ingestion
+Mention & postingan viral yang menandai akun Polri dikumpulkan di satu layar beserta sentimennya.
+
+13
+00:02:06,985 --> 00:02:16,149
+Konversi 1-Klik Menjadi Tiket Resmi
+Postingan yang valid dikonversi menjadi tiket laporan resmi, lalu masuk antrean verifikasi SPKT.
+
+14
+00:02:16,149 --> 00:02:30,763
+Meja Verifikasi SPKT
+Operator SPKT (Command Center) login untuk memverifikasi laporan yang masuk.
+
+15
+00:02:30,763 --> 00:02:40,599
+Antrean Laporan Masuk
+Semua laporan dari portal, media sosial & live chat masuk ke sini. Petugas dapat memfilter dan mencari tiket.
+
+16
+00:02:40,599 --> 00:02:50,171
+Verifikasi & Disposisi
+Laporan layak ditindaklanjuti didisposisikan ke Satker; laporan hoaks/tidak layak dapat ditolak beserta alasannya.
+
+17
+00:02:50,171 --> 00:02:59,671
+Disposisi ke Dittipidum Bareskrim
+Perkara pencurian (kriminal umum) diteruskan ke Dittipidum Bareskrim disertai catatan instruksi awal.
+
+18
+00:02:59,671 --> 00:03:07,347
+Disposisi Terkirim
+Status laporan berubah menjadi terdisposisi dan otomatis masuk ke Inbox Satker tujuan.
+
+19
+00:03:07,347 --> 00:03:22,654
+Situational Command Center
+Pimpinan memantau seluruh perkara secara real-time melalui dashboard eksekutif.
+
+20
+00:03:22,654 --> 00:03:35,845
+KPI & Peta Sebaran Kejadian (GIS)
+Clearance rate, waktu respons, watchlist Satker yang melewati SLA, dan peta heatmap titik kejadian.
+
+21
+00:03:35,845 --> 00:03:47,988
+Beri Atensi Pimpinan
+Untuk perkara yang perlu dikawal, pimpinan memberi atensi dengan instruksi tertulis kepada Satker.
+
+22
+00:03:47,988 --> 00:03:56,336
+Atensi Tercatat
+Perkara ditandai prioritas (bintang merah) dan instruksi masuk ke inbox Satker penanggung jawab.
+
+23
+00:03:56,336 --> 00:04:08,055
+Inbox Satuan Kerja
+Kanit Dittipidum menerima disposisi SPKT beserta instruksi atensi dari pimpinan.
+
+24
+00:04:08,055 --> 00:04:16,835
+Instruksi Atensi & Disposisi Masuk
+Instruksi pimpinan tampil di bagian atas; daftar perkara terdisposisi berada di bawahnya.
+
+25
+00:04:16,835 --> 00:04:25,807
+Terbitkan Surat Perintah Tugas (Sprintgas)
+Kanit menunjuk Penyidik Pelaksana; nomor Sprintgas dibuat otomatis oleh sistem.
+
+26
+00:04:25,807 --> 00:04:32,907
+Penyidik Ditugaskan
+Perkara kini menjadi tanggung jawab Ipda Rian Prasetya sebagai penyidik pelaksana.
+
+27
+00:04:32,907 --> 00:04:48,882
+Workspace Penyidik
+Penyidik melihat daftar perkara aktif yang ditugaskan kepadanya.
+
+28
+00:04:48,882 --> 00:04:57,806
+Lembar Kerja Perkara
+Detail laporan, bukti, lokasi, dan riwayat penanganan tersaji dalam satu lembar kerja.
+
+29
+00:04:57,806 --> 00:05:07,243
+Ruang Klarifikasi Dua Arah
+Penyidik dapat langsung meminta keterangan tambahan kepada pelapor tanpa harus memanggil ke kantor.
+
+30
+00:05:07,243 --> 00:05:18,601
+Penerbitan SP2HP Elektronik
+Catatan publik dikirim ke pelapor sebagai SP2HP; catatan internal bersifat rahasia dan hanya terlihat oleh petugas.
+
+31
+00:05:18,601 --> 00:05:26,517
+SP2HP Terkirim ke Pelapor
+Status perkara menjadi Dalam Penyelidikan dan pelapor dapat langsung melihat perkembangannya.
+
+32
+00:05:28,809 --> 00:05:35,429
+Warga Memantau Perkembangan
+Pelapor kembali membuka halaman lacak dengan Nomor Tiket & PIN.
+
+33
+00:05:35,429 --> 00:05:47,377
+Linimasa & SP2HP Elektronik
+Setiap tahapan (verifikasi, disposisi, penugasan, SP2HP) tercatat lengkap dengan waktu dan nomor dokumennya.
+
+34
+00:05:47,377 --> 00:05:55,554
+Membalas Permintaan Klarifikasi
+Pelapor membalas pesan penyidik dan dapat melampirkan bukti tambahan.
+
+35
+00:05:55,554 --> 00:06:03,566
+Dokumen Resmi SP2HP
+SP2HP dapat dipratinjau dan dicetak sebagai dokumen resmi berformat A4.
+
+36
+00:06:03,566 --> 00:06:18,711
+Penyelesaian Perkara
+Setelah pelaku teridentifikasi dan barang bukti ditemukan, penyidik menutup perkara.
+
+37
+00:06:18,711 --> 00:06:28,552
+Tutup Perkara dengan Berita Acara
+Penyidik mengisi ringkasan hasil penanganan; pelapor otomatis menerima pemberitahuan penyelesaian.
+
+38
+00:06:28,552 --> 00:06:34,332
+Perkara Selesai
+Status perkara berubah menjadi Selesai / Ditutup.
+
+39
+00:06:36,824 --> 00:06:45,404
+Survei Kepuasan Masyarakat (SKM)
+Setelah perkara selesai, pelapor diminta menilai layanan Polri.
+
+40
+00:06:45,404 --> 00:06:54,664
+Penilaian Bintang 1–5
+Pelapor menilai kecepatan, keadilan, dan memberikan komentar sebagai bahan evaluasi kinerja Satker.
+
+41
+00:06:54,664 --> 00:07:01,428
+Terima Kasih
+Nilai SKM tercatat dan menjadi indikator kinerja pada dashboard pimpinan.
+
+42
+00:07:04,261 --> 00:07:21,183
+Live Chat SPKT
+Warga juga dapat berkonsultasi langsung dengan petugas melalui widget Live Chat tanpa login.
+
+43
+00:07:21,183 --> 00:07:27,683
+Chat Masuk Antrean
+Percakapan langsung masuk ke antrean konsol Omnichat petugas Command Center.
+
+44
+00:07:27,683 --> 00:08:03,175
+Konsol Omnichat
+Operator SPKT melihat antrean chat, mengambil alih percakapan, dan membalas warga.
+
+45
+00:08:03,175 --> 00:08:11,571
+Konversi Chat Menjadi Tiket
+Jika memenuhi unsur, chat dikonversi menjadi tiket resmi (kanal LIVE_CHAT) dan mengikuti alur verifikasi yang sama.
+
+46
+00:08:11,571 --> 00:08:34,027
+Pengawasan & Jejak Audit
+Itwasum memantau kepatuhan: setiap akses dan tindakan personil tercatat di jejak audit.
+
+47
+00:08:34,027 --> 00:08:42,207
+SIGAP Polri. Pengaduan satu pintu, penanganan terukur, dan transparan bagi masyarakat. Polisi bersama masyarakat.
