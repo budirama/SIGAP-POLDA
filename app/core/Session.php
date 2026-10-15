@@ -7,27 +7,75 @@ namespace App\Core;
 
 class Session
 {
+    public const IDLE_TIMEOUT = 30 * 60;          // 30 menit tanpa aktivitas
+    public const ABSOLUTE_TIMEOUT = 8 * 60 * 60;  // 8 jam sejak sesi dibuat
+
     public static function start(): void
     {
         if (session_status() === PHP_SESSION_NONE) {
             // Set parameter cookie aman
             ini_set('session.cookie_httponly', '1');
             ini_set('session.use_only_cookies', '1');
+            ini_set('session.use_strict_mode', '1'); // tolak ID sesi buatan klien (session fixation)
             ini_set('session.cookie_samesite', 'Strict');
+            if (self::isHttps()) {
+                ini_set('session.cookie_secure', '1');
+            }
 
             session_start();
 
-            // Proteksi Session Hijacking melalui User-Agent & IP
-            $fingerprint = md5(($_SERVER['HTTP_USER_AGENT'] ?? '') . ($_SERVER['REMOTE_ADDR'] ?? ''));
-            if (!isset($_SESSION['_fingerprint'])) {
-                $_SESSION['_fingerprint'] = $fingerprint;
-            } elseif ($_SESSION['_fingerprint'] !== $fingerprint) {
-                // Session dicuri, hancurkan session
-                self::destroy();
-                session_start();
-                $_SESSION['_fingerprint'] = $fingerprint;
+            $now = time();
+            // Fingerprint User-Agent (tanpa IP agar pengguna seluler/CGNAT tidak terputus)
+            $fingerprint = hash('sha256', $_SERVER['HTTP_USER_AGENT'] ?? '');
+            $mismatch = isset($_SESSION['_fingerprint']) && !hash_equals($_SESSION['_fingerprint'], $fingerprint);
+
+            if ($mismatch || self::isExpired($_SESSION, $now)) {
+                $hadLogin = isset($_SESSION['auth_user']);
+                self::restart();
+                if ($hadLogin) {
+                    $_SESSION['_flash']['error'][] = 'Sesi Anda telah berakhir. Silakan login kembali.';
+                }
             }
+
+            $_SESSION['_fingerprint'] = $fingerprint;
+            $_SESSION['_created'] ??= $now;
+            $_SESSION['_last_activity'] = $now;
         }
+    }
+
+    /**
+     * Sesi kedaluwarsa bila tidak aktif melewati batas idle atau melewati umur maksimum
+     */
+    public static function isExpired(array $session, int $now): bool
+    {
+        if (isset($session['_last_activity']) && $now - (int)$session['_last_activity'] > self::IDLE_TIMEOUT) {
+            return true;
+        }
+        return isset($session['_created']) && $now - (int)$session['_created'] > self::ABSOLUTE_TIMEOUT;
+    }
+
+    /**
+     * Hapus seluruh isi sesi dan terbitkan ID sesi baru
+     */
+    public static function restart(): void
+    {
+        $_SESSION = [];
+        session_regenerate_id(true);
+    }
+
+    /**
+     * Ganti ID sesi (setelah peningkatan hak akses: login, verifikasi PIN)
+     */
+    public static function regenerate(): void
+    {
+        self::start();
+        session_regenerate_id(true);
+    }
+
+    private static function isHttps(): bool
+    {
+        return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+            || (int)($_SERVER['SERVER_PORT'] ?? 0) === 443;
     }
 
     public static function set(string $key, mixed $value): void
