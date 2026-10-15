@@ -283,24 +283,44 @@ class Report extends Model
     {
         $this->beginTransaction();
         try {
-            $report = $this->findById($reportId);
+            // Kunci baris laporan agar pemeriksaan status & perubahan bersifat atomik
+            $report = $this->fetch(
+                "SELECT r.status, r.current_satker_id, r.assigned_investigator_id,
+                        inv.name AS investigator_name, inv.rank AS investigator_rank
+                 FROM reports r
+                 LEFT JOIN users inv ON r.assigned_investigator_id = inv.id
+                 WHERE r.id = ? FOR UPDATE",
+                [$reportId]
+            );
             $satker = $this->fetch("SELECT name FROM satkers WHERE id = ?", [$satkerId]);
-            $satkerName = $satker['name'] ?? 'Satker Terkait';
 
+            if (!$report || !$satker || !in_array($report['status'], Constants::DISPATCHABLE_STATUSES, true)) {
+                $this->rollBack();
+                return false;
+            }
+
+            $isRedispatch = !empty($report['current_satker_id']);
+            $internalNotes = "Catatan Disposisi SPKT: {$notes}";
+            if (!empty($report['assigned_investigator_id'])) {
+                $internalNotes .= " Penugasan penyidik sebelumnya ({$report['investigator_rank']} {$report['investigator_name']}) dicabut.";
+            }
+
+            // Disposisi (ulang) mencabut penyidik lama: penugasan baru dilakukan oleh Satker tujuan
             $this->execute(
-                "UPDATE reports SET status = 'DISPATCHED', current_satker_id = ? WHERE id = ?",
+                "UPDATE reports SET status = 'DISPATCHED', current_satker_id = ?, assigned_investigator_id = NULL WHERE id = ?",
                 [$satkerId, $reportId]
             );
 
             $this->execute(
                 "INSERT INTO report_timeline (report_id, actor_id, status_from, status_to, title, public_notes, internal_notes)
-                 VALUES (?, ?, ?, 'DISPATCHED', 'Disposisi ke Satker Terkait', ?, ?)",
+                 VALUES (?, ?, ?, 'DISPATCHED', ?, ?, ?)",
                 [
                     $reportId,
                     $actorId,
                     $report['status'],
-                    "Laporan telah diverifikasi oleh SPKT Polda dan didisposisikan ke {$satkerName} untuk tindak lanjut.",
-                    "Catatan Disposisi SPKT: {$notes}"
+                    $isRedispatch ? 'Disposisi Ulang ke Satker Lain' : 'Disposisi ke Satker Terkait',
+                    "Laporan telah diverifikasi oleh SPKT Polda dan didisposisikan ke {$satker['name']} untuk tindak lanjut.",
+                    $internalNotes
                 ]
             );
 
@@ -425,7 +445,11 @@ class Report extends Model
     {
         $this->beginTransaction();
         try {
-            $report = $this->findById($reportId);
+            $report = $this->fetch("SELECT status FROM reports WHERE id = ? FOR UPDATE", [$reportId]);
+            if (!$report || !in_array($report['status'], Constants::REJECTABLE_STATUSES, true)) {
+                $this->rollBack();
+                return false;
+            }
 
             $this->execute(
                 "UPDATE reports SET status = 'REJECTED', rejection_reason = ? WHERE id = ?",

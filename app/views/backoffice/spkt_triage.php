@@ -12,6 +12,11 @@
       <p class="text-xs text-slate-400 mt-1">
         Verifikasi kelayakan aduan masyarakat dari Web, WhatsApp, maupun Eskalasi Media Sosial. Tentukan disposisi ke Direktorat atau Polres jajaran.
       </p>
+      <?php if (!$canAct): ?>
+        <p class="mt-2 inline-flex items-center gap-1.5 text-[11px] font-semibold text-sky-300 bg-sky-950/60 border border-sky-800/60 px-2.5 py-1 rounded-lg">
+          <i class="fas fa-eye"></i> Mode pengawasan (hanya lihat)
+        </p>
+      <?php endif; ?>
     </div>
 
     <!-- Quick Stats -->
@@ -141,6 +146,7 @@
                 <td class="p-4 text-center">
                   <div class="flex items-center justify-center gap-1.5">
                     
+                    <?php if ($canAct && in_array($r['status'], \App\Config\Constants::DISPATCHABLE_STATUSES, true)): ?>
                     <!-- Tombol Disposisi -->
                     <button onclick="openDispatchModal(<?= htmlspecialchars(json_encode(['id' => (int)$r['id'], 'ticket_number' => $r['ticket_number'], 'title' => $r['title'], 'current_satker_id' => $r['current_satker_id'], 'assigned_investigator_id' => $r['assigned_investigator_id']])) ?>)"
                             class="px-2.5 py-1.5 bg-blue-900/60 hover:bg-blue-800 text-blue-200 font-bold rounded-lg transition-colors flex items-center gap-1"
@@ -148,8 +154,9 @@
                       <i class="fas fa-share-nodes text-xs"></i>
                       <span class="hidden lg:inline text-[11px]">Disposisi</span>
                     </button>
+                    <?php endif; ?>
 
-                    <?php if (in_array($r['status'], ['SUBMITTED', 'VERIFIED_SPKT'], true)): ?>
+                    <?php if ($canAct && in_array($r['status'], \App\Config\Constants::REJECTABLE_STATUSES, true)): ?>
                       <!-- Tombol Tolak -->
                       <button onclick="openRejectModal(<?= htmlspecialchars(json_encode(['id' => (int)$r['id'], 'ticket_number' => $r['ticket_number'], 'title' => $r['title'], 'current_satker_id' => $r['current_satker_id'], 'assigned_investigator_id' => $r['assigned_investigator_id']])) ?>)"
                               class="px-2.5 py-1.5 bg-rose-950/70 hover:bg-rose-900 text-rose-200 font-bold rounded-lg transition-colors flex items-center gap-1"

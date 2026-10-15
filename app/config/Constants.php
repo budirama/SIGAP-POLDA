@@ -28,6 +28,20 @@ class Constants
     public const STATUS_CLOSED = 'CLOSED';
     public const STATUS_REJECTED = 'REJECTED';
 
+    // Status yang masih boleh didisposisikan (ulang): sebelum penyidikan dimulai
+    public const DISPATCHABLE_STATUSES = [
+        self::STATUS_SUBMITTED,
+        self::STATUS_VERIFIED_SPKT,
+        self::STATUS_DISPATCHED,
+        self::STATUS_ASSIGNED,
+    ];
+
+    // Status yang masih boleh ditolak SPKT: belum diverifikasi/didisposisikan
+    public const REJECTABLE_STATUSES = [
+        self::STATUS_SUBMITTED,
+        self::STATUS_VERIFIED_SPKT,
+    ];
+
     // Saluran Laporan Masuk (Omnichannel)
     public const CHANNEL_WEB = 'WEB_PORTAL';
     public const CHANNEL_WA = 'WHATSAPP_BOT';

@@ -17,6 +17,12 @@ class SpktController extends Controller
     private Report $reportModel;
     private Satker $satkerModel;
 
+    // Itwasda (pengawas internal) dapat melihat meja triage, tetapi hanya role ini yang dapat bertindak
+    private const ACTION_ROLES = [
+        Constants::ROLE_SPKT_OPERATOR,
+        Constants::ROLE_SUPERADMIN,
+    ];
+
     public function __construct()
     {
         Auth::requireRole([
@@ -49,7 +55,8 @@ class SpktController extends Controller
             'reports'      => $reports,
             'satkers'      => $satkers,
             'statusFilter' => $statusFilter,
-            'search'       => $search
+            'search'       => $search,
+            'canAct'       => Auth::hasRole(self::ACTION_ROLES)
         ], 'admin');
     }
 
@@ -67,12 +74,20 @@ class SpktController extends Controller
             $this->redirect('/spkt');
         }
 
+        $this->requireActionRole();
+
         $reportId = (int)$this->post('report_id', 0);
         $satkerId = (int)$this->post('satker_id', 0);
         $notes = $this->post('dispatch_notes', 'Disposisi untuk penyelidikan lebih lanjut.');
 
-        if ($reportId <= 0 || $satkerId <= 0) {
+        if ($reportId <= 0 || !$this->satkerModel->findById($satkerId)) {
             Session::setFlash('error', 'Pilih Satker tujuan disposisi yang sah.');
+            $this->redirect('/spkt');
+        }
+
+        $report = $this->reportModel->findById($reportId);
+        if (!$report || !in_array($report['status'], Constants::DISPATCHABLE_STATUSES, true)) {
+            Session::setFlash('error', 'Laporan yang sudah dalam penyidikan, selesai, atau ditolak tidak dapat didisposisikan.');
             $this->redirect('/spkt');
         }
 
@@ -101,6 +116,8 @@ class SpktController extends Controller
             $this->redirect('/spkt');
         }
 
+        $this->requireActionRole();
+
         $reportId = (int)$this->post('report_id', 0);
         $reason = trim($this->post('rejection_reason', ''));
 
@@ -110,7 +127,7 @@ class SpktController extends Controller
         }
 
         $report = $this->reportModel->findById($reportId);
-        if (!$report || !in_array($report['status'], [Constants::STATUS_SUBMITTED, Constants::STATUS_VERIFIED_SPKT], true)) {
+        if (!$report || !in_array($report['status'], Constants::REJECTABLE_STATUSES, true)) {
             Session::setFlash('error', 'Hanya laporan yang menunggu verifikasi yang dapat ditolak.');
             $this->redirect('/spkt');
         }
@@ -122,5 +139,13 @@ class SpktController extends Controller
         }
 
         $this->redirect('/spkt');
+    }
+
+    private function requireActionRole(): void
+    {
+        if (!Auth::hasRole(self::ACTION_ROLES)) {
+            Session::setFlash('error', 'Akses Ditolak: peran pengawasan hanya dapat melihat, tidak dapat mengubah laporan.');
+            $this->redirect('/spkt');
+        }
     }
 }
