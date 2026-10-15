@@ -127,6 +127,19 @@
                   <span>Satker: <b class="text-slate-200"><?= htmlspecialchars($ar['satker_name'] ?? 'Polda') ?></b></span>
                   <span class="block text-slate-500">Penyidik: <?= htmlspecialchars($ar['investigator_name'] ?? 'Menunggu Personel') ?></span>
                 </div>
+                <?php $dir = $directiveStatus[$ar['id']] ?? null; if ($dir): ?>
+                  <div class="text-[10px] p-2 rounded-lg bg-slate-900/80 border border-slate-800">
+                    <?php [$dirClass, $dirLabel] = match ($dir['status']) {
+                        'PENDING' => ['text-red-300', 'Instruksi belum ditanggapi Satker'],
+                        'ACKNOWLEDGED' => ['text-amber-300', 'Instruksi diterima Satker'],
+                        default => ['text-emerald-300', 'Instruksi diselesaikan'],
+                    }; ?>
+                    <b class="<?= $dirClass ?>"><?= $dirLabel ?></b>
+                    <?php if (!empty($dir['response_notes'])): ?>
+                      <span class="block text-slate-400 mt-0.5 line-clamp-2">"<?= htmlspecialchars($dir['response_notes']) ?>"</span>
+                    <?php endif; ?>
+                  </div>
+                <?php endif; ?>
                 <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px]">
                   <span class="text-slate-500"><?= date('d/m H:i', strtotime($ar['created_at'])) ?></span>
                   <a href="<?= $baseUrl ?>/investigator/detail/<?= $ar['id'] ?>" class="text-amber-400 font-bold hover:underline">

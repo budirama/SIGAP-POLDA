@@ -189,7 +189,7 @@ CREATE TABLE IF NOT EXISTS `kapolda_directives` (
     `report_id` INT NOT NULL,
     `created_by` INT NOT NULL COMMENT 'User ID Kapolda / Wakapolda',
     `directive_text` TEXT NOT NULL COMMENT 'Instruksi langsung tertulis dari Kapolda',
-    `target_satker_id` INT NOT NULL,
+    `target_satker_id` INT NULL COMMENT 'NULL bila laporan belum didisposisikan; diperbarui saat disposisi',
     `response_notes` TEXT NULL COMMENT 'Laporan tanggapan dari Kasatker',
     `status` ENUM('PENDING', 'ACKNOWLEDGED', 'RESOLVED') NOT NULL DEFAULT 'PENDING',
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

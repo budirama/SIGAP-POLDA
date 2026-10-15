@@ -45,7 +45,7 @@ Hasil review ulang 15 Oktober 2026 setelah PR #1–#11 (lihat `docs/TASK_HARDENI
 - **Solusi:** konversi/abaikan atomik hanya dari status `NEW` + catat petugas; validasi kategori; simulasi & ganti role hanya di development; URL hanya `http(s)`.
 
 ### U8 — Atensi Kapolda & inbox instruksi
-- [ ] **Masalah:** atensi dapat diberikan ke kasus selesai & berulang; menurunkan EMERGENCY ke HIGH; target Satker hardcode; instruksi tidak pernah tampil ke Kasatker.
+- [x] **Masalah:** atensi dapat diberikan ke kasus selesai & berulang; menurunkan EMERGENCY ke HIGH; target Satker hardcode; instruksi tidak pernah tampil ke Kasatker.
 - **Solusi:** validasi status & duplikasi, pertahankan EMERGENCY, target mengikuti disposisi; inbox instruksi Kapolda di halaman Satker dengan aksi terima & selesaikan (catatan tanggapan).
 
 ### U9 — Alur PIN & formulir laporan publik

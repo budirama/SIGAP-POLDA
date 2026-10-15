@@ -321,6 +321,12 @@ class Report extends Model
                 [$satkerId, $reportId]
             );
 
+            // Instruksi Atensi Kapolda yang masih terbuka ikut berpindah ke Satker tujuan
+            $this->execute(
+                "UPDATE kapolda_directives SET target_satker_id = ? WHERE report_id = ? AND status IN ('PENDING', 'ACKNOWLEDGED')",
+                [$satkerId, $reportId]
+            );
+
             $this->execute(
                 "INSERT INTO report_timeline (report_id, actor_id, status_from, status_to, title, public_notes, internal_notes)
                  VALUES (?, ?, ?, 'DISPATCHED', ?, ?, ?)",
@@ -429,6 +435,14 @@ class Report extends Model
             );
 
             $this->execute(
+                "UPDATE kapolda_directives
+                 SET status = 'RESOLVED', responded_at = NOW(),
+                     response_notes = COALESCE(response_notes, 'Perkara telah ditutup (BAP).')
+                 WHERE report_id = ? AND status IN ('PENDING', 'ACKNOWLEDGED')",
+                [$reportId]
+            );
+
+            $this->execute(
                 "INSERT INTO report_timeline (report_id, actor_id, status_from, status_to, title, public_notes, internal_notes, is_sp2hp, sp2hp_number)
                  VALUES (?, ?, ?, 'CLOSED', 'Penanganan Kasus Selesai', ?, ?, 1, 'SP2HP/FINAL/CLOSED')",
                 [
@@ -493,11 +507,23 @@ class Report extends Model
     {
         $this->beginTransaction();
         try {
-            $report = $this->findById($reportId);
-            $targetSatkerId = $report['current_satker_id'] ?? 2; // Default Ditreskrimum jika belum terdisposisi
+            $report = $this->fetch("SELECT status, current_satker_id FROM reports WHERE id = ? FOR UPDATE", [$reportId]);
+            $openDirective = $report ? $this->fetch(
+                "SELECT id FROM kapolda_directives WHERE report_id = ? AND status IN ('PENDING', 'ACKNOWLEDGED') LIMIT 1",
+                [$reportId]
+            ) : null;
+            if (!$report || in_array($report['status'], ['CLOSED', 'REJECTED'], true) || $openDirective) {
+                $this->rollBack();
+                return false;
+            }
+            // Target mengikuti Satker disposisi; null bila belum didisposisikan (diperbarui saat disposisi)
+            $targetSatkerId = $report['current_satker_id'] ?: null;
 
             $this->execute(
-                "UPDATE reports SET is_kapolda_attention = 1, kapolda_attention_at = NOW(), urgency_level = 'HIGH' WHERE id = ?",
+                "UPDATE reports
+                 SET is_kapolda_attention = 1, kapolda_attention_at = NOW(),
+                     urgency_level = IF(urgency_level = 'EMERGENCY', 'EMERGENCY', 'HIGH')
+                 WHERE id = ?",
                 [$reportId]
             );
 
