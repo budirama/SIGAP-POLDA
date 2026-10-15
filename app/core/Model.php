@@ -1,6 +1,6 @@
 <?php
 /**
- * SIGAP-POLDA: Base Model PDO Wrapper
+ * SIGAP-POLRI: Base Model PDO Wrapper
  */
 
 namespace App\Core;

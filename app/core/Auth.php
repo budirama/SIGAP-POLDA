@@ -1,6 +1,6 @@
 <?php
 /**
- * SIGAP-POLDA: RBAC Authentication & Guard Helper
+ * SIGAP-POLRI: RBAC Authentication & Guard Helper
  */
 
 namespace App\Core;
@@ -60,7 +60,7 @@ class Auth
         $fresh = (new \App\Models\User())->findById((int)$cached['id']);
         if (!$fresh || !(int)$fresh['is_active']) {
             Session::restart();
-            Session::setFlash('error', 'Akun Anda tidak aktif. Silakan hubungi Admin TIK Polda.');
+            Session::setFlash('error', 'Akun Anda tidak aktif. Silakan hubungi Admin TIK Polri.');
             return;
         }
 

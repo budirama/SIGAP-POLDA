@@ -20,7 +20,7 @@
       <div>
         <h1 class="text-2xl sm:text-3xl font-black text-slate-100 font-heading">Formulir Laporan Pengaduan</h1>
         <p class="text-xs sm:text-sm text-slate-300 mt-1 leading-relaxed">
-          Silakan isi data kronologi perkara selengkap mungkin. Laporan Anda akan langsung masuk ke antrean verifikasi petugas SPKT Polda dan diteruskan ke Satuan Kerja terkait.
+          Silakan isi data kronologi perkara selengkap mungkin. Laporan Anda akan langsung masuk ke antrean verifikasi petugas SPKT Polri dan diteruskan ke Satuan Kerja terkait.
         </p>
       </div>
     </div>
@@ -268,12 +268,13 @@
 <!-- Leaflet Map Script Init -->
 <script>
   let map, marker;
-  const defaultLat = -6.2235;
-  const defaultLng = 106.8099;
+  // Titik awal: peta Indonesia (pelapor memperbesar ke lokasi atau memakai GPS)
+  const defaultLat = -2.5;
+  const defaultLng = 118.0;
 
   document.addEventListener('DOMContentLoaded', function () {
     // Inisialisasi Map Leaflet
-    map = L.map('tkpMap').setView([defaultLat, defaultLng], 13);
+    map = L.map('tkpMap').setView([defaultLat, defaultLng], 5);
     
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,

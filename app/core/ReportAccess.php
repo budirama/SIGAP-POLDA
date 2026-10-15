@@ -1,6 +1,6 @@
 <?php
 /**
- * SIGAP-POLDA: Kebijakan Hak Akses ke Data Laporan
+ * SIGAP-POLRI: Kebijakan Hak Akses ke Data Laporan
  */
 
 namespace App\Core;

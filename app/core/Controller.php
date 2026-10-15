@@ -1,6 +1,6 @@
 <?php
 /**
- * SIGAP-POLDA: Base Controller
+ * SIGAP-POLRI: Base Controller
  */
 
 namespace App\Core;

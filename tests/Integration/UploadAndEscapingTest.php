@@ -70,7 +70,7 @@ return [
         T::notContains('&amp;amp;', $track, 'double escape');
         T::notContains('<script>alert(1)', $track);
 
-        $dashboard = Http::as('kapolda')->get('/executive')->body;
+        $dashboard = Http::as('kapolri')->get('/executive')->body;
         T::notContains('</script><b>x', $dashboard, 'breakout </script> di JSON heatmap');
         T::contains('<script>', $dashboard, 'JSON heatmap hex-escaped');
     },

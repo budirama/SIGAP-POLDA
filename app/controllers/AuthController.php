@@ -1,6 +1,6 @@
 <?php
 /**
- * SIGAP-POLDA: Auth Controller
+ * SIGAP-POLRI: Auth Controller
  */
 
 namespace App\Controllers;
@@ -33,7 +33,7 @@ class AuthController extends Controller
         }
 
         $this->render('auth/login', [
-            'pageTitle' => 'Masuk Backoffice & Personil POLDA'
+            'pageTitle' => 'Masuk Backoffice & Personil POLRI'
         ], 'none');
     }
 
@@ -100,14 +100,14 @@ class AuthController extends Controller
         }
 
         $roleMap = [
-            'superadmin' => 'superadmin@sigap.polda.go.id',
-            'kapolda'    => 'kapolda@sigap.polda.go.id',
-            'spkt'       => 'spkt@sigap.polda.go.id',
-            'humas'      => 'humas@sigap.polda.go.id',
-            'kasatker'   => 'dirkrimum@sigap.polda.go.id',
-            'kanit'      => 'kanit.krimum@sigap.polda.go.id',
-            'penyidik'   => 'penyidik.rian@sigap.polda.go.id',
-            'itwasda'    => 'irwasda@sigap.polda.go.id',
+            'superadmin' => 'superadmin@sigap.polri.go.id',
+            'kapolri'    => 'kapolri@sigap.polri.go.id',
+            'spkt'       => 'spkt@sigap.polri.go.id',
+            'humas'      => 'humas@sigap.polri.go.id',
+            'kasatker'   => 'dirtipidum@sigap.polri.go.id',
+            'kanit'      => 'kanit.tipidum@sigap.polri.go.id',
+            'penyidik'   => 'penyidik.rian@sigap.polri.go.id',
+            'itwasum'    => 'itwasum@sigap.polri.go.id',
             'warga'      => 'budi.santoso95@gmail.com'
         ];
 

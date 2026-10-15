@@ -12,7 +12,7 @@
         
         <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#0E1E38] border border-amber-500/30 text-amber-400 text-xs font-bold tracking-wide shadow-md">
           <i class="fas fa-shield-halved text-amber-400"></i>
-          <span>SIGAP POLDA • Pelayanan Terpadu & Transparan</span>
+          <span>SIGAP POLRI • Pelayanan Terpadu & Transparan</span>
         </div>
 
         <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-100 tracking-tight leading-[1.15] font-heading">
@@ -42,7 +42,7 @@
         <div class="pt-4 max-w-lg mx-auto lg:mx-0">
           <form action="<?= $baseUrl ?>/report/track" method="GET" class="flex items-center gap-2 p-1.5 bg-[#0A192F]/90 border border-amber-500/30 rounded-2xl shadow-xl">
             <div class="pl-3 text-slate-500"><i class="fas fa-ticket text-amber-500"></i></div>
-            <input type="text" name="ticket" required placeholder="Contoh: LP-POLDA-202610-0001" 
+            <input type="text" name="ticket" required placeholder="Contoh: LP-POLRI-202610-0001" 
                    class="bg-transparent flex-1 text-xs text-slate-100 placeholder-slate-500 outline-none px-2 py-1.5 font-mono uppercase">
             <button type="submit" class="px-4 py-2 bg-blue-900/80 hover:bg-blue-800 text-amber-300 font-bold rounded-xl text-xs transition-colors flex items-center gap-1.5">
               <span>Cek</span> <i class="fas fa-arrow-right text-[10px]"></i>
@@ -174,7 +174,7 @@
       </div>
       <h3 class="text-base font-bold text-slate-100 mb-2">Verifikasi & Disposisi SPKT</h3>
       <p class="text-xs text-slate-400 leading-relaxed">
-        Operator Command Center memverifikasi keabsahan laporan dan mendisposisikan perkara ke Direktorat atau Polres wilayah hukum terkait.
+        Operator Command Center memverifikasi keabsahan laporan dan mendisposisikan perkara ke Satker Mabes Polri atau Polda wilayah hukum terkait.
       </p>
     </div>
 

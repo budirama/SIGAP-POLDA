@@ -25,7 +25,7 @@ return [
     'postingan hanya dapat dikonversi sekali & petugas tercatat' => function () use ($newFeed, $convert) {
         $feedId = $newFeed();
         $humas = Http::as('humas');
-        $humasId = (int)Db::value("SELECT id FROM users WHERE email = 'humas@sigap.polda.go.id'");
+        $humasId = (int)Db::value("SELECT id FROM users WHERE email = 'humas@sigap.polri.go.id'");
 
         $convert($humas, $feedId);
         T::contains('dikonversi menjadi Tiket Resmi', $humas->flash());

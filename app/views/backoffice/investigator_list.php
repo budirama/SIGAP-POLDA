@@ -40,7 +40,7 @@
 
             <?php if ($r['is_kapolda_attention']): ?>
               <div class="mb-2 px-2 py-0.5 rounded bg-red-950 text-red-300 border border-red-800 text-[10px] font-black flex items-center gap-1">
-                <i class="fas fa-star text-amber-400"></i> ATENSI KHUSUS KAPOLDA
+                <i class="fas fa-star text-amber-400"></i> ATENSI KHUSUS KAPOLRI
               </div>
             <?php endif; ?>
 

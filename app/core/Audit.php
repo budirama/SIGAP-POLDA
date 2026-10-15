@@ -1,6 +1,6 @@
 <?php
 /**
- * SIGAP-POLDA: Pencatat Jejak Audit
+ * SIGAP-POLRI: Pencatat Jejak Audit
  */
 
 namespace App\Core;
@@ -26,7 +26,7 @@ final class Audit
                 mb_substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 255)
             );
         } catch (\Throwable $e) {
-            error_log('[SIGAP-POLDA] Gagal mencatat audit ' . $action . ': ' . $e->getMessage());
+            error_log('[SIGAP-POLRI] Gagal mencatat audit ' . $action . ': ' . $e->getMessage());
         }
     }
 }

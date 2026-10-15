@@ -17,14 +17,14 @@
     </div>
   </div>
 
-  <!-- Kapolda Priority Alert -->
+  <!-- Kapolri Priority Alert -->
   <?php if ($report['is_kapolda_attention']): ?>
     <div class="p-4 rounded-2xl bg-red-950/80 border border-red-600 text-red-200 text-xs flex items-center gap-3 animate-kapolda-pulse shadow-xl">
-      <img src="<?= $baseUrl ?>/assets/img/badge-kapolda.svg" alt="Kapolda" class="w-8 h-8 flex-shrink-0">
+      <img src="<?= $baseUrl ?>/assets/img/badge-kapolda.svg" alt="Kapolri" class="w-8 h-8 flex-shrink-0">
       <div>
-        <div class="font-black text-sm text-red-100 uppercase tracking-wide">PERINTAH ATENSI KHUSUS KAPOLDA</div>
+        <div class="font-black text-sm text-red-100 uppercase tracking-wide">PERINTAH ATENSI KHUSUS KAPOLRI</div>
         <p class="text-xs text-red-200 mt-0.5">
-          Perkara ini diawasi langsung oleh Kapolda. Mohon tuntaskan tahapan penyelidikan dan laporkan perkembangannya segera.
+          Perkara ini diawasi langsung oleh Kapolri. Mohon tuntaskan tahapan penyelidikan dan laporkan perkembangannya segera.
         </p>
       </div>
     </div>
@@ -77,7 +77,7 @@
 
       <div>
         <span class="text-slate-500 block text-[11px]">Satker Penanggung Jawab:</span>
-        <span class="font-bold text-amber-400 mt-0.5 block"><?= htmlspecialchars($report['satker_name'] ?? 'Polda') ?></span>
+        <span class="font-bold text-amber-400 mt-0.5 block"><?= htmlspecialchars($report['satker_name'] ?? 'Mabes Polri') ?></span>
       </div>
     </div>
 
@@ -167,7 +167,7 @@
           <textarea name="internal_notes" rows="2"
                     placeholder="Catatan taktis internal: Identitas target terduga pelaku a.n X, nomor plat kendaraan D, koordinat persembunyian..."
                     class="w-full bg-[#070F1E] border border-slate-700 rounded-xl p-3 text-xs text-slate-300 leading-relaxed outline-none focus:border-amber-500"></textarea>
-          <p class="text-[10px] text-amber-400/80 mt-1">TIDAK AKAN DITAMPILKAN KEPADA PELAPOR. Hanya dapat diakses oleh Kasatker, Kapolda, dan Irwasda.</p>
+          <p class="text-[10px] text-amber-400/80 mt-1">TIDAK AKAN DITAMPILKAN KEPADA PELAPOR. Hanya dapat diakses oleh Kasatker, Kapolri, dan Itwasum.</p>
         </div>
 
         <button type="submit"
@@ -232,7 +232,7 @@
             <span class="text-[9px] font-black px-2 py-0.5 rounded bg-red-950 text-red-300 border border-red-700 uppercase">POLISI BERSAMA MASYARAKAT</span>
           </div>
           <p class="text-xs text-slate-400 mt-0.5">
-            Komunikasi interaktif antara Pelapor (<?= htmlspecialchars($report['reporter_name_raw']) ?>) dan Tim Penyidik. Diawasi oleh Kanit, Kasatker & Irwasda.
+            Komunikasi interaktif antara Pelapor (<?= htmlspecialchars($report['reporter_name_raw']) ?>) dan Tim Penyidik. Diawasi oleh Kanit, Kasatker & Itwasum.
           </p>
         </div>
       </div>
@@ -363,7 +363,7 @@
           <?php endif; ?>
 
           <div class="text-[10px] text-slate-500 pt-1 border-t border-slate-800/80">
-            Dicatat oleh: <b><?= htmlspecialchars(empty($t['actor_name']) ? 'Sistem SIGAP-POLDA' : trim(($t['actor_rank'] ?? '') . ' ' . $t['actor_name'])) ?></b>
+            Dicatat oleh: <b><?= htmlspecialchars(empty($t['actor_name']) ? 'Sistem SIGAP-POLRI' : trim(($t['actor_rank'] ?? '') . ' ' . $t['actor_name'])) ?></b>
             <?php if (!empty($t['actor_role'])): ?>(<?= htmlspecialchars(\App\Config\Constants::getRoleLabel($t['actor_role'])) ?>)<?php endif; ?>
           </div>
         </div>

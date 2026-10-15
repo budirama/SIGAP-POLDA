@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title><?= htmlspecialchars($pageTitle ?? 'Dashboard Eksekutif Kapolda') ?> - SIGAP POLDA</title>
+  <title><?= htmlspecialchars($pageTitle ?? 'Dashboard Eksekutif Kapolri') ?> - SIGAP POLRI</title>
   
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -20,7 +20,7 @@
   <!-- Top Tactical Command Bar -->
   <header class="bg-[#081224] border-b border-amber-500/30 px-6 py-3 flex items-center justify-between sticky top-0 z-50 backdrop-blur-xl shadow-2xl">
     
-    <!-- Left: Kapolda Emblem & Title -->
+    <!-- Left: Kapolri Emblem & Title -->
     <div class="flex items-center gap-4">
       <div class="relative">
         <img src="<?= $baseUrl ?>/assets/img/logo-polisi-masyarakat.png" alt="Polisi Bersama Masyarakat" class="h-14 w-auto object-contain drop-shadow">
@@ -28,7 +28,7 @@
       <div>
         <div class="flex items-center gap-2">
           <span class="font-black text-lg tracking-wider text-slate-100 font-heading">EXECUTIVE COMMAND CENTER</span>
-          <span class="text-[10px] font-black px-2 py-0.5 rounded bg-red-950 text-red-400 border border-red-700/80 tracking-widest animate-pulse">KAPOLDA</span>
+          <span class="text-[10px] font-black px-2 py-0.5 rounded bg-red-950 text-red-400 border border-red-700/80 tracking-widest animate-pulse">KAPOLRI</span>
         </div>
         <p class="text-xs text-amber-400 font-bold tracking-wide">
           POLISI BERSAMA MASYARAKAT • MELINDUNGI, MENGAYOMI DAN MELAYANI

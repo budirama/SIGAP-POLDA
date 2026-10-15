@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title><?= htmlspecialchars($pageTitle ?? 'Backoffice Kedinasan') ?> - SIGAP POLDA</title>
+  <title><?= htmlspecialchars($pageTitle ?? 'Backoffice Kedinasan') ?> - SIGAP POLRI</title>
   
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -33,7 +33,7 @@
         <img src="<?= $baseUrl ?>/assets/img/logo-polisi-masyarakat.png" alt="Polisi Bersama Masyarakat" class="h-12 w-auto object-contain drop-shadow">
         <div>
           <div class="font-black text-sm tracking-wider text-slate-100 flex items-center gap-1.5 font-heading">
-            <span>SIGAP-POLDA</span>
+            <span>SIGAP-POLRI</span>
           </div>
           <p class="text-[9px] text-red-400 font-bold uppercase tracking-wider">BERSAMA MASYARAKAT</p>
           <p class="text-[8px] text-amber-400 font-semibold tracking-tight">MELINDUNGI • MENGAYOMI</p>
@@ -48,7 +48,7 @@
         <div class="overflow-hidden">
           <div class="text-xs font-bold text-slate-100 truncate"><?= htmlspecialchars($authUser['name'] ?? 'Personil') ?></div>
           <div class="text-[10px] text-amber-400 font-semibold truncate"><?= htmlspecialchars($authUser['rank'] ?? 'Polri') ?> • <?= htmlspecialchars($authUser['position'] ?? 'Staf') ?></div>
-          <div class="text-[9px] text-slate-400 truncate"><?= htmlspecialchars($authUser['satker_name'] ?? 'Polda') ?></div>
+          <div class="text-[9px] text-slate-400 truncate"><?= htmlspecialchars($authUser['satker_name'] ?? 'Mabes Polri') ?></div>
         </div>
       </div>
 
@@ -57,12 +57,12 @@
         
         <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-3 py-1 mt-2">MENU OPERASIONAL</div>
 
-        <!-- Executive Kapolda -->
+        <!-- Executive Kapolri -->
         <?php if (\App\Core\Auth::hasRole([\App\Config\Constants::ROLE_EXECUTIVE, \App\Config\Constants::ROLE_SUPERADMIN])): ?>
           <a href="<?= $baseUrl ?>/executive" 
              class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-amber-400 hover:bg-amber-500/10 border border-amber-500/20 transition-all font-bold">
             <i class="fas fa-chart-line text-sm text-amber-400"></i>
-            <span>Dashboard Kapolda</span>
+            <span>Dashboard Kapolri</span>
           </a>
         <?php endif; ?>
 
@@ -157,7 +157,7 @@
           <h1 class="text-sm sm:text-base font-extrabold text-slate-100 font-heading">
             <?= htmlspecialchars($pageTitle ?? 'Dashboard Operasional') ?>
           </h1>
-          <p class="text-[10px] text-slate-400 hidden sm:block">Sentra Pelayanan Kepolisian Terpadu (SPKT) Polda</p>
+          <p class="text-[10px] text-slate-400 hidden sm:block">Sentra Pelayanan Kepolisian Terpadu (SPKT) Polri</p>
         </div>
       </div>
 

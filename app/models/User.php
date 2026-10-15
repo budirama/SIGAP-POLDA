@@ -1,6 +1,6 @@
 <?php
 /**
- * SIGAP-POLDA: User Model
+ * SIGAP-POLRI: User Model
  */
 
 namespace App\Models;

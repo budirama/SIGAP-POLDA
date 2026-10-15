@@ -4,9 +4,9 @@ use Tests\Db;
 use Tests\Http;
 use Tests\T;
 
-$satkerKrimum = 2;  // Ditreskrimum (Kanit & Penyidik Rian di seeder)
-$penyidikRian = (int)Db::value("SELECT id FROM users WHERE email = 'penyidik.rian@sigap.polda.go.id'");
-$irwasda = (int)Db::value("SELECT id FROM users WHERE email = 'irwasda@sigap.polda.go.id'");
+$satkerKrimum = 2;  // Dittipidum Bareskrim (Kanit & Penyidik Rian di seeder)
+$penyidikRian = (int)Db::value("SELECT id FROM users WHERE email = 'penyidik.rian@sigap.polri.go.id'");
+$irwasda = (int)Db::value("SELECT id FROM users WHERE email = 'itwasum@sigap.polri.go.id'");
 
 // State bersama antar langkah alur kerja
 $state = new ArrayObject();

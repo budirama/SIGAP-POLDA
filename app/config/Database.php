@@ -1,6 +1,6 @@
 <?php
 /**
- * SIGAP-POLDA: Koneksi Database PDO Singleton
+ * SIGAP-POLRI: Koneksi Database PDO Singleton
  */
 
 namespace App\Config;
@@ -39,7 +39,7 @@ class Database
             try {
                 self::$instance = new PDO($dsn, Config::env('DB_USER', 'root'), Config::env('DB_PASS'), $options);
             } catch (PDOException $e) {
-                throw new RuntimeException("Koneksi Database SIGAP-POLDA Gagal: " . $e->getMessage());
+                throw new RuntimeException("Koneksi Database SIGAP-POLRI Gagal: " . $e->getMessage());
             }
         }
 

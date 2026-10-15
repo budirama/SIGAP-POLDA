@@ -1,6 +1,6 @@
 <?php
 /**
- * SIGAP-POLDA: Report Controller (Pengaduan & Pelacakan Warga)
+ * SIGAP-POLRI: Report Controller (Pengaduan & Pelacakan Warga)
  */
 
 namespace App\Controllers;
@@ -166,13 +166,13 @@ $this->feedbackModel = new Feedback();
             // Pelapor yang baru membuat laporan langsung mendapat akses ke tiketnya
             ReportAccess::grantReporter($ticketNumber);
 
-            Session::setFlash('success', 'Laporan Anda berhasil dikirim ke Command Center SPKT Polda!');
+            Session::setFlash('success', 'Laporan Anda berhasil dikirim ke Command Center SPKT Polri!');
             if ($rejectedFiles > 0) {
                 Session::setFlash('error', "{$rejectedFiles} file bukti tidak dapat dilampirkan (format harus JPG/PNG/WEBP/PDF/MP4, maksimal 20 MB per file).");
             }
             $this->redirect("/report/success?ticket={$ticketNumber}");
         } catch (\Throwable $e) {
-            error_log('[SIGAP-POLDA] Gagal membuat laporan: ' . $e);
+            error_log('[SIGAP-POLRI] Gagal membuat laporan: ' . $e);
             $this->failWithOldInput('Gagal memproses laporan. Silakan coba lagi atau hubungi Call Center 110.');
         }
     }

@@ -1,6 +1,6 @@
 <?php
 /**
- * SIGAP-POLDA: Konstanta Sistem (Roles, Status, Channels, Labels)
+ * SIGAP-POLRI: Konstanta Sistem (Roles, Status, Channels, Labels)
  */
 
 namespace App\Config;
@@ -58,11 +58,11 @@ class Constants
             self::ROLE_CITIZEN => 'Warga / Pelapor',
             self::ROLE_SPKT_OPERATOR => 'Operator SPKT / Command Center',
             self::ROLE_CYBER_HUMAS => 'Petugas Humas & Patroli Siber',
-            self::ROLE_SATKER_HEAD => 'Pimpinan Satker / Kapolres',
+            self::ROLE_SATKER_HEAD => 'Pimpinan Satker (Direktur / Kapolda)',
             self::ROLE_SATKER_ADMIN => 'Admin / Kanit Satker',
             self::ROLE_INVESTIGATOR => 'Penyidik / Petugas Lapangan',
-            self::ROLE_INTERNAL_AFFAIRS => 'Pengawas Internal (Itwasda/Propam)',
-            self::ROLE_EXECUTIVE => 'Executive (Kapolda / PJU)',
+            self::ROLE_INTERNAL_AFFAIRS => 'Pengawas Internal (Itwasum/Propam)',
+            self::ROLE_EXECUTIVE => 'Executive (Kapolri / PJU)',
             self::ROLE_SUPERADMIN => 'Superadministrator TIK',
             default => 'Pengguna'
         };
@@ -102,7 +102,7 @@ class Constants
     // Nomor dokumen default (Sprintgas/SP2HP) bersufiks kode Satker penerbit, mis. SP.Gas/123/10/2026/POLRES-JAKSEL
     public static function documentNumber(string $prefix, ?string $satkerCode): string
     {
-        $suffix = trim((string)$satkerCode) !== '' ? trim((string)$satkerCode) : 'POLDA';
+        $suffix = trim((string)$satkerCode) !== '' ? trim((string)$satkerCode) : 'POLRI';
         return $prefix . '/' . random_int(100, 999) . '/' . date('m/Y') . '/' . $suffix;
     }
 }

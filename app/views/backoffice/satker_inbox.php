@@ -10,7 +10,7 @@
         Inbox Disposisi & Manajemen Kasus Satker
       </h2>
       <p class="text-xs text-slate-400 mt-1">
-        Daftar perkara yang didisposisikan oleh SPKT Polda. Terbitkan Surat Perintah Penugasan (Sprintgas) ke Penyidik Pelaksana.
+        Daftar perkara yang didisposisikan oleh SPKT Polri. Terbitkan Surat Perintah Penugasan (Sprintgas) ke Penyidik Pelaksana.
       </p>
     </div>
 
@@ -21,12 +21,12 @@
     </div>
   </div>
 
-  <!-- Instruksi Atensi Kapolda yang belum selesai -->
+  <!-- Instruksi Atensi Kapolri yang belum selesai -->
   <?php if (!empty($directives)): ?>
   <div class="polri-glass-card rounded-2xl p-5 border border-red-800/70 bg-red-950/10 space-y-3">
     <h3 class="text-sm font-black text-red-300 flex items-center gap-2">
       <img src="<?= $baseUrl ?>/assets/img/badge-kapolda.svg" alt="" class="w-5 h-5">
-      Instruksi Atensi Kapolda (<?= count($directives) ?>)
+      Instruksi Atensi Kapolri (<?= count($directives) ?>)
     </h3>
     <?php foreach ($directives as $d): ?>
       <div class="p-4 rounded-xl bg-[#070F1E] border border-slate-800 space-y-2">
@@ -44,7 +44,7 @@
         <form action="<?= $baseUrl ?>/satker/directive" method="POST" class="flex flex-col sm:flex-row gap-2">
           <input type="hidden" name="_csrf_token" value="<?= $csrfToken ?>">
           <input type="hidden" name="directive_id" value="<?= (int)$d['id'] ?>">
-          <input type="text" name="response_notes" maxlength="1000" placeholder="Laporan tanggapan kepada Kapolda"
+          <input type="text" name="response_notes" maxlength="1000" placeholder="Laporan tanggapan kepada Kapolri"
                  class="flex-1 bg-[#0A192F] border border-slate-700 rounded-xl p-2 text-xs text-slate-100 outline-none focus:border-amber-500">
           <?php if ($d['status'] === 'PENDING'): ?>
             <button type="submit" name="action" value="acknowledge" class="px-3 py-2 bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold rounded-xl text-xs">Terima</button>
@@ -85,7 +85,7 @@
                 <td class="p-4">
                   <span class="font-mono font-bold text-amber-400"><?= htmlspecialchars($r['ticket_number']) ?></span>
                   <?php if ($r['is_kapolda_attention']): ?>
-                    <span class="block text-[9px] font-black text-red-400 animate-pulse mt-0.5">★ ATENSI KAPOLDA</span>
+                    <span class="block text-[9px] font-black text-red-400 animate-pulse mt-0.5">★ ATENSI KAPOLRI</span>
                   <?php endif; ?>
                 </td>
 

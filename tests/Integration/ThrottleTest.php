@@ -21,15 +21,15 @@ return [
         Db::exec("DELETE FROM throttle_events");
         $client = new Http(TEST_BASE_URL);
         for ($i = 1; $i <= Throttle::LIMITS['login_id'][0]; $i++) {
-            $res = $login($client, 'humas@sigap.polda.go.id', 'salah-' . $i);
+            $res = $login($client, 'humas@sigap.polri.go.id', 'salah-' . $i);
             T::true(str_ends_with($res->location(), '/auth/login'), "percobaan {$i} ditolak");
         }
-        $res = $login($client, 'HUMAS@sigap.polda.go.id', 'password123');
+        $res = $login($client, 'HUMAS@sigap.polri.go.id', 'password123');
         T::true(str_ends_with($res->location(), '/auth/login'), 'terkunci (identitas tidak peka huruf besar/kecil)');
         T::contains('Terlalu banyak percobaan login', $client->flash());
 
         // Akun lain dari IP yang sama tetap dapat login (batas per IP lebih longgar)
-        $res = $login(new Http(TEST_BASE_URL), 'spkt@sigap.polda.go.id', 'password123');
+        $res = $login(new Http(TEST_BASE_URL), 'spkt@sigap.polri.go.id', 'password123');
         T::true(str_ends_with($res->location(), '/spkt'), 'akun lain tidak terdampak: ' . $res->location());
         Db::exec("DELETE FROM throttle_events");
     },
@@ -37,8 +37,8 @@ return [
     'login berhasil menghapus hitungan gagal identitas tersebut' => function () use ($login) {
         Db::exec("DELETE FROM throttle_events");
         $client = new Http(TEST_BASE_URL);
-        $login($client, 'kanit.krimum@sigap.polda.go.id', 'salah');
-        $res = $login($client, 'kanit.krimum@sigap.polda.go.id', 'password123');
+        $login($client, 'kanit.tipidum@sigap.polri.go.id', 'salah');
+        $res = $login($client, 'kanit.tipidum@sigap.polri.go.id', 'password123');
         T::true(str_ends_with($res->location(), '/satker'), 'login sukses');
         T::same(0, (int)Db::value("SELECT COUNT(*) FROM throttle_events WHERE bucket = 'login_id'"));
         Db::exec("DELETE FROM throttle_events");
@@ -68,7 +68,7 @@ return [
         Db::exec("DELETE FROM throttle_events");
         $guest = new Http(TEST_BASE_URL);
         for ($i = 1; $i <= Throttle::LIMITS['pin_ip'][0]; $i++) {
-            $guest->trackWithPin('LP-POLDA-000000-' . str_pad((string)$i, 4, '0', STR_PAD_LEFT), '123456');
+            $guest->trackWithPin('LP-POLRI-000000-' . str_pad((string)$i, 4, '0', STR_PAD_LEFT), '123456');
         }
         T::contains('Terlalu banyak percobaan PIN', $guest->trackWithPin($ticket1, $pin1)->body);
         Db::exec("DELETE FROM throttle_events");

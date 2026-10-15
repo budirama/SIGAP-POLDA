@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title><?= htmlspecialchars($pageTitle ?? 'Login Backoffice') ?> - SIGAP POLDA</title>
+  <title><?= htmlspecialchars($pageTitle ?? 'Login Backoffice') ?> - SIGAP POLRI</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="<?= $baseUrl ?>/assets/css/custom-polri.css">
@@ -19,7 +19,7 @@
       <img src="<?= $baseUrl ?>/assets/img/logo-polisi-masyarakat.png" alt="Polisi Bersama Masyarakat" class="h-12 w-auto object-contain drop-shadow">
       <div>
         <div class="font-extrabold text-sm tracking-wider text-slate-100 flex items-center gap-2">
-          <span>SIGAP-POLDA</span>
+          <span>SIGAP-POLRI</span>
           <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-red-950 text-red-300 border border-red-700/60 uppercase">POLISI BERSAMA MASYARAKAT</span>
         </div>
         <p class="text-[10px] text-amber-400 font-semibold">MELINDUNGI • MENGAYOMI • MELAYANI</p>
@@ -63,8 +63,8 @@
             <span class="text-[10px] bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded border border-amber-500/20">Semua Password: password123</span>
           </div>
           <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-[11px]">
-            <a href="<?= $baseUrl ?>/auth/quickLogin/kapolda" class="p-2 bg-red-950/40 hover:bg-red-900/60 border border-red-800/40 rounded-lg text-red-200 font-semibold transition-all flex items-center gap-1.5">
-              <i class="fas fa-star text-amber-400"></i> Kapolda
+            <a href="<?= $baseUrl ?>/auth/quickLogin/kapolri" class="p-2 bg-red-950/40 hover:bg-red-900/60 border border-red-800/40 rounded-lg text-red-200 font-semibold transition-all flex items-center gap-1.5">
+              <i class="fas fa-star text-amber-400"></i> Kapolri
             </a>
             <a href="<?= $baseUrl ?>/auth/quickLogin/spkt" class="p-2 bg-blue-950/40 hover:bg-blue-900/60 border border-blue-800/40 rounded-lg text-blue-200 font-semibold transition-all flex items-center gap-1.5">
               <i class="fas fa-desktop text-blue-400"></i> Ka SPKT
@@ -127,7 +127,7 @@
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
                   <i class="fas fa-id-badge text-sm"></i>
                 </div>
-                <input type="text" id="identifier" name="identifier" required placeholder="Contoh: 70050201 atau kapolda@sigap.polda.go.id"
+                <input type="text" id="identifier" name="identifier" required placeholder="Contoh: 70050201 atau kapolri@sigap.polri.go.id"
                        class="w-full bg-[#070F1E] border border-[#1E355B] focus:border-amber-500 focus:ring-1 focus:ring-amber-500 rounded-xl pl-10 pr-3 py-2.5 text-sm text-slate-100 placeholder-slate-600 transition-all outline-none">
               </div>
             </div>
@@ -159,7 +159,7 @@
 
           <div class="mt-6 pt-4 border-t border-slate-800 text-center text-[11px] text-slate-500 flex items-center justify-center gap-2">
             <i class="fas fa-lock text-slate-600"></i>
-            <span>Enkripsi TLS 1.3 • Audit Trail TIK Polda</span>
+            <span>Enkripsi TLS 1.3 • Audit Trail TIK Polri</span>
           </div>
 
         </div>
@@ -172,7 +172,7 @@
   <footer class="border-t border-[#1E355B]/60 bg-[#070F1E] py-4 text-center text-xs text-slate-500">
     <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
       <p>&copy; <?= date('Y') ?> Kepolisian Daerah Republik Indonesia. Hak Cipta Dilindungi Undang-Undang.</p>
-      <p class="text-amber-500/70 font-medium">Biro Operasi & TIK Polda • SIGAP V1.1.0</p>
+      <p class="text-amber-500/70 font-medium">Divisi TIK Polri • SIGAP V1.1.0</p>
     </div>
   </footer>
 

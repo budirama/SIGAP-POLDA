@@ -118,7 +118,7 @@
       <div class="pl-4 text-[11px] font-sans">
         <p>Nama Penyidik : <b><?= htmlspecialchars($report['investigator_name']) ?></b></p>
         <p>Pangkat       : <?= htmlspecialchars($report['investigator_rank'] ?? '-') ?></p>
-        <p>Satuan Kerja  : <?= htmlspecialchars($report['satker_name'] ?? 'Polda') ?></p>
+        <p>Satuan Kerja  : <?= htmlspecialchars($report['satker_name'] ?? 'Mabes Polri') ?></p>
       </div>
 
       <p>
@@ -131,7 +131,7 @@
 
       <!-- Keterangan Dokumen Elektronik -->
       <div class="text-[9px] text-slate-500 pr-4">
-        Dokumen ini dicetak dari sistem SIGAP-POLDA. Perkembangan perkara dapat dicocokkan pada portal pelacakan
+        Dokumen ini dicetak dari sistem SIGAP-POLRI. Perkembangan perkara dapat dicocokkan pada portal pelacakan
         dengan Nomor Tiket <b class="font-mono"><?= htmlspecialchars($report['ticket_number']) ?></b> dan PIN Keamanan pelapor.
       </div>
 

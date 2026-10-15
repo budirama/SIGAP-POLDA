@@ -1,6 +1,6 @@
 <?php
 /**
- * SIGAP-POLDA: KapoldaDirective Model (Instruksi Atensi Kapolda ke Satker)
+ * SIGAP-POLRI: KapoldaDirective Model (Instruksi Atensi Kapolri ke Satker)
  */
 
 namespace App\Models;
@@ -89,13 +89,13 @@ class KapoldaDirective extends Model
             $label = $newStatus === 'ACKNOWLEDGED' ? 'diterima' : 'diselesaikan';
             $this->execute(
                 "INSERT INTO report_timeline (report_id, actor_id, status_from, status_to, title, internal_notes)
-                 VALUES (?, ?, ?, ?, 'Tanggapan Atensi Kapolda', ?)",
+                 VALUES (?, ?, ?, ?, 'Tanggapan Atensi Kapolri', ?)",
                 [
                     $directive['report_id'],
                     $actorId,
                     $directive['report_status'],
                     $directive['report_status'],
-                    "Instruksi Atensi Kapolda {$label}." . ($notes !== '' ? " Tanggapan: {$notes}" : '')
+                    "Instruksi Atensi Kapolri {$label}." . ($notes !== '' ? " Tanggapan: {$notes}" : '')
                 ]
             );
 

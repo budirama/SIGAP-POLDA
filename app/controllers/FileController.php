@@ -1,6 +1,6 @@
 <?php
 /**
- * SIGAP-POLDA: File Controller (Unduhan Lampiran Bukti & Klarifikasi dengan Kontrol Akses)
+ * SIGAP-POLRI: File Controller (Unduhan Lampiran Bukti & Klarifikasi dengan Kontrol Akses)
  */
 
 namespace App\Controllers;

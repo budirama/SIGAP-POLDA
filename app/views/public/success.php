@@ -14,7 +14,7 @@
     </h1>
     
     <p class="text-slate-300 text-xs sm:text-sm mt-2 max-w-md mx-auto leading-relaxed">
-      Laporan telah masuk ke antrean verifikasi petugas SPKT Command Center Polda. Harap simpan data kredensial di bawah ini untuk melacak perkembangan perkara.
+      Laporan telah masuk ke antrean verifikasi petugas SPKT Command Center Polri. Harap simpan data kredensial di bawah ini untuk melacak perkembangan perkara.
     </p>
 
     <!-- Ticket & PIN Credentials Box -->

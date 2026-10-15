@@ -1,6 +1,6 @@
 <?php
 /**
- * SIGAP-POLDA: Penyimpanan File Unggahan Privat (Bukti & Lampiran Klarifikasi)
+ * SIGAP-POLRI: Penyimpanan File Unggahan Privat (Bukti & Lampiran Klarifikasi)
  */
 
 namespace App\Core;

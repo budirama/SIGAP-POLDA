@@ -1,6 +1,6 @@
 <?php
 /**
- * SIGAP-POLDA: Test kit minimal tanpa dependensi (assert, HTTP client, fixture DB)
+ * SIGAP-POLRI: Test kit minimal tanpa dependensi (assert, HTTP client, fixture DB)
  */
 
 namespace Tests;

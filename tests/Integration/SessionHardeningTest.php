@@ -11,13 +11,13 @@ return [
     'akun yang dinonaktifkan langsung kehilangan sesi yang sedang berjalan' => function () {
         $penyidik = Http::as('penyidik');
         T::same(200, $penyidik->get('/investigator')->status, 'sebelum dinonaktifkan');
-        Db::exec("UPDATE users SET is_active = 0 WHERE email = 'penyidik.rian@sigap.polda.go.id'");
+        Db::exec("UPDATE users SET is_active = 0 WHERE email = 'penyidik.rian@sigap.polri.go.id'");
         try {
             $res = $penyidik->get('/investigator');
             T::same(302, $res->status);
             T::true(str_ends_with($res->location(), '/auth/login'), 'diarahkan ke login: ' . $res->location());
         } finally {
-            Db::exec("UPDATE users SET is_active = 1 WHERE email = 'penyidik.rian@sigap.polda.go.id'");
+            Db::exec("UPDATE users SET is_active = 1 WHERE email = 'penyidik.rian@sigap.polri.go.id'");
         }
         T::same(302, $penyidik->get('/investigator')->status, 'sesi lama tidak pulih walau akun diaktifkan kembali');
     },
@@ -26,11 +26,11 @@ return [
         $kanit = Http::as('kanit');
         $caseId = (int)Db::value("SELECT id FROM reports WHERE current_satker_id = 2 LIMIT 1");
         T::same(200, $kanit->get("/investigator/detail/{$caseId}")->status, 'kasus Satker sendiri');
-        Db::exec("UPDATE users SET satker_id = 3 WHERE email = 'kanit.krimum@sigap.polda.go.id'");
+        Db::exec("UPDATE users SET satker_id = 3 WHERE email = 'kanit.tipidum@sigap.polri.go.id'");
         try {
             T::same(302, $kanit->get("/investigator/detail/{$caseId}")->status, 'setelah mutasi ke Satker lain');
         } finally {
-            Db::exec("UPDATE users SET satker_id = 2 WHERE email = 'kanit.krimum@sigap.polda.go.id'");
+            Db::exec("UPDATE users SET satker_id = 2 WHERE email = 'kanit.tipidum@sigap.polri.go.id'");
         }
     },
 

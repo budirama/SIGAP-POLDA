@@ -22,13 +22,13 @@ return [
         $id = (int)Db::value("SELECT id FROM reports WHERE ticket_number = ?", [$ticket]);
         T::same(null, Db::value("SELECT actor_id FROM report_timeline WHERE report_id = ? ORDER BY id LIMIT 1", [$id]));
         $html = $pelapor->get('/report/track?ticket=' . urlencode($ticket))->body;
-        T::contains('Dicatat oleh: <b>Sistem SIGAP-POLDA</b>', $html);
+        T::contains('Dicatat oleh: <b>Sistem SIGAP-POLRI</b>', $html);
         $superadmin = (string)Db::value("SELECT name FROM users WHERE role = 'ROLE_SUPERADMIN' LIMIT 1");
         T::notContains($superadmin, $html, 'nama superadmin tidak muncul');
     },
 
     'nomor SP2HP terlalu panjang ditolak dengan pesan jelas' => function () {
-        $case = (int)Db::value("SELECT id FROM reports WHERE status = 'INVESTIGATING' AND assigned_investigator_id = (SELECT id FROM users WHERE email = 'penyidik.rian@sigap.polda.go.id') LIMIT 1");
+        $case = (int)Db::value("SELECT id FROM reports WHERE status = 'INVESTIGATING' AND assigned_investigator_id = (SELECT id FROM users WHERE email = 'penyidik.rian@sigap.polri.go.id') LIMIT 1");
         $before = (int)Db::value("SELECT COUNT(*) FROM report_timeline WHERE report_id = ?", [$case]);
         $penyidik = Http::as('penyidik');
         $penyidik->post('/investigator/updateSp2hp', [

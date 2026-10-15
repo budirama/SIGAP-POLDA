@@ -4,13 +4,13 @@
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 polri-glass-card p-6 rounded-2xl border border-[#1E355B]">
     <div>
       <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-950/80 border border-blue-700/60 text-blue-300 text-xs font-bold mb-2">
-        <i class="fas fa-desktop text-amber-400"></i> Command Center SPKT POLDA
+        <i class="fas fa-desktop text-amber-400"></i> Command Center SPKT POLRI
       </div>
       <h2 class="text-xl sm:text-2xl font-black text-slate-100 font-heading">
         Meja Triage Laporan & Disposisi Terpusat
       </h2>
       <p class="text-xs text-slate-400 mt-1">
-        Verifikasi kelayakan aduan masyarakat dari Portal Web maupun Eskalasi Media Sosial. Tentukan disposisi ke Direktorat atau Polres jajaran.
+        Verifikasi kelayakan aduan masyarakat dari Portal Web maupun Eskalasi Media Sosial. Tentukan disposisi ke Satker Mabes Polri atau Polda jajaran.
       </p>
       <?php if (!$canAct): ?>
         <p class="mt-2 inline-flex items-center gap-1.5 text-[11px] font-semibold text-sky-300 bg-sky-950/60 border border-sky-800/60 px-2.5 py-1 rounded-lg">
@@ -193,7 +193,7 @@
     <div class="flex items-center justify-between border-b border-slate-700 pb-3 mb-4">
       <h3 class="text-base font-bold text-slate-100 flex items-center gap-2">
         <i class="fas fa-sitemap text-amber-400"></i>
-        Disposisi Laporan ke Satker / Polres
+        Disposisi Laporan ke Satker Mabes / Polda
       </h3>
       <button onclick="document.getElementById('modalDispatch').classList.add('hidden')" class="text-slate-400 hover:text-slate-200">
         <i class="fas fa-xmark text-lg"></i>
@@ -213,14 +213,14 @@
         <label class="block text-xs font-semibold text-slate-300 mb-1">Satuan Kerja Tujuan Disposisi:</label>
         <select name="satker_id" id="dispatch_satker_id" required
                 class="w-full bg-[#070F1E] border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 outline-none focus:border-amber-500">
-          <option value="">-- Pilih Direktorat Polda atau Polres Jajaran --</option>
-          <optgroup label="DIREKTORAT POLDA METRO">
+          <option value="">-- Pilih Satker Mabes Polri atau Polda Jajaran --</option>
+          <optgroup label="SATKER MABES POLRI (BARESKRIM, KORLANTAS, DIVPROPAM)">
             <?php foreach ($satkers as $s): if ($s['type'] === 'DIREKTORAT'): ?>
               <option value="<?= $s['id'] ?>"><?= htmlspecialchars($s['name']) ?></option>
             <?php endif; endforeach; ?>
           </optgroup>
-          <optgroup label="POLRES METRO / POLRESTA JAJARAN">
-            <?php foreach ($satkers as $s): if ($s['type'] === 'POLRES'): ?>
+          <optgroup label="POLDA JAJARAN">
+            <?php foreach ($satkers as $s): if ($s['type'] === 'POLDA'): ?>
               <option value="<?= $s['id'] ?>"><?= htmlspecialchars($s['name']) ?></option>
             <?php endif; endforeach; ?>
           </optgroup>

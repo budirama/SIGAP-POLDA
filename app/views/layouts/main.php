@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title><?= htmlspecialchars($pageTitle ?? 'Portal Pengaduan Masyarakat') ?> - SIGAP POLDA</title>
+  <title><?= htmlspecialchars($pageTitle ?? 'Portal Pengaduan Masyarakat') ?> - SIGAP POLRI</title>
   
   <!-- Tailwind CSS & FontAwesome -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -27,7 +27,7 @@
       <div class="flex items-center gap-2">
         <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
         <span class="font-bold text-amber-400 tracking-wider">POLISI BERSAMA MASYARAKAT</span>
-        <span class="hidden sm:inline text-slate-400">• Melindungi, Mengayomi dan Melayani • Polda Presisi</span>
+        <span class="hidden sm:inline text-slate-400">• Melindungi, Mengayomi dan Melayani • Polri Presisi</span>
       </div>
       <div class="flex items-center gap-4">
         <a href="tel:110" class="text-rose-400 hover:text-rose-300 font-bold flex items-center gap-1">
@@ -46,7 +46,7 @@
         <img src="<?= $baseUrl ?>/assets/img/logo-polisi-masyarakat.png" alt="Polisi Bersama Masyarakat" class="h-12 w-auto object-contain drop-shadow transition-transform group-hover:scale-105">
         <div>
           <div class="flex items-center gap-2">
-            <span class="font-black text-lg text-slate-50 tracking-wider font-heading">SIGAP-POLDA</span>
+            <span class="font-black text-lg text-slate-50 tracking-wider font-heading">SIGAP-POLRI</span>
             <span class="text-[9px] font-black px-1.5 py-0.5 rounded bg-red-950 text-red-300 border border-red-700/70 tracking-wider">BERSAMA MASYARAKAT</span>
           </div>
           <p class="text-[10px] text-amber-400 tracking-wider font-bold">MELINDUNGI • MENGAYOMI • MELAYANI</p>
@@ -116,7 +116,7 @@
           <div>
             <h4 class="font-black text-sm text-slate-100 font-heading">POLISI BERSAMA MASYARAKAT</h4>
             <p class="text-[11px] text-amber-400 font-bold tracking-wider">MELINDUNGI • MENGAYOMI • MELAYANI</p>
-            <p class="text-[10px] text-slate-400">Sentra Pelayanan Kepolisian Terpadu (SPKT) & Command Center Polda</p>
+            <p class="text-[10px] text-slate-400">Sentra Pelayanan Kepolisian Terpadu (SPKT) & Command Center Polri</p>
           </div>
         </div>
         <p class="text-slate-400 text-xs leading-relaxed max-w-lg">
@@ -142,7 +142,7 @@
       <div class="space-y-3">
         <h4 class="font-bold text-slate-200 text-xs uppercase tracking-wider text-amber-400">Posko Pengaduan</h4>
         <p class="text-xs leading-relaxed">
-          Gedung Pelayanan Terpadu Mapolda<br>
+          Gedung Bareskrim Mabes Polri<br>
           Jl. Jenderal Sudirman Kav. 55<br>
           Hotline: 021-5234000 / 110
         </p>
@@ -153,7 +153,7 @@
     <!-- Bottom Copyright -->
     <div class="border-t border-[#1E355B]/40 max-w-7xl mx-auto px-4 pt-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px]">
       <p>&copy; <?= date('Y') ?> Kepolisian Daerah Republik Indonesia. Rastra Sewakotama.</p>
-      <p class="text-slate-500">Dikembangkan bersama Divisi TIK & Biro Operasi Polda • V1.1.0</p>
+      <p class="text-slate-500">Dikembangkan bersama Divisi TIK Polri • V1.1.0</p>
     </div>
   </footer>
 

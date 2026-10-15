@@ -4,7 +4,7 @@
   <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 polri-glass-card p-6 rounded-2xl border border-[#1E355B]">
     <div>
       <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-950/80 border border-sky-700/60 text-sky-300 text-xs font-bold mb-2">
-        <i class="fab fa-x-twitter"></i> Tim Humas & Patroli Siber POLDA
+        <i class="fab fa-x-twitter"></i> Tim Humas & Patroli Siber POLRI
       </div>
       <h2 class="text-xl sm:text-2xl font-black text-slate-100 font-heading">
         Omnichannel Social Listening & Triage
@@ -157,7 +157,7 @@
 
       <div>
         <label class="block text-xs font-semibold text-slate-300 mb-1">Perkiraan Lokasi TKP:</label>
-        <input type="text" name="incident_location" value="Wilayah Hukum Polda Metro Jaya" required
+        <input type="text" name="incident_location" value="Wilayah Hukum Polri" required
                class="w-full bg-[#070F1E] border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 outline-none focus:border-amber-500">
       </div>
 

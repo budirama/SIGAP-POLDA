@@ -1,6 +1,6 @@
 <?php
 /**
- * SIGAP-POLDA: Throttle Model (Pembatasan Percobaan Generik: Login, Laporan Publik, PIN)
+ * SIGAP-POLRI: Throttle Model (Pembatasan Percobaan Generik: Login, Laporan Publik, PIN)
  */
 
 namespace App\Models;

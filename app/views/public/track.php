@@ -33,7 +33,7 @@
           <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-amber-500"><i class="fas fa-ticket text-sm"></i></span>
           <input type="text" id="ticketInput" name="ticket" required
                  value="<?= htmlspecialchars($ticketNumber) ?>"
-                 placeholder="Contoh: LP-POLDA-202610-0001"
+                 placeholder="Contoh: LP-POLRI-202610-0001"
                  class="w-full bg-[#070F1E] border border-[#1E355B] focus:border-amber-500 rounded-xl pl-9 pr-3 py-2.5 text-xs sm:text-sm text-slate-100 placeholder-slate-600 outline-none font-mono uppercase">
         </div>
       </div>
@@ -66,11 +66,11 @@
     <!-- Top Status Banner -->
     <div class="polri-glass-card rounded-2xl p-6 mb-6 border <?= $report['is_kapolda_attention'] ? 'border-red-600 animate-kapolda-pulse' : 'border-[#1E355B]' ?> relative overflow-hidden">
       
-      <!-- Kapolda Priority Flag Badge -->
+      <!-- Kapolri Priority Flag Badge -->
       <?php if ($report['is_kapolda_attention']): ?>
         <div class="mb-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-950/90 border border-red-600 text-red-200 text-xs font-black shadow-lg">
-          <img src="<?= $baseUrl ?>/assets/img/badge-kapolda.svg" alt="Atensi Kapolda" class="w-5 h-5">
-          <span>PRIORITAS TINGGI: LAPORAN DALAM ATENSI KHUSUS KAPOLDA</span>
+          <img src="<?= $baseUrl ?>/assets/img/badge-kapolda.svg" alt="Atensi Kapolri" class="w-5 h-5">
+          <span>PRIORITAS TINGGI: LAPORAN DALAM ATENSI KHUSUS KAPOLRI</span>
         </div>
       <?php endif; ?>
 
@@ -181,7 +181,7 @@
 
                 <div class="mt-2 text-[10px] text-slate-500 flex items-center gap-2 border-t border-slate-800/80 pt-2">
                   <i class="fas fa-user-check text-slate-400"></i>
-                  <span>Dicatat oleh: <b><?= htmlspecialchars(empty($t['actor_name']) ? 'Sistem SIGAP-POLDA' : trim(($t['actor_rank'] ?? '') . ' ' . $t['actor_name'])) ?></b></span>
+                  <span>Dicatat oleh: <b><?= htmlspecialchars(empty($t['actor_name']) ? 'Sistem SIGAP-POLRI' : trim(($t['actor_rank'] ?? '') . ' ' . $t['actor_name'])) ?></b></span>
                 </div>
               </div>
 
@@ -206,7 +206,7 @@
               <span class="text-[9px] font-black px-2 py-0.5 rounded bg-red-950 text-red-300 border border-red-700 uppercase">POLISI BERSAMA MASYARAKAT</span>
             </div>
             <p class="text-xs text-slate-400 mt-0.5">
-              Saluran resmi komunikasi langsung antara Pelapor dan Tim Penyidik Polda yang menangani perkara Anda.
+              Saluran resmi komunikasi langsung antara Pelapor dan Tim Penyidik Polri yang menangani perkara Anda.
             </p>
           </div>
         </div>
