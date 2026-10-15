@@ -510,12 +510,15 @@ class Report extends Model
         $closedReports = (int)($this->fetch("SELECT COUNT(*) AS c FROM reports WHERE status = 'CLOSED'")['c'] ?? 0);
         $investigating = (int)($this->fetch("SELECT COUNT(*) AS c FROM reports WHERE status IN ('ASSIGNED', 'INVESTIGATING')")['c'] ?? 0);
         $kapoldaAttention = (int)($this->fetch("SELECT COUNT(*) AS c FROM reports WHERE is_kapolda_attention = 1")['c'] ?? 0);
-        $socialReports = (int)($this->fetch("SELECT COUNT(*) AS c FROM reports WHERE source_channel LIKE 'TWITTER%' OR source_channel LIKE 'INSTAGRAM%' OR source_channel LIKE 'TIKTOK%'")['c'] ?? 0);
+        $socialReports = (int)($this->fetch(
+            "SELECT COUNT(*) AS c FROM reports WHERE source_channel IN (?, ?, ?, ?)",
+            [Constants::CHANNEL_TWITTER, Constants::CHANNEL_IG, Constants::CHANNEL_FB, Constants::CHANNEL_TIKTOK]
+        )['c'] ?? 0);
 
         $clearanceRate = $totalReports > 0 ? round(($closedReports / $totalReports) * 100, 1) : 0.0;
 
-        // Feedback average rating
-        $avgFeedback = (float)($this->fetch("SELECT AVG(rating_stars) AS a FROM report_feedbacks")['a'] ?? 4.8);
+        // Rata-rata rating SKM (null bila belum ada feedback, jangan tampilkan angka fiktif)
+        $avgFeedback = $this->fetch("SELECT AVG(rating_stars) AS a FROM report_feedbacks")['a'] ?? null;
 
         return [
             'total_reports' => $totalReports,
@@ -524,7 +527,7 @@ class Report extends Model
             'kapolda_attention' => $kapoldaAttention,
             'social_reports' => $socialReports,
             'clearance_rate' => $clearanceRate,
-            'avg_rating' => round($avgFeedback, 1)
+            'avg_rating' => $avgFeedback !== null ? round((float)$avgFeedback, 1) : null
         ];
     }
 

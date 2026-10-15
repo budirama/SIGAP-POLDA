@@ -136,7 +136,7 @@
 
       <div class="p-4 rounded-2xl bg-[#0E1E38]/60 border border-[#1E355B]/50">
         <div class="text-2xl sm:text-3xl font-black text-amber-300 font-heading flex items-center justify-center gap-1">
-          <span><?= $stats['avg_rating'] ?></span>
+          <span><?= $stats['avg_rating'] !== null ? number_format($stats['avg_rating'], 1) : '–' ?></span>
           <i class="fas fa-star text-amber-400 text-lg"></i>
         </div>
         <div class="text-xs text-slate-400 mt-1 font-medium">Indeks Kepuasan Masyarakat</div>

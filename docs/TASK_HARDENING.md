@@ -44,7 +44,7 @@ Lanjutan hasil code review 15 Oktober 2026. Setiap task dikerjakan di branch ter
 - **Kriteria selesai:** akses langsung ke file → 403/404; unduh lewat controller hanya berhasil bagi yang berhak.
 
 ### T6 — Akurasi statistik dashboard
-- [ ] **Masalah:** rata-rata rating SKM bernilai palsu `4.8` bila belum ada feedback; hitungan laporan medsos tidak memasukkan Facebook.
+- [x] **Masalah:** rata-rata rating SKM bernilai palsu `4.8` bila belum ada feedback; hitungan laporan medsos tidak memasukkan Facebook.
 - **Solusi:** kembalikan `null` dan tampilkan `–` bila belum ada data; hitung semua kanal medsos dari konstanta.
 - **Kriteria selesai:** tanpa data feedback beranda menampilkan `–`; laporan Facebook ikut terhitung.
 
