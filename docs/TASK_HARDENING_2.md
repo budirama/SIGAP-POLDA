@@ -17,7 +17,7 @@ Hasil review ulang 15 Oktober 2026 setelah PR #1–#11 (lihat `docs/TASK_HARDENI
 - **Solusi:** halaman publik hanya untuk personil berwenang (`ReportAccess::officerCanView`) atau pelapor; aksi pelapor (halaman sukses, pesan warga, SKM) hanya untuk pelapor. Query daftar laporan memakai kolom eksplisit tanpa `security_pin`/NIK; modal hanya menerima data minimal.
 
 ### U2 — State machine disposisi & Itwasda read-only
-- [ ] **Masalah:** disposisi tanpa cek status (kasus CLOSED/REJECTED bisa "dibuka" kembali; penyidik lama tetap memegang akses). Itwasda dapat mendisposisi & menolak.
+- [x] **Masalah:** disposisi tanpa cek status (kasus CLOSED/REJECTED bisa "dibuka" kembali; penyidik lama tetap memegang akses). Itwasda dapat mendisposisi & menolak.
 - **Solusi:** disposisi hanya dari status pra-penyidikan secara atomik (`UPDATE ... WHERE status IN (...)`), cabut penyidik lama saat disposisi ulang, tombol disembunyikan sesuai status; aksi SPKT hanya untuk Operator SPKT & Superadmin.
 
 ### U3 — KPI dashboard dari data nyata
