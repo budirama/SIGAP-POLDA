@@ -63,13 +63,49 @@
         <!-- Quick Credentials Switcher (Developer & Review Mode) -->
         <?php if (\App\Config\Config::isDevelopment()): ?>
         <div class="bg-[#1B1610]/90 border border-amber-500/25 rounded-2xl p-4 text-left shadow-lg">
-          <div class="flex items-center justify-between mb-3 border-b border-slate-700/60 pb-2">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-3 border-b border-slate-700/60 pb-2">
             <span class="text-xs font-bold text-amber-400 flex items-center gap-1.5">
-              <i class="fas fa-bolt text-amber-400"></i> Mode Simulasi Uji Coba Role (1-Klik)
+              <i class="fas fa-bolt text-amber-400"></i> Login 1-Klik · Management Posko
             </span>
             <span class="text-[10px] bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded border border-amber-500/20">Semua Password: password123</span>
           </div>
-          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-[11px]">
+          <?php
+          // Rantai komando posko dari Pusat sampai Polsek (akun demo seeder)
+          $poskoChain = [
+              ['Pusat', 'Mabes Polri', 'fa-landmark', [
+                  ['poskoExecPusat', 'Executive'], ['poskoAdminPusat', 'Admin'], ['poskoOpPusat', 'Operator'],
+              ]],
+              ['Polda', 'Polda Jawa Timur', 'fa-building-shield', [
+                  ['poskoExecJatim', 'Executive'], ['poskoAdminJatim', 'Admin'], ['poskoOpJatim', 'Operator'],
+              ]],
+              ['Polres', 'Polrestabes Surabaya', 'fa-building', [
+                  ['poskoExecSby', 'Executive'], ['poskoAdminSby', 'Admin'], ['poskoOpSby', 'Operator'],
+              ]],
+              ['Polsek', 'Polsek Benowo · Gubeng', 'fa-house-flag', [
+                  ['poskoOpBenowo', 'Op. Benowo'], ['poskoOpGubeng', 'Op. Gubeng'],
+              ]],
+          ];
+          ?>
+          <ol class="space-y-2 text-[11px]">
+            <?php foreach ($poskoChain as [$level, $unit, $icon, $accounts]): ?>
+            <li class="rounded-lg border border-amber-800/30 bg-amber-950/20 p-2">
+              <div class="flex items-center gap-1.5 mb-1.5 text-amber-200">
+                <i class="fas <?= $icon ?> text-amber-400 w-4 text-center" aria-hidden="true"></i>
+                <span class="font-bold"><?= $level ?></span>
+                <span class="text-slate-400 truncate">· <?= $unit ?></span>
+              </div>
+              <div class="flex flex-wrap gap-1.5">
+                <?php foreach ($accounts as [$key, $label]): ?>
+                <a href="<?= $baseUrl ?>/auth/quickLogin/<?= $key ?>" class="px-2.5 py-1.5 bg-[#0C0A08] hover:bg-amber-900/50 border border-amber-700/40 rounded-md text-amber-100 font-semibold transition-all"><?= $label ?></a>
+                <?php endforeach; ?>
+              </div>
+            </li>
+            <?php endforeach; ?>
+          </ol>
+
+          <details class="mt-3 text-[11px]">
+            <summary class="cursor-pointer text-slate-400 hover:text-slate-200 font-semibold">Role SIGAP lainnya (aduan warga)</summary>
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2">
             <a href="<?= $baseUrl ?>/auth/quickLogin/kapolri" class="p-2 bg-red-950/40 hover:bg-red-900/60 border border-red-800/40 rounded-lg text-red-200 font-semibold transition-all flex items-center gap-1.5">
               <i class="fas fa-star text-amber-400"></i> Kapolri
             </a>
@@ -89,6 +125,7 @@
               <i class="fas fa-user-edit text-yellow-400"></i> Penyidik Rian
             </a>
           </div>
+          </details>
         </div>
         <?php endif; ?>
       </div>
@@ -179,7 +216,7 @@
   <footer class="border-t border-[#3B2F1C]/60 bg-[#0C0A08] py-4 text-center text-xs text-slate-500">
     <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
       <p>&copy; <?= date('Y') ?> Kepolisian Negara Republik Indonesia. Hak Cipta Dilindungi Undang-Undang.</p>
-      <p class="text-amber-500/70 font-medium">Divisi TIK Polri • SIGAP V1.1.0</p>
+      <p class="text-amber-500/70 font-medium">Divisi TIK Polri • SIGAP V<?= \App\Config\Config::APP_VERSION ?></p>
     </div>
   </footer>
 
