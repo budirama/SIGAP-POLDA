@@ -39,22 +39,21 @@ class User extends Model
         );
     }
 
+    /**
+     * Cari akun warga berdasarkan NIK, atau buat baru bila belum ada.
+     * Data akun yang sudah ada TIDAK diubah: NIK diketik bebas di formulir publik,
+     * sehingga tidak boleh menjadi dasar untuk menimpa nama/telepon pemilik NIK.
+     */
     public function findOrCreateCitizen(string $nik, string $name, string $phone): array
     {
         $existing = $this->findByNik($nik);
         if ($existing) {
-            // Update nama & no telp jika ada perubahan
-            $this->execute(
-                "UPDATE users SET name = ?, phone = ? WHERE id = ?",
-                [$name, $phone, $existing['id']]
-            );
-            $existing['name'] = $name;
-            $existing['phone'] = $phone;
             return $existing;
         }
 
-        // Buat akun warga baru (default password adalah hash nomor HP)
-        $passwordHash = password_hash($phone, PASSWORD_BCRYPT);
+        // Akun warga baru tidak memiliki password yang dapat ditebak;
+        // pelacakan laporan menggunakan Nomor Tiket + PIN Keamanan.
+        $passwordHash = password_hash(bin2hex(random_bytes(32)), PASSWORD_BCRYPT);
         $this->execute(
             "INSERT INTO users (nik, name, phone, password_hash, role) VALUES (?, ?, ?, ?, 'ROLE_CITIZEN')",
             [$nik, $name, $phone, $passwordHash]

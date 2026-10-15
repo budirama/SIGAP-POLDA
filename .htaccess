@@ -1,0 +1,10 @@
+# Proteksi bila root proyek berada di dalam document root (mis. XAMPP htdocs).
+# Hanya folder public/ yang boleh diakses dari web.
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^(\.env|\.git|app|database|docs)(/|$) - [F,L]
+</IfModule>
+
+<FilesMatch "^\.(env|git)">
+    Require all denied
+</FilesMatch>

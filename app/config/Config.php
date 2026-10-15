@@ -7,13 +7,7 @@ namespace App\Config;
 
 class Config
 {
-    // Konfigurasi Database
-    public const DB_HOST = '127.0.0.1';
-    public const DB_PORT = '3306';
-    public const DB_NAME = 'sigap_polda';
-    public const DB_USER = 'root';
-    public const DB_PASS = '';
-    public const DB_CHARSET = 'utf8mb4';
+    private static ?array $env = null;
 
     // Konfigurasi Aplikasi & Identitas
     public const APP_NAME = 'SIGAP-POLDA';
@@ -21,13 +15,38 @@ class Config
     public const APP_MOTTO = 'Rastra Sewakotama - Polri Presisi';
     public const APP_VERSION = '1.1.0';
 
-    // Lingkungan Aplikasi: 'development' atau 'production'
-    // WAJIB diubah ke 'production' saat deploy (menonaktifkan Quick Login uji coba)
-    public const APP_ENV = 'development';
+    /**
+     * Baca nilai konfigurasi dari file .env di root proyek (fallback ke environment server)
+     */
+    public static function env(string $key, string $default = ''): string
+    {
+        if (self::$env === null) {
+            self::$env = [];
+            $file = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . '.env';
+            if (is_readable($file)) {
+                foreach (file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
+                    $line = trim($line);
+                    if ($line === '' || str_starts_with($line, '#') || !str_contains($line, '=')) {
+                        continue;
+                    }
+                    [$name, $value] = array_map('trim', explode('=', $line, 2));
+                    self::$env[$name] = trim($value, "\"'");
+                }
+            }
+        }
 
+        if (array_key_exists($key, self::$env)) {
+            return self::$env[$key];
+        }
+
+        $server = getenv($key);
+        return $server !== false ? $server : $default;
+    }
+
+    // Lingkungan Aplikasi: 'development' atau 'production' (default production bila .env tidak ada)
     public static function isDevelopment(): bool
     {
-        return self::APP_ENV === 'development';
+        return self::env('APP_ENV', 'production') === 'development';
     }
 
     // Path Base URL (Deteksi Otomatis atau Fallback)
