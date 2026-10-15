@@ -227,14 +227,14 @@ CREATE TABLE IF NOT EXISTS `case_messages` (
     INDEX `idx_msg_report` (`report_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- 11. TABEL PERCOBAAN PIN GAGAL (RATE LIMIT BRUTE-FORCE PELACAKAN TIKET)
-CREATE TABLE IF NOT EXISTS `pin_attempts` (
-    `id` INT AUTO_INCREMENT PRIMARY KEY,
-    `ticket_number` VARCHAR(50) NOT NULL,
-    `ip_address` VARCHAR(45) NOT NULL,
-    `attempted_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX `idx_pin_ticket` (`ticket_number`, `attempted_at`),
-    INDEX `idx_pin_ip` (`ip_address`, `attempted_at`)
+-- 11. TABEL THROTTLE (PEMBATASAN PERCOBAAN: LOGIN, LAPORAN PUBLIK, PIN PELACAKAN)
+CREATE TABLE IF NOT EXISTS `throttle_events` (
+    `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `bucket` VARCHAR(30) NOT NULL COMMENT 'login_id, login_ip, report_ip, pin_ticket_ip, pin_ip, pin_ticket',
+    `throttle_key` VARCHAR(191) NOT NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX `idx_throttle_lookup` (`bucket`, `throttle_key`, `created_at`),
+    INDEX `idx_throttle_created` (`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 12. TABEL SEQUENCE NOMOR TIKET PER PERIODE (PENOMORAN ATOMIK ANTI-BENTROK)

@@ -177,6 +177,9 @@ final class Db
     /** Buat laporan via portal publik; kembalikan [klien sesi pelapor, nomor tiket] */
     public static function createReport(array $overrides = [], array $files = []): array
     {
+        // Suite membuat banyak laporan dari IP yang sama; batas laporan publik per IP diuji terpisah
+        self::exec("DELETE FROM throttle_events WHERE bucket = 'report_ip'");
+
         $client = new Http(TEST_BASE_URL);
         $fields = array_merge([
             '_csrf_token'       => $client->get('/report/create')->csrf(),
@@ -219,6 +222,6 @@ final class Db
         }
         // Sequence diinisialisasi ulang dari tiket tertinggi saat laporan berikutnya dibuat
         self::exec("DELETE FROM ticket_sequences");
-        self::exec("DELETE FROM pin_attempts");
+        self::exec("DELETE FROM throttle_events");
     }
 }

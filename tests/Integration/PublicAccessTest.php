@@ -61,7 +61,7 @@ return [
     },
 
     'tracking terkunci setelah 5 PIN salah, PIN benar pun ditolak' => function () use ($ticket1, $pin1, $wrongPin) {
-        Db::exec("DELETE FROM pin_attempts");
+        Db::exec("DELETE FROM throttle_events");
         $guest = new Http(TEST_BASE_URL);
         for ($i = 1; $i <= 5; $i++) {
             T::contains('tidak cocok', $guest->get("/report/track?ticket={$ticket1}&pin={$wrongPin}")->body, "percobaan {$i}");
@@ -69,6 +69,6 @@ return [
         $res = $guest->get("/report/track?ticket={$ticket1}&pin={$pin1}");
         T::contains('Terlalu banyak percobaan PIN', $res->body);
         T::notContains('Cetak / Unduh SP2HP', $res->body);
-        Db::exec("DELETE FROM pin_attempts");
+        Db::exec("DELETE FROM throttle_events");
     },
 ];
