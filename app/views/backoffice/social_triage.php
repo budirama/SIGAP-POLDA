@@ -14,7 +14,8 @@
       </p>
     </div>
 
-    <!-- Quick Webhook Simulation Trigger -->
+    <!-- Quick Webhook Simulation Trigger (development) -->
+    <?php if (\App\Config\Config::isDevelopment()): ?>
     <div>
       <button onclick="document.getElementById('modalSimulate').classList.remove('hidden')"
               class="px-4 py-2.5 bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-bold rounded-xl text-xs transition-all shadow-md flex items-center gap-2">
@@ -22,6 +23,7 @@
         <span>Simulasikan Aduan Medsos Baru</span>
       </button>
     </div>
+    <?php endif; ?>
   </div>
 
   <!-- Feed Grid -->
@@ -75,10 +77,14 @@
 
             <!-- Original Post Link -->
             <div class="mb-3">
-              <a href="<?= htmlspecialchars($feed['post_url']) ?>" target="_blank" class="text-[11px] text-slate-400 hover:text-sky-300 flex items-center gap-1 transition-colors">
+              <?php if (\App\Models\SocialFeed::isSafeUrl($feed['post_url'])): ?>
+              <a href="<?= htmlspecialchars($feed['post_url']) ?>" target="_blank" rel="noopener noreferrer" class="text-[11px] text-slate-400 hover:text-sky-300 flex items-center gap-1 transition-colors">
                 <i class="fas fa-arrow-up-right-from-square text-[9px]"></i>
                 <span class="truncate">Buka Tautan Post Asli</span>
               </a>
+              <?php else: ?>
+              <span class="text-[11px] text-slate-500 italic">Tautan postingan tidak valid</span>
+              <?php endif; ?>
             </div>
           </div>
 
@@ -101,7 +107,7 @@
             <?php elseif (!empty($feed['converted_ticket'])): ?>
               <div class="w-full flex items-center justify-between text-xs">
                 <span class="text-slate-400 text-[11px]">Tiket Resmi:</span>
-                <a href="<?= $baseUrl ?>/report/track?ticket=<?= urlencode($feed['converted_ticket']) ?>" target="_blank" class="font-mono font-bold text-amber-400 hover:underline">
+                <a href="<?= $baseUrl ?>/report/track?ticket=<?= urlencode($feed['converted_ticket']) ?>" target="_blank" rel="noopener noreferrer" class="font-mono font-bold text-amber-400 hover:underline">
                   <?= htmlspecialchars($feed['converted_ticket']) ?>
                 </a>
               </div>

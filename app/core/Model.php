@@ -42,6 +42,14 @@ abstract class Model
         return $stmt->execute($params);
     }
 
+    /**
+     * Eksekusi perintah dan kembalikan jumlah baris yang terdampak
+     */
+    protected function affected(string $sql, array $params = []): int
+    {
+        return $this->query($sql, $params)->rowCount();
+    }
+
     protected function lastInsertId(): int
     {
         return (int)$this->db->lastInsertId();

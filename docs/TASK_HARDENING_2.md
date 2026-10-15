@@ -41,7 +41,7 @@ Hasil review ulang 15 Oktober 2026 setelah PR #1–#11 (lihat `docs/TASK_HARDENI
 - **Solusi:** workspace kasus mode baca untuk personil berwenang (`officerCanView`), aksi tetap hanya untuk penangan; navigasi sesuai hak akses; Kanit melihat seluruh kasus Satker-nya; daftar penyidik sesuai Satker laporan.
 
 ### U7 — Modul Media Sosial
-- [ ] **Masalah:** satu postingan bisa dikonversi berkali-kali; postingan terkonversi bisa ditandai spam; simulasi & "Ganti Role" aktif di production; `post_url` menerima skema `javascript:`.
+- [x] **Masalah:** satu postingan bisa dikonversi berkali-kali; postingan terkonversi bisa ditandai spam; simulasi & "Ganti Role" aktif di production; `post_url` menerima skema `javascript:`.
 - **Solusi:** konversi/abaikan atomik hanya dari status `NEW` + catat petugas; validasi kategori; simulasi & ganti role hanya di development; URL hanya `http(s)`.
 
 ### U8 — Atensi Kapolda & inbox instruksi
