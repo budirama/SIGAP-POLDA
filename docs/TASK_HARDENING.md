@@ -14,7 +14,7 @@ Lanjutan hasil code review 15 Oktober 2026. Setiap task dikerjakan di branch ter
 ## 📋 Task
 
 ### T1 — Router: alias rute, 404 yang benar & whitelist action
-- [ ] **Masalah:**
+- [x] **Masalah:**
   - URL `/social` mencari `SocialController` (tidak ada), sehingga router diam-diam jatuh ke `HomeController`. **Seluruh modul Media Sosial tidak dapat diakses**: login Humas mendarat di beranda, dan form `/social/convert`, `/social/dismiss`, `/social/simulate` berakhir 404.
   - Controller yang tidak dikenal tidak menghasilkan 404.
   - `method_exists` mengizinkan pemanggilan method warisan/protected (`render`, `json`, `redirect`, ...) yang berujung error 500.
