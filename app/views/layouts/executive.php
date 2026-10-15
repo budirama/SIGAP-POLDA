@@ -45,15 +45,19 @@
 
     <!-- Right: Profile & Actions -->
     <div class="flex items-center gap-3">
+      <?php if (\App\Core\Auth::hasRole([\App\Config\Constants::ROLE_SPKT_OPERATOR, \App\Config\Constants::ROLE_INTERNAL_AFFAIRS])): ?>
       <a href="<?= $baseUrl ?>/spkt" class="px-3.5 py-2 rounded-xl bg-blue-950/80 hover:bg-blue-900 border border-blue-800 text-blue-200 text-xs font-bold transition-all flex items-center gap-2">
         <i class="fas fa-desktop text-amber-400"></i>
         <span class="hidden sm:inline">Meja SPKT</span>
       </a>
+      <?php endif; ?>
 
+      <?php if (\App\Core\Auth::hasRole([\App\Config\Constants::ROLE_CYBER_HUMAS, \App\Config\Constants::ROLE_SPKT_OPERATOR])): ?>
       <a href="<?= $baseUrl ?>/social" class="px-3.5 py-2 rounded-xl bg-sky-950/80 hover:bg-sky-900 border border-sky-800 text-sky-200 text-xs font-bold transition-all flex items-center gap-2">
         <i class="fab fa-x-twitter text-sky-400"></i>
         <span class="hidden sm:inline">Radar Medsos</span>
       </a>
+      <?php endif; ?>
 
       <a href="<?= $baseUrl ?>/auth/logout" class="px-3 py-2 rounded-xl bg-red-950/60 hover:bg-red-900/80 border border-red-800/60 text-red-300 text-xs font-bold transition-all flex items-center gap-1.5" title="Logout">
         <i class="fas fa-power-off"></i>

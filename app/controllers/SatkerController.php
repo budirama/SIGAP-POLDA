@@ -34,14 +34,16 @@ class SatkerController extends Controller
      */
     public function index(): void
     {
-        $mySatkerId = Auth::satkerId() ?? 2; // Default Ditreskrimum jika superadmin belum diset satker
+        $isSuper = Auth::role() === Constants::ROLE_SUPERADMIN;
 
         $reports = $this->reportModel->getFilteredReports([
-            'satker_id' => (Auth::role() === Constants::ROLE_SUPERADMIN) ? null : $mySatkerId
+            'satker_id' => $isSuper ? null : (Auth::satkerId() ?? -1)
         ]);
 
-        // Daftar personil penyidik di satker ini
-        $investigators = $this->userModel->getInvestigatorsBySatker($mySatkerId);
+        // Daftar penyidik: Satker sendiri, atau seluruh Satker untuk superadmin (difilter per laporan di modal)
+        $investigators = $isSuper
+            ? $this->userModel->getAllActiveInvestigators()
+            : $this->userModel->getInvestigatorsBySatker((int)Auth::satkerId());
 
         $this->render('backoffice/satker_inbox', [
             'pageTitle'     => 'Inbox Disposisi Satker & Penugasan Kanit',
