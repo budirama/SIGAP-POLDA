@@ -258,6 +258,10 @@ class Report extends Model
             $sql .= "AND r.is_kapolda_attention = 1 ";
         }
 
+        if (!empty($filters['active_only'])) {
+            $sql .= "AND r.status NOT IN ('CLOSED', 'REJECTED') ";
+        }
+
         if (!empty($filters['channel'])) {
             $sql .= "AND r.source_channel = ? ";
             $params[] = $filters['channel'];
@@ -539,13 +543,17 @@ class Report extends Model
         $totalReports = (int)($this->fetch("SELECT COUNT(*) AS c FROM reports")['c'] ?? 0);
         $closedReports = (int)($this->fetch("SELECT COUNT(*) AS c FROM reports WHERE status = 'CLOSED'")['c'] ?? 0);
         $investigating = (int)($this->fetch("SELECT COUNT(*) AS c FROM reports WHERE status IN ('ASSIGNED', 'INVESTIGATING')")['c'] ?? 0);
-        $kapoldaAttention = (int)($this->fetch("SELECT COUNT(*) AS c FROM reports WHERE is_kapolda_attention = 1")['c'] ?? 0);
+        $rejectedReports = (int)($this->fetch("SELECT COUNT(*) AS c FROM reports WHERE status = 'REJECTED'")['c'] ?? 0);
+        // Atensi Kapolda yang masih harus ditindaklanjuti (kasus aktif)
+        $kapoldaAttention = (int)($this->fetch("SELECT COUNT(*) AS c FROM reports WHERE is_kapolda_attention = 1 AND status NOT IN ('CLOSED', 'REJECTED')")['c'] ?? 0);
         $socialReports = (int)($this->fetch(
             "SELECT COUNT(*) AS c FROM reports WHERE source_channel IN (?, ?, ?, ?)",
             [Constants::CHANNEL_TWITTER, Constants::CHANNEL_IG, Constants::CHANNEL_FB, Constants::CHANNEL_TIKTOK]
         )['c'] ?? 0);
 
-        $clearanceRate = $totalReports > 0 ? round(($closedReports / $totalReports) * 100, 1) : 0.0;
+        // Clearance rate: perkara selesai dari seluruh laporan yang diterima untuk ditangani (laporan ditolak tidak dihitung)
+        $handledReports = $totalReports - $rejectedReports;
+        $clearanceRate = $handledReports > 0 ? round(($closedReports / $handledReports) * 100, 1) : 0.0;
 
         // Rata-rata rating SKM (null bila belum ada feedback, jangan tampilkan angka fiktif)
         $avgFeedback = $this->fetch("SELECT AVG(rating_stars) AS a FROM report_feedbacks")['a'] ?? null;
@@ -559,6 +567,38 @@ class Report extends Model
             'clearance_rate' => $clearanceRate,
             'avg_rating' => $avgFeedback !== null ? round((float)$avgFeedback, 1) : null
         ];
+    }
+
+    /**
+     * Watchlist SLA per Satker dari sla_deadline kasus aktif:
+     * lewat SLA, mendekati SLA (< 24 jam), dan jumlah kasus aktif.
+     */
+    public function getSlaWatchlist(): array
+    {
+        return $this->fetchAll(
+            "SELECT s.id, s.name, s.code, s.type,
+                    COALESCE(SUM(r.id IS NOT NULL), 0) AS active_cases,
+                    COALESCE(SUM(r.sla_deadline < NOW()), 0) AS overdue_cases,
+                    COALESCE(SUM(r.sla_deadline >= NOW() AND r.sla_deadline < NOW() + INTERVAL 24 HOUR), 0) AS due_soon_cases
+             FROM satkers s
+             LEFT JOIN reports r ON r.current_satker_id = s.id AND r.status NOT IN ('CLOSED', 'REJECTED')
+             WHERE s.type IN ('DIREKTORAT', 'POLRES')
+             GROUP BY s.id, s.name, s.code, s.type
+             ORDER BY overdue_cases DESC, due_soon_cases DESC, active_cases DESC, s.name ASC"
+        );
+    }
+
+    /**
+     * Tunggakan di meja SPKT: laporan aktif yang belum didisposisikan ke Satker
+     */
+    public function getSpktBacklog(): array
+    {
+        return $this->fetch(
+            "SELECT COUNT(*) AS active_cases,
+                    COALESCE(SUM(sla_deadline < NOW()), 0) AS overdue_cases
+             FROM reports
+             WHERE current_satker_id IS NULL AND status NOT IN ('CLOSED', 'REJECTED')"
+        ) ?? ['active_cases' => 0, 'overdue_cases' => 0];
     }
 
     /**

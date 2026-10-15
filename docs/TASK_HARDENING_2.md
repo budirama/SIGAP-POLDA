@@ -21,7 +21,7 @@ Hasil review ulang 15 Oktober 2026 setelah PR #1–#11 (lihat `docs/TASK_HARDENI
 - **Solusi:** disposisi hanya dari status pra-penyidikan secara atomik (`UPDATE ... WHERE status IN (...)`), cabut penyidik lama saat disposisi ulang, tombol disembunyikan sesuai status; aksi SPKT hanya untuk Operator SPKT & Superadmin.
 
 ### U3 — KPI dashboard dari data nyata
-- [ ] **Masalah:** panel SLA hardcode "SLA Terpenuhi"; clearance rate menghitung laporan ditolak/belum diproses; KPI Atensi Kapolda ikut menghitung kasus selesai.
+- [x] **Masalah:** panel SLA hardcode "SLA Terpenuhi"; clearance rate menghitung laporan ditolak/belum diproses; KPI Atensi Kapolda ikut menghitung kasus selesai.
 - **Solusi:** watchlist SLA per Satker dari `sla_deadline` (lewat SLA / mendekati SLA / sesuai), clearance rate = selesai ÷ (semua − ditolak), KPI atensi hanya kasus aktif.
 
 ### U4 — Pembatasan percobaan (login, laporan publik, PIN)

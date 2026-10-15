@@ -164,21 +164,39 @@
       </div>
     </div>
 
+    <?php if ((int)$spktBacklog['active_cases'] > 0): ?>
+      <div class="mb-4 p-3 rounded-xl border text-xs flex items-center justify-between <?= (int)$spktBacklog['overdue_cases'] > 0 ? 'bg-red-950/40 border-red-800 text-red-200' : 'bg-[#070F1E] border-slate-800 text-slate-300' ?>">
+        <span><i class="fas fa-inbox mr-1.5"></i> Meja SPKT: <b><?= (int)$spktBacklog['active_cases'] ?></b> laporan belum didisposisikan</span>
+        <?php if ((int)$spktBacklog['overdue_cases'] > 0): ?>
+          <span class="font-bold"><?= (int)$spktBacklog['overdue_cases'] ?> lewat SLA</span>
+        <?php endif; ?>
+      </div>
+    <?php endif; ?>
+
     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-      <?php foreach ($satkers as $s): if ($s['type'] === 'DIREKTORAT' || $s['type'] === 'POLRES'): ?>
+      <?php foreach ($slaWatchlist as $w):
+        $overdue = (int)$w['overdue_cases'];
+        $dueSoon = (int)$w['due_soon_cases'];
+        $active = (int)$w['active_cases'];
+        [$badgeClass, $badgeText] = match (true) {
+            $overdue > 0 => ['bg-red-950 text-red-300 border-red-800', "{$overdue} Lewat SLA"],
+            $dueSoon > 0 => ['bg-amber-950 text-amber-300 border-amber-700', "{$dueSoon} Mendekati SLA"],
+            default      => ['bg-emerald-950 text-emerald-300 border-emerald-800', 'Sesuai SLA'],
+        };
+      ?>
         <div class="p-4 rounded-xl bg-[#070F1E] border border-slate-800 flex items-center justify-between">
           <div>
-            <div class="text-xs font-bold text-slate-200"><?= htmlspecialchars($s['name']) ?></div>
-            <span class="text-[10px] text-slate-500 font-mono"><?= htmlspecialchars($s['code']) ?> • <?= $s['type'] ?></span>
+            <div class="text-xs font-bold text-slate-200"><?= htmlspecialchars($w['name']) ?></div>
+            <span class="text-[10px] text-slate-500 font-mono"><?= htmlspecialchars($w['code']) ?> • <?= htmlspecialchars($w['type']) ?></span>
           </div>
           <div class="text-right">
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-800">
-              SLA Terpenuhi
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold border <?= $badgeClass ?>">
+              <?= $badgeText ?>
             </span>
-            <span class="text-[10px] text-slate-400 block mt-1 font-mono">Respon &lt; 24 Jam</span>
+            <span class="text-[10px] text-slate-400 block mt-1 font-mono"><?= $active ?> kasus aktif</span>
           </div>
         </div>
-      <?php endif; endforeach; ?>
+      <?php endforeach; ?>
     </div>
   </div>
 

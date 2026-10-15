@@ -39,7 +39,8 @@ class ExecutiveController extends Controller
 
         // Ambil laporan-laporan yang sedang menjadi Atensi Kapolda
         $attentionReports = $this->reportModel->getFilteredReports([
-            'is_kapolda_attention' => 1
+            'is_kapolda_attention' => 1,
+            'active_only'          => 1
         ]);
 
         // Ambil laporan terbaru
@@ -51,6 +52,8 @@ class ExecutiveController extends Controller
             'heatmapPoints'    => $heatmapPoints,
             'satkers'          => $satkers,
             'attentionReports' => $attentionReports,
+            'slaWatchlist'     => $this->reportModel->getSlaWatchlist(),
+            'spktBacklog'      => $this->reportModel->getSpktBacklog(),
             'recentReports'    => $recentReports
         ], 'executive');
     }
