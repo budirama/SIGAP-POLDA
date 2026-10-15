@@ -4,26 +4,22 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title><?= htmlspecialchars($pageTitle ?? 'Dashboard Eksekutif Kapolri') ?> - SIGAP POLRI</title>
-  
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <?php require __DIR__ . "/_head.php"; ?>
   
   <!-- Leaflet GIS Map -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-  <!-- Custom POLRI Theme Stylesheet -->
-  <link rel="stylesheet" href="<?= $baseUrl ?>/assets/css/custom-polri.css">
 </head>
-<body class="bg-[#050B14] text-slate-100 min-h-screen flex flex-col selection:bg-amber-500 selection:text-slate-950 font-sans">
+<body class="bg-[#090705] text-slate-100 min-h-screen flex flex-col selection:bg-amber-500 selection:text-slate-950 font-sans">
 
   <!-- Top Tactical Command Bar -->
-  <header class="bg-[#081224] border-b border-amber-500/30 px-6 py-3 flex items-center justify-between sticky top-0 z-50 backdrop-blur-xl shadow-2xl">
+  <div class="ribbon-merah-putih"></div>
+  <header class="bg-[#110D09]/95 border-b border-amber-500/30 px-6 py-3 flex items-center justify-between sticky top-0 z-50 backdrop-blur-xl shadow-2xl">
     
     <!-- Left: Kapolri Emblem & Title -->
     <div class="flex items-center gap-4">
       <div class="relative">
-        <img src="<?= $baseUrl ?>/assets/img/logo-polisi-masyarakat.png" alt="Polisi Bersama Masyarakat" class="h-14 w-auto object-contain drop-shadow">
+        <img src="<?= $baseUrl ?>/assets/img/logo-polisi-masyarakat-transparent.png" alt="Polisi Bersama Masyarakat" class="h-14 w-auto object-contain drop-shadow">
       </div>
       <div>
         <div class="flex items-center gap-2">
@@ -37,7 +33,7 @@
     </div>
 
     <!-- Center: Live Tactical Digital Clock -->
-    <div class="hidden lg:flex items-center gap-3 px-5 py-2 rounded-2xl bg-[#03070E] border border-amber-500/20 font-mono">
+    <div class="hidden lg:flex items-center gap-3 px-5 py-2 rounded-2xl bg-[#070504] border border-amber-500/20 font-mono">
       <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></div>
       <div class="text-xs text-slate-400">WAKTU OPERASIONAL (WIB):</div>
       <div id="liveClock" class="text-sm font-black text-amber-400 font-mono tracking-wider">--:--:-- WIB</div>
@@ -82,7 +78,7 @@
   <?php endif; ?>
 
   <!-- Main Executive Canvas -->
-  <main class="flex-1 p-4 sm:p-6 lg:p-8">
+  <main class="hud-grid relative isolate flex-1 p-4 sm:p-6 lg:p-8">
     <?= $content ?>
   </main>
 

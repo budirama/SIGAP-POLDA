@@ -34,7 +34,7 @@
           <input type="text" id="ticketInput" name="ticket" required
                  value="<?= htmlspecialchars($ticketNumber) ?>"
                  placeholder="Contoh: LP-POLRI-202610-0001"
-                 class="w-full bg-[#070F1E] border border-[#1E355B] focus:border-amber-500 rounded-xl pl-9 pr-3 py-2.5 text-xs sm:text-sm text-slate-100 placeholder-slate-600 outline-none font-mono uppercase">
+                 class="w-full bg-[#0C0A08] border border-[#3B2F1C] focus:border-amber-500 rounded-xl pl-9 pr-3 py-2.5 text-xs sm:text-sm text-slate-100 placeholder-slate-600 outline-none font-mono uppercase">
         </div>
       </div>
 
@@ -46,7 +46,7 @@
           <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-500"><i class="fas fa-lock text-sm"></i></span>
           <input type="password" id="pinInput" name="pin" required inputmode="numeric" maxlength="6"
                  placeholder="6-Digit PIN"
-                 class="w-full bg-[#070F1E] border border-[#1E355B] focus:border-amber-500 rounded-xl pl-9 pr-3 py-2.5 text-xs sm:text-sm text-slate-100 placeholder-slate-600 outline-none font-mono">
+                 class="w-full bg-[#0C0A08] border border-[#3B2F1C] focus:border-amber-500 rounded-xl pl-9 pr-3 py-2.5 text-xs sm:text-sm text-slate-100 placeholder-slate-600 outline-none font-mono">
         </div>
       </div>
 
@@ -64,7 +64,7 @@
   <?php if (!empty($report)): ?>
     
     <!-- Top Status Banner -->
-    <div class="polri-glass-card rounded-2xl p-6 mb-6 border <?= $report['is_kapolda_attention'] ? 'border-red-600 animate-kapolda-pulse' : 'border-[#1E355B]' ?> relative overflow-hidden">
+    <div class="polri-glass-card rounded-2xl p-6 mb-6 border <?= $report['is_kapolda_attention'] ? 'border-red-600 animate-kapolda-pulse' : 'border-[#3B2F1C]' ?> relative overflow-hidden">
       
       <!-- Kapolri Priority Flag Badge -->
       <?php if ($report['is_kapolda_attention']): ?>
@@ -123,7 +123,7 @@
       <!-- Detail TKP & Kronologi -->
       <div class="mt-5 pt-4 border-t border-slate-800 text-xs text-slate-300 space-y-2">
         <p><b class="text-slate-400">Lokasi Kejadian:</b> <?= htmlspecialchars($report['incident_location']) ?></p>
-        <p class="leading-relaxed bg-[#070F1E] p-3 rounded-xl border border-slate-800 text-slate-300">
+        <p class="leading-relaxed bg-[#0C0A08] p-3 rounded-xl border border-slate-800 text-slate-300">
           <b class="text-amber-400 block mb-1">Kronologi yang Dilaporkan:</b>
           <?= nl2br(htmlspecialchars($report['description'])) ?>
         </p>
@@ -132,7 +132,7 @@
     </div>
 
     <!-- Timeline Perkembangan Perkara (SP2HP-E) -->
-    <div class="polri-glass-card rounded-2xl p-6 sm:p-8 border border-[#1E355B] shadow-xl">
+    <div class="polri-glass-card rounded-2xl p-6 sm:p-8 border border-[#3B2F1C] shadow-xl">
       <div class="flex items-center justify-between border-b border-slate-700/60 pb-4 mb-6">
         <div>
           <h3 class="text-lg font-black text-slate-100 font-heading flex items-center gap-2">
@@ -152,9 +152,9 @@
           <?php foreach ($timeline as $t): ?>
             <div class="relative pl-6 sm:pl-8 group">
               <!-- Dot Indicator -->
-              <div class="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-[#070F1E] border-2 <?= $t['is_sp2hp'] ? 'border-amber-400 bg-amber-500' : 'border-blue-500' ?> transition-transform group-hover:scale-125"></div>
+              <div class="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-[#0C0A08] border-2 <?= $t['is_sp2hp'] ? 'border-amber-400 bg-amber-500' : 'border-blue-500' ?> transition-transform group-hover:scale-125"></div>
               
-              <div class="p-4 rounded-xl bg-[#070F1E] border border-slate-800 shadow-md">
+              <div class="p-4 rounded-xl bg-[#0C0A08] border border-slate-800 shadow-md">
                 <div class="flex flex-wrap items-center justify-between gap-2 mb-1.5">
                   <div class="flex items-center gap-2">
                     <span class="text-xs font-black text-slate-100"><?= htmlspecialchars($t['title']) ?></span>
@@ -243,7 +243,7 @@
       <!-- Thread Percakapan -->
       <div class="space-y-4 max-h-[420px] overflow-y-auto pr-2 mb-6" id="messagesContainer">
         <?php if (empty($messages)): ?>
-          <div class="p-6 text-center rounded-xl bg-[#070F1E]/80 border border-slate-800 text-slate-400 text-xs">
+          <div class="p-6 text-center rounded-xl bg-[#0C0A08]/80 border border-slate-800 text-slate-400 text-xs">
             <i class="fas fa-shield-halved text-2xl text-amber-500/40 mb-2 block"></i>
             <p class="font-medium text-slate-300">Belum ada pesan klarifikasi dalam berkas ini.</p>
             <p class="text-[11px] text-slate-500 mt-1">Anda dapat mengajukan pertanyaan atau mengirim bukti susulan secara langsung melalui formulir di bawah.</p>
@@ -260,7 +260,7 @@
                 </div>
               <?php endif; ?>
 
-              <div class="max-w-lg <?= $isPolice ? 'bg-[#0E1E38] border-amber-500/40' : 'bg-slate-800/90 border-slate-700' ?> p-4 rounded-2xl border text-xs shadow-md">
+              <div class="max-w-lg <?= $isPolice ? 'bg-[#1B1610] border-amber-500/40' : 'bg-slate-800/90 border-slate-700' ?> p-4 rounded-2xl border text-xs shadow-md">
                 <div class="flex items-center justify-between gap-3 mb-1.5 border-b border-slate-700/50 pb-1">
                   <span class="font-bold <?= $isPolice ? 'text-amber-400' : 'text-slate-200' ?> flex items-center gap-1.5">
                     <?php if ($isPolice): ?>
@@ -299,7 +299,7 @@
 
       <!-- Form Kirim Pesan Klarifikasi (hanya pelapor; personil membalas lewat workspace kasus) -->
       <?php if ($isReporter): ?>
-      <form action="<?= $baseUrl ?>/report/sendMessage" method="POST" enctype="multipart/form-data" class="bg-[#070F1E]/90 p-4 rounded-xl border border-slate-700/80 space-y-3">
+      <form action="<?= $baseUrl ?>/report/sendMessage" method="POST" enctype="multipart/form-data" class="bg-[#0C0A08]/90 p-4 rounded-xl border border-slate-700/80 space-y-3">
         <input type="hidden" name="_csrf_token" value="<?= $csrfToken ?>">
         <input type="hidden" name="ticket_number" value="<?= htmlspecialchars($report['ticket_number']) ?>">
 
@@ -310,7 +310,7 @@
           </label>
           <textarea name="message_text" rows="3" required
                     placeholder="Tuliskan pertanyaan, tanggapan atas SP2HP, atau keterangan tambahan Anda..."
-                    class="w-full bg-[#0A192F] border border-slate-700 focus:border-amber-500 rounded-xl p-3 text-xs text-slate-100 placeholder-slate-500 outline-none"><?= htmlspecialchars($messageDraft ?? '') ?></textarea>
+                    class="w-full bg-[#14100C] border border-slate-700 focus:border-amber-500 rounded-xl p-3 text-xs text-slate-100 placeholder-slate-500 outline-none"><?= htmlspecialchars($messageDraft ?? '') ?></textarea>
         </div>
 
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
@@ -330,7 +330,7 @@
         </div>
       </form>
       <?php else: ?>
-        <p class="text-xs text-slate-400 italic bg-[#070F1E]/60 p-3 rounded-xl border border-slate-700/60">
+        <p class="text-xs text-slate-400 italic bg-[#0C0A08]/60 p-3 rounded-xl border border-slate-700/60">
           Mode tampilan personil: balasan klarifikasi dikirim melalui Workspace Kasus.
         </p>
       <?php endif; ?>
@@ -346,7 +346,7 @@
           <div class="flex-1">
             <h3 class="text-lg font-black text-slate-100 font-heading">Survei Kepuasan Masyarakat (SKM)</h3>
             <p class="text-xs text-slate-400 mt-1">
-              Kasus ini telah dinyatakan selesai. Pendapat Anda sangat berharga bagi peningkatan profesionalisme pelayanan Kepolisian Daerah.
+              Kasus ini telah dinyatakan selesai. Pendapat Anda sangat berharga bagi peningkatan profesionalisme pelayanan Polri.
             </p>
 
             <?php if (!empty($feedback)): ?>
@@ -383,7 +383,7 @@
                 <div class="grid sm:grid-cols-2 gap-4">
                   <div>
                     <label class="block text-xs text-slate-300 mb-1">Kecepatan Respons Petugas:</label>
-                    <select name="speed_score" class="w-full bg-[#070F1E] border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200 outline-none">
+                    <select name="speed_score" class="w-full bg-[#0C0A08] border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200 outline-none">
                       <option value="5">Sangat Cepat (5)</option>
                       <option value="4">Cepat (4)</option>
                       <option value="3">Cukup (3)</option>
@@ -394,7 +394,7 @@
 
                   <div>
                     <label class="block text-xs text-slate-300 mb-1">Keadilan & Transparansi Informasi:</label>
-                    <select name="fairness_score" class="w-full bg-[#070F1E] border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200 outline-none">
+                    <select name="fairness_score" class="w-full bg-[#0C0A08] border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200 outline-none">
                       <option value="5">Sangat Adil & Terbuka (5)</option>
                       <option value="4">Terbuka (4)</option>
                       <option value="3">Cukup (3)</option>
@@ -407,7 +407,7 @@
                 <div>
                   <label class="block text-xs text-slate-300 mb-1">Catatan & Masukan Anda:</label>
                   <textarea name="comments" rows="3" required placeholder="Tuliskan pengalaman Anda selama penanganan perkara..."
-                            class="w-full bg-[#070F1E] border border-slate-700 rounded-xl p-3 text-xs text-slate-200 outline-none focus:border-amber-500"></textarea>
+                            class="w-full bg-[#0C0A08] border border-slate-700 rounded-xl p-3 text-xs text-slate-200 outline-none focus:border-amber-500"></textarea>
                 </div>
 
                 <button type="submit" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold rounded-xl text-xs transition-colors">

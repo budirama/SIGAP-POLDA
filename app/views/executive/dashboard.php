@@ -57,7 +57,7 @@
   <div class="grid lg:grid-cols-12 gap-6">
     
     <!-- Left: Leaflet GIS Interactive Crime Map -->
-    <div class="lg:col-span-8 polri-glass-card rounded-2xl p-5 border border-[#1E355B] shadow-2xl flex flex-col">
+    <div class="lg:col-span-8 polri-glass-card rounded-2xl p-5 border border-[#3B2F1C] shadow-2xl flex flex-col">
       
       <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
         <div>
@@ -117,7 +117,7 @@
             </div>
           <?php else: ?>
             <?php foreach ($attentionReports as $ar): ?>
-              <div class="p-3.5 rounded-xl bg-[#030812] border border-red-700/60 hover:border-red-500 transition-colors space-y-2">
+              <div class="p-3.5 rounded-xl bg-[#070504] border border-red-700/60 hover:border-red-500 transition-colors space-y-2">
                 <div class="flex items-center justify-between">
                   <span class="font-mono text-xs font-black text-amber-400"><?= htmlspecialchars($ar['ticket_number']) ?></span>
                   <span class="text-[9px] font-black text-red-400 animate-pulse">★ ATENSI</span>
@@ -166,7 +166,7 @@
   </div>
 
   <!-- 3. Monitoring Kinerja Satuan Kerja & Bottleneck Watchlist -->
-  <div class="polri-glass-card rounded-2xl p-6 border border-[#1E355B] shadow-2xl">
+  <div class="polri-glass-card rounded-2xl p-6 border border-[#3B2F1C] shadow-2xl">
     <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-5">
       <div>
         <h3 class="text-base font-black text-slate-100 font-heading flex items-center gap-2">
@@ -178,7 +178,7 @@
     </div>
 
     <?php if ((int)$spktBacklog['active_cases'] > 0): ?>
-      <div class="mb-4 p-3 rounded-xl border text-xs flex items-center justify-between <?= (int)$spktBacklog['overdue_cases'] > 0 ? 'bg-red-950/40 border-red-800 text-red-200' : 'bg-[#070F1E] border-slate-800 text-slate-300' ?>">
+      <div class="mb-4 p-3 rounded-xl border text-xs flex items-center justify-between <?= (int)$spktBacklog['overdue_cases'] > 0 ? 'bg-red-950/40 border-red-800 text-red-200' : 'bg-[#0C0A08] border-slate-800 text-slate-300' ?>">
         <span><i class="fas fa-inbox mr-1.5"></i> Meja SPKT: <b><?= (int)$spktBacklog['active_cases'] ?></b> laporan belum didisposisikan</span>
         <?php if ((int)$spktBacklog['overdue_cases'] > 0): ?>
           <span class="font-bold"><?= (int)$spktBacklog['overdue_cases'] ?> lewat SLA</span>
@@ -197,7 +197,7 @@
             default      => ['bg-emerald-950 text-emerald-300 border-emerald-800', 'Sesuai SLA'],
         };
       ?>
-        <div class="p-4 rounded-xl bg-[#070F1E] border border-slate-800 flex items-center justify-between">
+        <div class="p-4 rounded-xl bg-[#0C0A08] border border-slate-800 flex items-center justify-between">
           <div>
             <div class="text-xs font-bold text-slate-200"><?= htmlspecialchars($w['name']) ?></div>
             <span class="text-[10px] text-slate-500 font-mono"><?= htmlspecialchars($w['code']) ?> • <?= htmlspecialchars($w['type']) ?></span>
@@ -217,7 +217,7 @@
 
 <!-- Modal Dialog Instruksi Atensi Kapolri -->
 <div id="modalAttentionDirective" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-  <div class="bg-[#0E1E38] border border-red-600 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
+  <div class="bg-[#1B1610] border border-red-600 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
     <div class="flex items-center justify-between border-b border-slate-700 pb-3 mb-4">
       <h3 class="text-base font-bold text-red-200 flex items-center gap-2">
         <i class="fas fa-star text-amber-400"></i>
@@ -234,7 +234,7 @@
       <div>
         <label class="block text-xs font-semibold text-slate-300 mb-1">Pilih Perkara / Laporan Polisi:</label>
         <select name="report_id" id="attention_report_id" required
-                class="w-full bg-[#070F1E] border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 outline-none focus:border-red-500">
+                class="w-full bg-[#0C0A08] border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 outline-none focus:border-red-500">
           <option value="">-- Pilih Kasus yang Membutuhkan Atensi Prioritas --</option>
           <?php foreach ($recentReports as $rep): ?>
             <option value="<?= $rep['id'] ?>">
@@ -249,7 +249,7 @@
           Instruksi Tertulis dari Kapolri (Prioritas Bintang Merah):
         </label>
         <textarea name="directive_text" rows="4" required
-                  class="w-full bg-[#070F1E] border border-red-800/80 rounded-xl p-3 text-xs text-slate-100 outline-none focus:border-red-500 leading-relaxed">ATENSI KAPOLRI: Berikan prioritas utama penyelidikan perkara ini. Koordinasikan jajaran opsnal dan CCTV terkait, tangkap pelaku dalam 1x24 jam dan laporkan progres setiap 6 jam!</textarea>
+                  class="w-full bg-[#0C0A08] border border-red-800/80 rounded-xl p-3 text-xs text-slate-100 outline-none focus:border-red-500 leading-relaxed">ATENSI KAPOLRI: Berikan prioritas utama penyelidikan perkara ini. Koordinasikan jajaran opsnal dan CCTV terkait, tangkap pelaku dalam 1x24 jam dan laporkan progres setiap 6 jam!</textarea>
         <p class="text-[10px] text-slate-400 mt-1">Instruksi akan langsung bertanda bintang merah pada akun Kasatker dan Penyidik terkait.</p>
       </div>
 
@@ -302,7 +302,7 @@
         }).addTo(map);
 
         const popupContent = `
-          <div style="font-family: sans-serif; font-size: 11px; color: #1e293b; max-width: 200px;">
+          <div style="font-family: sans-serif; font-size: 11px; color: #2A2218; max-width: 200px;">
             <b style="color: ${color};">${esc(p.ticket_number)}</b><br>
             <b>${esc(p.title)}</b><br>
             <span style="color: #64748b;">${esc(p.incident_location)}</span><br>

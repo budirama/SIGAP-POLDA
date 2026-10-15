@@ -4,19 +4,17 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title><?= htmlspecialchars($pageTitle ?? 'Login Backoffice') ?> - SIGAP POLRI</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <link rel="stylesheet" href="<?= $baseUrl ?>/assets/css/custom-polri.css">
+  <?php require __DIR__ . "/../layouts/_head.php"; ?>
 </head>
-<body class="bg-[#070F1E] min-h-screen text-slate-200 flex flex-col justify-between selection:bg-amber-500 selection:text-slate-950">
+<body class="bg-[#0C0A08] min-h-screen text-slate-200 flex flex-col justify-between selection:bg-amber-500 selection:text-slate-950">
 
   <!-- Sang Saka Merah Putih Ribbon Accent Line -->
   <div class="ribbon-merah-putih"></div>
 
   <!-- Top Simple Navigation -->
-  <header class="border-b border-[#1E355B] bg-[#0A192F]/80 backdrop-blur-md px-6 py-2.5 flex items-center justify-between">
+  <header class="border-b border-[#3B2F1C] bg-[#14100C]/80 backdrop-blur-md px-6 py-2.5 flex items-center justify-between">
     <div class="flex items-center gap-3">
-      <img src="<?= $baseUrl ?>/assets/img/logo-polisi-masyarakat.png" alt="Polisi Bersama Masyarakat" class="h-12 w-auto object-contain drop-shadow">
+      <img src="<?= $baseUrl ?>/assets/img/logo-polisi-masyarakat-transparent.png" alt="Polisi Bersama Masyarakat" class="h-12 w-auto object-contain drop-shadow">
       <div>
         <div class="font-extrabold text-sm tracking-wider text-slate-100 flex items-center gap-2">
           <span>SIGAP-POLRI</span>
@@ -33,11 +31,20 @@
   </header>
 
   <!-- Main Login Section -->
-  <main class="flex-1 flex items-center justify-center p-4 my-8">
+  <main class="hud-grid relative isolate overflow-hidden flex-1 flex items-center justify-center p-4 py-12">
+    <canvas class="fx-network" aria-hidden="true"></canvas>
     <div class="w-full max-w-4xl grid md:grid-cols-12 gap-8 items-center">
       
       <!-- Left Column: Branding & Police Values -->
       <div class="md:col-span-6 space-y-6 text-center md:text-left">
+        <div class="emblem-3d md:mx-0" style="width: 11rem;">
+          <div class="emblem-3d__stage">
+            <div class="emblem-3d__glow"></div>
+            <div class="emblem-3d__ring emblem-3d__ring--1"></div>
+            <div class="emblem-3d__ring emblem-3d__ring--2"></div>
+            <img src="<?= $baseUrl ?>/assets/img/logo-polisi-masyarakat-transparent.png" alt="Polisi Bersama Masyarakat" class="emblem-3d__logo">
+          </div>
+        </div>
         <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-950/80 border border-blue-800/60 text-blue-300 text-xs font-semibold">
           <i class="fas fa-shield-halved text-amber-400"></i> Portal Khusus Personil POLRI
         </div>
@@ -55,7 +62,7 @@
 
         <!-- Quick Credentials Switcher (Developer & Review Mode) -->
         <?php if (\App\Config\Config::isDevelopment()): ?>
-        <div class="bg-[#0E1E38]/90 border border-amber-500/25 rounded-2xl p-4 text-left shadow-lg">
+        <div class="bg-[#1B1610]/90 border border-amber-500/25 rounded-2xl p-4 text-left shadow-lg">
           <div class="flex items-center justify-between mb-3 border-b border-slate-700/60 pb-2">
             <span class="text-xs font-bold text-amber-400 flex items-center gap-1.5">
               <i class="fas fa-bolt text-amber-400"></i> Mode Simulasi Uji Coba Role (1-Klik)
@@ -88,14 +95,14 @@
 
       <!-- Right Column: Formal Login Form -->
       <div class="md:col-span-6">
-        <div class="polri-glass-card rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+        <div class="polri-glass-card hud-corners scanline rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
           
           <!-- Top Accent Light -->
-          <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-600 via-yellow-400 to-amber-600"></div>
+          <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-700 via-amber-400 to-red-700"></div>
 
           <div class="text-center mb-6">
-            <div class="w-20 h-20 mx-auto mb-3 p-2 bg-[#070F1E] rounded-2xl border border-amber-500/30 flex items-center justify-center shadow-inner">
-              <img src="<?= $baseUrl ?>/assets/img/logo-polisi-masyarakat.png" alt="Polisi Bersama Masyarakat" class="h-16 w-auto object-contain drop-shadow">
+            <div class="w-20 h-20 mx-auto mb-3 p-2 bg-[#0C0A08] rounded-2xl border border-amber-500/30 flex items-center justify-center shadow-inner">
+              <img src="<?= $baseUrl ?>/assets/img/logo-polisi-masyarakat-transparent.png" alt="Polisi Bersama Masyarakat" class="h-16 w-auto object-contain drop-shadow">
             </div>
             <h2 class="text-xl font-bold text-slate-100">Autentikasi Personil POLRI</h2>
             <p class="text-xs text-amber-400 font-medium mt-1">Polisi Bersama Masyarakat • Melindungi, Mengayomi & Melayani</p>
@@ -128,7 +135,7 @@
                   <i class="fas fa-id-badge text-sm"></i>
                 </div>
                 <input type="text" id="identifier" name="identifier" required placeholder="Contoh: 70050201 atau kapolri@sigap.polri.go.id"
-                       class="w-full bg-[#070F1E] border border-[#1E355B] focus:border-amber-500 focus:ring-1 focus:ring-amber-500 rounded-xl pl-10 pr-3 py-2.5 text-sm text-slate-100 placeholder-slate-600 transition-all outline-none">
+                       class="w-full bg-[#0C0A08] border border-[#3B2F1C] focus:border-amber-500 focus:ring-1 focus:ring-amber-500 rounded-xl pl-10 pr-3 py-2.5 text-sm text-slate-100 placeholder-slate-600 transition-all outline-none">
               </div>
             </div>
 
@@ -144,13 +151,13 @@
                   <i class="fas fa-lock text-sm"></i>
                 </div>
                 <input type="password" id="password" name="password" required placeholder="••••••••"
-                       class="w-full bg-[#070F1E] border border-[#1E355B] focus:border-amber-500 focus:ring-1 focus:ring-amber-500 rounded-xl pl-10 pr-3 py-2.5 text-sm text-slate-100 placeholder-slate-600 transition-all outline-none">
+                       class="w-full bg-[#0C0A08] border border-[#3B2F1C] focus:border-amber-500 focus:ring-1 focus:ring-amber-500 rounded-xl pl-10 pr-3 py-2.5 text-sm text-slate-100 placeholder-slate-600 transition-all outline-none">
               </div>
             </div>
 
             <div class="pt-2">
               <button type="submit"
-                      class="w-full py-2.5 px-4 bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-extrabold rounded-xl text-sm transition-all shadow-lg hover:shadow-amber-500/20 flex items-center justify-center gap-2">
+                      class="btn-gold w-full py-2.5 px-4 font-extrabold rounded-xl text-sm transition-all shadow-lg hover:shadow-amber-500/20 flex items-center justify-center gap-2">
                 <i class="fas fa-right-to-bracket"></i>
                 <span>Masuk Sistem Kedinasan</span>
               </button>
@@ -169,9 +176,9 @@
   </main>
 
   <!-- Footer -->
-  <footer class="border-t border-[#1E355B]/60 bg-[#070F1E] py-4 text-center text-xs text-slate-500">
+  <footer class="border-t border-[#3B2F1C]/60 bg-[#0C0A08] py-4 text-center text-xs text-slate-500">
     <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-      <p>&copy; <?= date('Y') ?> Kepolisian Daerah Republik Indonesia. Hak Cipta Dilindungi Undang-Undang.</p>
+      <p>&copy; <?= date('Y') ?> Kepolisian Negara Republik Indonesia. Hak Cipta Dilindungi Undang-Undang.</p>
       <p class="text-amber-500/70 font-medium">Divisi TIK Polri • SIGAP V1.1.0</p>
     </div>
   </footer>

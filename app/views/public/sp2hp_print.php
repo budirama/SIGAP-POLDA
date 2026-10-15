@@ -15,7 +15,7 @@
 <body class="bg-slate-100 text-slate-900 min-h-screen p-4 sm:p-8 font-serif">
 
   <!-- Floating Print Controls (Hidden when printed) -->
-  <div class="max-w-4xl mx-auto mb-6 flex items-center justify-between no-print bg-[#0A192F] text-slate-100 p-4 rounded-xl shadow-lg border border-amber-500/30">
+  <div class="max-w-4xl mx-auto mb-6 flex items-center justify-between no-print bg-[#14100C] text-slate-100 p-4 rounded-xl shadow-lg border border-amber-500/30">
     <div class="flex items-center gap-2">
       <span class="w-3 h-3 rounded-full bg-emerald-400"></span>
       <span class="text-xs font-sans font-bold">DOKUMEN RESMI SP2HP-ELEKTRONIK (KEPOLISIAN DAERAH)</span>
@@ -40,13 +40,13 @@
     ?>
     <!-- Watermark Background -->
     <div class="absolute inset-0 flex items-center justify-center opacity-[0.04] pointer-events-none">
-      <img src="<?= $baseUrl ?>/assets/img/logo-polisi-masyarakat.png" alt="Polisi Bersama Masyarakat" class="w-96 h-auto">
+      <img src="<?= $baseUrl ?>/assets/img/logo-polisi-masyarakat-transparent.png" alt="Polisi Bersama Masyarakat" class="w-96 h-auto">
     </div>
 
     <!-- Official Kop Surat Polri -->
     <div class="border-b-4 border-double border-slate-900 pb-3 mb-6 text-center relative">
       <div class="flex items-center justify-center gap-4 mb-2">
-        <img src="<?= $baseUrl ?>/assets/img/logo-polisi-masyarakat.png" alt="Polisi Bersama Masyarakat" class="w-20 h-auto object-contain">
+        <img src="<?= $baseUrl ?>/assets/img/logo-polisi-masyarakat-transparent.png" alt="Polisi Bersama Masyarakat" class="w-20 h-auto object-contain">
         <div>
           <h2 class="text-sm font-black tracking-widest uppercase text-slate-900">KEPOLISIAN NEGARA REPUBLIK INDONESIA</h2>
           <h1 class="text-base font-black tracking-wider uppercase text-slate-900"><?= htmlspecialchars($report['satker_name'] ?? 'KEPOLISIAN DAERAH') ?></h1>

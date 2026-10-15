@@ -1,135 +1,377 @@
 /* ==========================================================================
-   SIGAP-POLRI: TEMA RESMI KEPOLISIAN NEGARA REPUBLIK INDONESIA
-   Palet: Deep Navy Bhayangkara, Emas Tri Brata, Slate Presisi, & Glow Command Center
+   SIGAP-POLRI: TEMA "POLISI BERSAMA MASYARAKAT" — PRESISI DIGITAL
+   Palet dari logo: Hitam POLISI, Emas Tribrata, Merah Marun pita, Putih, Hijau kapas-padi.
+   Aksen: grid sirkuit, garis pindai (scanline), sudut HUD, emblem 3D berputar.
+   Selaras nuansa situs resmi (polri.go.id, penerimaan.polri.go.id): hitam-cokelat & emas.
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap');
 
 :root {
-  --polri-navy-deep: #070F1E;
-  --polri-navy: #0A192F;
-  --polri-blue: #1E3A8A;
-  --polri-blue-light: #2563EB;
-  --polri-gold: #D97706;
-  --polri-gold-light: #F59E0B;
-  --polri-gold-glow: #FBBF24;
-  --polri-maroon: #7F1D1D;
-  --polri-maroon-dark: #450A0A;
-  --polri-crimson: #991B1B;
-  --polri-red: #DC2626;
-  --polri-surface: #0E1E38;
-  --polri-card: #132442;
-  --polri-border: #1E355B;
+  --polri-black: #0C0A08;
+  --polri-ink: #14100C;
+  --polri-panel: #1B1610;
+  --polri-card: #241D14;
+  --polri-line: #3B2F1C;
+  --polri-gold: #F7C21B;
+  --polri-gold-deep: #C58A06;
+  --polri-gold-soft: rgba(247, 194, 27, 0.18);
+  --polri-maroon: #8E1B1B;
+  --polri-maroon-dark: #4A0E0E;
+  --polri-red: #C8102E;
+  --polri-white: #FFFFFF;
+  --polri-green: #2E7D32;
+  --polri-cyan: #3EE6D3; /* aksen data digital, dipakai hemat */
+
+  /* Alias lama (dipakai beberapa komponen) */
+  --polri-navy-deep: var(--polri-black);
+  --polri-navy: var(--polri-ink);
+  --polri-surface: var(--polri-panel);
+  --polri-border: var(--polri-line);
 }
+
+html { color-scheme: dark; }
 
 body {
   font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-  background-color: #070F1E;
-  color: #E2E8F0;
+  background-color: var(--polri-black);
+  background-image:
+    radial-gradient(1200px 600px at 85% -10%, rgba(247, 194, 27, 0.08), transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, rgba(142, 27, 27, 0.14), transparent 60%);
+  background-attachment: fixed;
+  color: #E9E3D7;
   -webkit-font-smoothing: antialiased;
 }
 
 h1, h2, h3, h4, .font-heading {
   font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+  letter-spacing: -0.01em;
 }
 
-/* Glassmorphism Command Center */
+.font-mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+/* ---------- Grid sirkuit digital (latar belakang) ---------- */
+.hud-grid {
+  position: relative;
+  isolation: isolate;
+}
+.hud-grid::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(247, 194, 27, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(247, 194, 27, 0.06) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(ellipse at center, #000 30%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 30%, transparent 75%);
+}
+
+/* Lantai grid perspektif 3D (hero) */
+.grid-floor {
+  position: absolute;
+  left: -25%;
+  right: -25%;
+  bottom: -38%;
+  height: 75%;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(247, 194, 27, 0.22) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(247, 194, 27, 0.22) 1px, transparent 1px);
+  background-size: 56px 56px;
+  transform: perspective(520px) rotateX(64deg);
+  transform-origin: center top;
+  mask-image: linear-gradient(to bottom, transparent 0%, #000 35%, transparent 95%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 35%, transparent 95%);
+  animation: gridFlow 6s linear infinite;
+}
+@keyframes gridFlow {
+  from { background-position: 0 0, 0 0; }
+  to   { background-position: 0 56px, 0 0; }
+}
+
+/* Kanvas jaringan data (diisi polri-fx.js) */
+.fx-network {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.55;
+}
+
+/* ---------- Glass panel bernuansa logo ---------- */
 .polri-glass {
-  background: rgba(10, 25, 47, 0.85);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(217, 119, 6, 0.25);
+  background: rgba(20, 16, 12, 0.82);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid rgba(247, 194, 27, 0.22);
 }
 
 .polri-glass-card {
-  background: rgba(14, 30, 56, 0.88);
+  position: relative;
+  background:
+    linear-gradient(160deg, rgba(36, 29, 20, 0.92) 0%, rgba(20, 16, 12, 0.92) 100%);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(30, 53, 91, 0.8);
+  border: 1px solid rgba(59, 47, 28, 0.9);
+  transition: border-color .25s ease, box-shadow .25s ease, transform .25s ease;
 }
-
 .polri-glass-card:hover {
-  border-color: rgba(245, 158, 11, 0.45);
-  box-shadow: 0 10px 25px -5px rgba(10, 25, 47, 0.6), 0 0 15px 0 rgba(217, 119, 6, 0.15);
+  border-color: rgba(247, 194, 27, 0.45);
+  box-shadow: 0 14px 30px -10px rgba(0, 0, 0, 0.7), 0 0 22px 0 rgba(247, 194, 27, 0.12);
 }
 
-/* Polisi Bersama Masyarakat Maroon & Gold Styling */
-.bg-maroon-gradient {
-  background: linear-gradient(135deg, #7F1D1D 0%, #450A0A 100%);
+/* Sudut HUD (bingkai digital) */
+.hud-corners { position: relative; }
+.hud-corners::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  pointer-events: none;
+  border-radius: inherit;
+  --c: rgba(247, 194, 27, 0.85);
+  --s: 14px;
+  background:
+    linear-gradient(var(--c), var(--c)) top left / var(--s) 2px,
+    linear-gradient(var(--c), var(--c)) top left / 2px var(--s),
+    linear-gradient(var(--c), var(--c)) top right / var(--s) 2px,
+    linear-gradient(var(--c), var(--c)) top right / 2px var(--s),
+    linear-gradient(var(--c), var(--c)) bottom left / var(--s) 2px,
+    linear-gradient(var(--c), var(--c)) bottom left / 2px var(--s),
+    linear-gradient(var(--c), var(--c)) bottom right / var(--s) 2px,
+    linear-gradient(var(--c), var(--c)) bottom right / 2px var(--s);
+  background-repeat: no-repeat;
 }
+
+/* Garis pindai (scanline) melintas */
+.scanline { position: relative; overflow: hidden; }
+.scanline::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; top: -40%;
+  height: 40%;
+  pointer-events: none;
+  background: linear-gradient(to bottom, transparent, rgba(247, 194, 27, 0.08), transparent);
+  animation: scanMove 5s linear infinite;
+}
+@keyframes scanMove { to { top: 110%; } }
+
+/* ---------- Warna & gradien merek ---------- */
+.bg-maroon-gradient { background: linear-gradient(135deg, #8E1B1B 0%, #4A0E0E 100%); }
 
 .bg-maroon-glass {
-  background: rgba(69, 10, 10, 0.7);
+  background: rgba(74, 14, 14, 0.7);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(245, 158, 11, 0.3);
+  border: 1px solid rgba(247, 194, 27, 0.3);
 }
 
-/* Golden Gradients & Glows */
-.bg-gold-gradient {
-  background: linear-gradient(135deg, #F59E0B 0%, #D97706 50%, #B45309 100%);
-}
+.bg-gold-gradient { background: linear-gradient(135deg, #FCD34D 0%, #F7C21B 45%, #C58A06 100%); }
 
 .text-gold-gradient {
-  background: linear-gradient(135deg, #FDE68A 0%, #F59E0B 50%, #D97706 100%);
+  background: linear-gradient(100deg, #FFF3C4 0%, #F7C21B 35%, #C58A06 65%, #FDE58A 100%);
+  background-size: 200% auto;
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
+  animation: goldShine 6s linear infinite;
 }
+@keyframes goldShine { to { background-position: 200% center; } }
 
 .border-gold-glow {
-  border-color: #F59E0B;
-  box-shadow: 0 0 15px rgba(245, 158, 11, 0.35);
+  border-color: #F7C21B;
+  box-shadow: 0 0 15px rgba(247, 194, 27, 0.35);
 }
 
-/* Sang Saka Merah Putih Ribbon Accent Line */
+.text-glow-gold { text-shadow: 0 0 18px rgba(247, 194, 27, 0.45); }
+
+/* Pita identitas: merah putih + emas (seperti pita logo) */
 .ribbon-merah-putih {
-  height: 3px;
-  background: linear-gradient(90deg, #DC2626 0%, #DC2626 50%, #F8FAFC 50%, #F8FAFC 100%);
+  height: 4px;
+  background:
+    linear-gradient(90deg, #C8102E 0 33.33%, #FFFFFF 33.33% 66.66%, #F7C21B 66.66% 100%);
 }
 
+/* Bar atas resmi (gaya portal Polri) */
+.polri-topbar {
+  background: linear-gradient(90deg, #4A0E0E 0%, #14100C 35%, #14100C 65%, #4A0E0E 100%);
+}
+
+/* Tombol utama emas dengan kilau */
+.btn-gold {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #FCD34D 0%, #F7C21B 45%, #C58A06 100%);
+  color: #0C0A08;
+}
+.btn-gold::after {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0; left: -60%;
+  width: 40%;
+  transform: skewX(-20deg);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+  transition: left .6s ease;
+}
+.btn-gold:hover::after { left: 120%; }
+
+/* Chip data digital */
+.chip-digital {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  letter-spacing: 0.08em;
+  border: 1px solid rgba(62, 230, 211, 0.35);
+  color: #9FF3E9;
+  background: rgba(62, 230, 211, 0.07);
+}
+
+/* ---------- Emblem 3D: logo melayang dengan cincin orbit ---------- */
+.emblem-3d {
+  position: relative;
+  width: min(18rem, 70vw);
+  aspect-ratio: 1 / 1;
+  margin-inline: auto;
+  perspective: 900px;
+}
+.emblem-3d__stage {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  animation: emblemFloat 7s ease-in-out infinite;
+}
+.emblem-3d__logo {
+  position: absolute;
+  inset: 14%;
+  width: 72%;
+  height: 72%;
+  object-fit: contain;
+  transform: translateZ(40px);
+  filter: drop-shadow(0 18px 28px rgba(0, 0, 0, 0.65)) drop-shadow(0 0 22px rgba(247, 194, 27, 0.35));
+}
+.emblem-3d__glow {
+  position: absolute;
+  inset: 18%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(247, 194, 27, 0.35) 0%, rgba(142, 27, 27, 0.18) 45%, transparent 70%);
+  filter: blur(18px);
+  transform: translateZ(-30px);
+}
+.emblem-3d__ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1.5px solid rgba(247, 194, 27, 0.55);
+  box-shadow: 0 0 14px rgba(247, 194, 27, 0.25), inset 0 0 14px rgba(247, 194, 27, 0.15);
+  transform-style: preserve-3d;
+}
+.emblem-3d__ring::before {
+  /* titik data yang mengorbit */
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: calc(50% - 5px);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #FCD34D;
+  box-shadow: 0 0 12px 3px rgba(247, 194, 27, 0.8);
+}
+.emblem-3d__ring--1 { animation: orbit1 9s linear infinite; }
+.emblem-3d__ring--2 {
+  inset: 7%;
+  border-color: rgba(200, 16, 46, 0.55);
+  border-style: dashed;
+  box-shadow: 0 0 12px rgba(200, 16, 46, 0.25);
+  animation: orbit2 12s linear infinite;
+}
+.emblem-3d__ring--2::before { background: #FFFFFF; box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.8); }
+.emblem-3d__ring--3 {
+  inset: -6%;
+  border-color: rgba(62, 230, 211, 0.3);
+  border-width: 1px;
+  animation: orbit3 16s linear infinite;
+}
+.emblem-3d__ring--3::before { background: #3EE6D3; box-shadow: 0 0 10px 2px rgba(62, 230, 211, 0.7); }
+
+@keyframes emblemFloat {
+  0%, 100% { transform: rotateX(8deg) rotateY(-14deg) translateY(0); }
+  50%      { transform: rotateX(-4deg) rotateY(14deg) translateY(-10px); }
+}
+@keyframes orbit1 { from { transform: rotateX(72deg) rotateZ(0deg); }   to { transform: rotateX(72deg) rotateZ(360deg); } }
+@keyframes orbit2 { from { transform: rotateY(68deg) rotateZ(0deg); }   to { transform: rotateY(68deg) rotateZ(-360deg); } }
+@keyframes orbit3 { from { transform: rotateX(55deg) rotateY(35deg) rotateZ(0deg); } to { transform: rotateX(55deg) rotateY(35deg) rotateZ(360deg); } }
+
+/* Kartu kemiringan 3D (diatur polri-fx.js lewat --rx/--ry) */
+.tilt-3d {
+  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transform-style: preserve-3d;
+  transition: transform .18s ease-out;
+  will-change: transform;
+}
+.tilt-3d > * { transform: translateZ(0); }
+.tilt-3d .tilt-pop { transform: translateZ(28px); }
+
+/* Ikon kubus 3D berputar (aksen kecil) */
+.cube-3d {
+  width: 1.1rem;
+  height: 1.1rem;
+  position: relative;
+  transform-style: preserve-3d;
+  animation: cubeSpin 6s linear infinite;
+}
+.cube-3d span {
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(247, 194, 27, 0.8);
+  background: rgba(247, 194, 27, 0.08);
+}
+.cube-3d span:nth-child(1) { transform: translateZ(0.55rem); }
+.cube-3d span:nth-child(2) { transform: rotateY(180deg) translateZ(0.55rem); }
+.cube-3d span:nth-child(3) { transform: rotateY(90deg) translateZ(0.55rem); }
+.cube-3d span:nth-child(4) { transform: rotateY(-90deg) translateZ(0.55rem); }
+.cube-3d span:nth-child(5) { transform: rotateX(90deg) translateZ(0.55rem); }
+.cube-3d span:nth-child(6) { transform: rotateX(-90deg) translateZ(0.55rem); }
+@keyframes cubeSpin { from { transform: rotateX(-25deg) rotateY(0); } to { transform: rotateX(-25deg) rotateY(360deg); } }
+
+/* Muncul saat digulir */
+.reveal { opacity: 0; transform: translateY(18px); transition: opacity .7s ease, transform .7s ease; }
+.reveal.is-visible { opacity: 1; transform: none; }
+
+/* ---------- Animasi lama (tetap dipakai) ---------- */
 /* Atensi Kapolri Pulse Animation */
 @keyframes kapoldaPulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7);
-  }
-  70% {
-    box-shadow: 0 0 0 12px rgba(220, 38, 38, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0);
-  }
+  0%   { box-shadow: 0 0 0 0 rgba(200, 16, 46, 0.7); }
+  70%  { box-shadow: 0 0 0 12px rgba(200, 16, 46, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(200, 16, 46, 0); }
+}
+.animate-kapolda-pulse { animation: kapoldaPulse 2s infinite; }
+
+@keyframes radarSweep { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.radar-sweep { animation: radarSweep 4s linear infinite; transform-origin: center center; }
+
+/* Leaflet menyatu dengan tema */
+.leaflet-container { background: #14100C; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 7px; height: 7px; }
+::-webkit-scrollbar-track { background: #0C0A08; }
+::-webkit-scrollbar-thumb { background: #3B2F1C; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #C58A06; }
+
+:focus-visible { outline: 2px solid #F7C21B; outline-offset: 2px; }
+
+/* Hormati preferensi pengguna: matikan animasi dekoratif */
+@media (prefers-reduced-motion: reduce) {
+  .grid-floor, .scanline::before, .text-gold-gradient, .emblem-3d__stage,
+  .emblem-3d__ring, .cube-3d, .radar-sweep { animation: none !important; }
+  .tilt-3d { transform: none !important; }
+  .reveal { opacity: 1; transform: none; transition: none; }
 }
 
-.animate-kapolda-pulse {
-  animation: kapoldaPulse 2s infinite;
-}
-
-/* Radar Scan line for Command Center */
-@keyframes radarSweep {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-.radar-sweep {
-  animation: radarSweep 4s linear infinite;
-  transform-origin: center center;
-}
-
-/* Custom Scrollbars */
-::-webkit-scrollbar {
-  width: 7px;
-  height: 7px;
-}
-::-webkit-scrollbar-track {
-  background: #070F1E;
-}
-::-webkit-scrollbar-thumb {
-  background: #1E355B;
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #D97706;
+@media print {
+  body { background: #fff; color: #000; }
+  .fx-network, .grid-floor { display: none; }
 }

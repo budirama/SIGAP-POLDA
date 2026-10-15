@@ -1,7 +1,7 @@
 <div class="space-y-6">
   
   <!-- Page Header -->
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 polri-glass-card p-6 rounded-2xl border border-[#1E355B]">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 polri-glass-card p-6 rounded-2xl border border-[#3B2F1C]">
     <div>
       <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-950/80 border border-blue-700/60 text-blue-300 text-xs font-bold mb-2">
         <i class="fas fa-desktop text-amber-400"></i> Command Center SPKT POLRI
@@ -21,7 +21,7 @@
 
     <!-- Quick Stats -->
     <div class="flex items-center gap-3">
-      <div class="px-4 py-2 rounded-xl bg-[#070F1E] border border-slate-800 text-center">
+      <div class="px-4 py-2 rounded-xl bg-[#0C0A08] border border-slate-800 text-center">
         <div class="text-xs text-slate-400">Total Tiket</div>
         <div class="text-lg font-black text-amber-400 font-mono"><?= (int)$pager['total'] ?></div>
       </div>
@@ -32,7 +32,7 @@
   <div class="polri-glass-card p-4 rounded-xl border border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
     <form action="<?= $baseUrl ?>/spkt" method="GET" class="flex flex-wrap items-center gap-3 w-full sm:w-auto">
       <select name="status" onchange="this.form.submit()" 
-              class="bg-[#070F1E] border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-amber-500">
+              class="bg-[#0C0A08] border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-amber-500">
         <option value="">-- Semua Status --</option>
         <option value="SUBMITTED" <?= $statusFilter === 'SUBMITTED' ? 'selected' : '' ?>>Menunggu Verifikasi</option>
         <option value="DISPATCHED" <?= $statusFilter === 'DISPATCHED' ? 'selected' : '' ?>>Didisposisikan ke Satker</option>
@@ -42,9 +42,9 @@
         <option value="REJECTED" <?= $statusFilter === 'REJECTED' ? 'selected' : '' ?>>Ditolak</option>
       </select>
 
-      <div class="relative flex-1 sm:w-64">
+      <div class="relative flex-1 min-w-[10rem] sm:w-64">
         <input type="text" name="search" value="<?= htmlspecialchars($search) ?>" placeholder="Cari tiket, judul, pelapor..."
-               class="w-full bg-[#070F1E] border border-slate-700 rounded-xl pl-8 pr-3 py-2 text-slate-200 placeholder-slate-500 outline-none focus:border-amber-500">
+               class="w-full bg-[#0C0A08] border border-slate-700 rounded-xl pl-8 pr-3 py-2 text-slate-200 placeholder-slate-500 outline-none focus:border-amber-500">
         <span class="absolute inset-y-0 left-0 pl-2.5 flex items-center text-slate-500"><i class="fas fa-search text-xs"></i></span>
       </div>
 
@@ -62,7 +62,7 @@
   <div class="polri-glass-card rounded-2xl border border-slate-800 overflow-hidden shadow-2xl">
     <div class="overflow-x-auto">
       <table class="w-full text-left text-xs">
-        <thead class="bg-[#0A192F] text-slate-400 border-b border-slate-800 uppercase font-semibold text-[10px] tracking-wider">
+        <thead class="bg-[#14100C] text-slate-400 border-b border-slate-800 uppercase font-semibold text-[10px] tracking-wider">
           <tr>
             <th class="p-4">No. Tiket & Kanal</th>
             <th class="p-4">Pelapor</th>
@@ -189,7 +189,7 @@
 
 <!-- Modal Disposisi Satker -->
 <div id="modalDispatch" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-  <div class="bg-[#0E1E38] border border-blue-500/40 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
+  <div class="bg-[#1B1610] border border-blue-500/40 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
     <div class="flex items-center justify-between border-b border-slate-700 pb-3 mb-4">
       <h3 class="text-base font-bold text-slate-100 flex items-center gap-2">
         <i class="fas fa-sitemap text-amber-400"></i>
@@ -212,7 +212,7 @@
       <div>
         <label class="block text-xs font-semibold text-slate-300 mb-1">Satuan Kerja Tujuan Disposisi:</label>
         <select name="satker_id" id="dispatch_satker_id" required
-                class="w-full bg-[#070F1E] border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 outline-none focus:border-amber-500">
+                class="w-full bg-[#0C0A08] border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 outline-none focus:border-amber-500">
           <option value="">-- Pilih Satker Mabes Polri atau Polda Jajaran --</option>
           <optgroup label="SATKER MABES POLRI (BARESKRIM, KORLANTAS, DIVPROPAM)">
             <?php foreach ($satkers as $s): if ($s['type'] === 'DIREKTORAT'): ?>
@@ -231,7 +231,7 @@
         <label class="block text-xs font-semibold text-slate-300 mb-1">Catatan Disposisi dari SPKT:</label>
         <textarea name="dispatch_notes" rows="3" required
                   placeholder="Instruksi awal: Lakukan penyelidikan lapangan, kroscek TKP dan hubungi pelapor dalam 24 jam..."
-                  class="w-full bg-[#070F1E] border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 outline-none focus:border-amber-500">Lakukan penyelidikan lapangan dan segera terbitkan Surat Perintah Penugasan (Sprintgas) serta hubungi pelapor.</textarea>
+                  class="w-full bg-[#0C0A08] border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 outline-none focus:border-amber-500">Lakukan penyelidikan lapangan dan segera terbitkan Surat Perintah Penugasan (Sprintgas) serta hubungi pelapor.</textarea>
       </div>
 
       <div class="pt-2 flex items-center justify-end gap-3">
@@ -250,7 +250,7 @@
 
 <!-- Modal Tolak Laporan -->
 <div id="modalReject" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-  <div class="bg-[#0E1E38] border border-rose-500/40 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
+  <div class="bg-[#1B1610] border border-rose-500/40 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
     <div class="flex items-center justify-between border-b border-slate-700 pb-3 mb-4">
       <h3 class="text-base font-bold text-slate-100 flex items-center gap-2">
         <i class="fas fa-ban text-rose-400"></i>
@@ -271,7 +271,7 @@
         <label class="block text-xs font-semibold text-slate-300 mb-1" for="rejection_reason">Alasan Penolakan (terlihat oleh pelapor):</label>
         <textarea name="rejection_reason" id="rejection_reason" rows="3" required
                   placeholder="Contoh: Laporan tidak memenuhi unsur tindak pidana / terindikasi hoaks."
-                  class="w-full bg-[#070F1E] border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 outline-none focus:border-rose-500"></textarea>
+                  class="w-full bg-[#0C0A08] border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 outline-none focus:border-rose-500"></textarea>
       </div>
 
       <div class="flex justify-end gap-2">

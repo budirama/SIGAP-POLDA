@@ -31,7 +31,7 @@
   <?php endif; ?>
 
   <!-- Top Case Summary -->
-  <div class="polri-glass-card rounded-2xl p-6 border border-[#1E355B] shadow-2xl">
+  <div class="polri-glass-card rounded-2xl p-6 border border-[#3B2F1C] shadow-2xl">
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-700/60 pb-5">
       <div>
         <div class="flex items-center gap-2 mb-1.5">
@@ -91,7 +91,7 @@
         <?php endif; ?>
       </div>
 
-      <div class="bg-[#070F1E] p-4 rounded-xl border border-slate-800 text-slate-300 leading-relaxed">
+      <div class="bg-[#0C0A08] p-4 rounded-xl border border-slate-800 text-slate-300 leading-relaxed">
         <b class="text-amber-400 block mb-1">Kronologi yang Dilaporkan:</b>
         <?= nl2br(htmlspecialchars($report['description'])) ?>
       </div>
@@ -104,7 +104,7 @@
         <div class="flex flex-wrap gap-3">
           <?php foreach ($attachments as $att): ?>
             <a href="<?= $baseUrl ?>/file/attachment/<?= (int)$att['id'] ?>" target="_blank"
-               class="p-2.5 rounded-xl bg-[#070F1E] border border-slate-700 hover:border-amber-500 text-xs text-slate-300 flex items-center gap-2 transition-colors">
+               class="p-2.5 rounded-xl bg-[#0C0A08] border border-slate-700 hover:border-amber-500 text-xs text-slate-300 flex items-center gap-2 transition-colors">
               <i class="fas fa-paperclip text-amber-400"></i>
               <span class="max-w-[150px] truncate"><?= htmlspecialchars($att['file_name_original']) ?></span>
             </a>
@@ -124,7 +124,7 @@
   <div class="grid lg:grid-cols-12 gap-6">
     
     <!-- Left: Form Penerbitan SP2HP -->
-    <div class="lg:col-span-7 polri-glass-card rounded-2xl p-6 border border-[#1E355B]">
+    <div class="lg:col-span-7 polri-glass-card rounded-2xl p-6 border border-[#3B2F1C]">
       <h3 class="text-base font-bold text-slate-100 flex items-center gap-2 font-heading border-b border-slate-700 pb-3 mb-4">
         <i class="fas fa-file-shield text-amber-500"></i>
         Terbitkan SP2HP Elektronik Baru
@@ -138,12 +138,12 @@
           <div>
             <label class="block text-xs font-semibold text-slate-300 mb-1">Nomor Dokumen SP2HP:</label>
             <input type="text" name="sp2hp_number" value="<?= htmlspecialchars(\App\Config\Constants::documentNumber('SP2HP', $report['satker_code'] ?? null)) ?>" maxlength="100" required
-                   class="w-full bg-[#070F1E] border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 font-mono outline-none focus:border-amber-500">
+                   class="w-full bg-[#0C0A08] border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 font-mono outline-none focus:border-amber-500">
           </div>
 
           <div>
             <label class="block text-xs font-semibold text-slate-300 mb-1">Update Status Laporan:</label>
-            <select name="status" class="w-full bg-[#070F1E] border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 outline-none focus:border-amber-500">
+            <select name="status" class="w-full bg-[#0C0A08] border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 outline-none focus:border-amber-500">
               <option value="INVESTIGATING" selected>Sedang Dalam Penyelidikan</option>
               <option value="CLOSED">Selesai / Ditutup</option>
             </select>
@@ -156,7 +156,7 @@
           </label>
           <textarea name="public_notes" rows="4" required
                     placeholder="Contoh: Penyidik telah melakukan olah TKP dan memeriksa 2 orang saksi. Rekaman CCTV telah diamankan dan sedang dianalisis oleh Laboratorium Forensik..."
-                    class="w-full bg-[#070F1E] border border-slate-700 rounded-xl p-3 text-xs text-slate-100 leading-relaxed outline-none focus:border-amber-500"></textarea>
+                    class="w-full bg-[#0C0A08] border border-slate-700 rounded-xl p-3 text-xs text-slate-100 leading-relaxed outline-none focus:border-amber-500"></textarea>
           <p class="text-[10px] text-slate-500 mt-1">Catatan ini akan dapat dibaca langsung oleh pelapor di portal tracking mandiri.</p>
         </div>
 
@@ -166,7 +166,7 @@
           </label>
           <textarea name="internal_notes" rows="2"
                     placeholder="Catatan taktis internal: Identitas target terduga pelaku a.n X, nomor plat kendaraan D, koordinat persembunyian..."
-                    class="w-full bg-[#070F1E] border border-slate-700 rounded-xl p-3 text-xs text-slate-300 leading-relaxed outline-none focus:border-amber-500"></textarea>
+                    class="w-full bg-[#0C0A08] border border-slate-700 rounded-xl p-3 text-xs text-slate-300 leading-relaxed outline-none focus:border-amber-500"></textarea>
           <p class="text-[10px] text-amber-400/80 mt-1">TIDAK AKAN DITAMPILKAN KEPADA PELAPOR. Hanya dapat diakses oleh Kasatker, Kapolri, dan Itwasum.</p>
         </div>
 
@@ -204,7 +204,7 @@
               <label class="block text-xs font-semibold text-slate-300 mb-1">Ringkasan Hasil Akhir (Berita Acara):</label>
               <textarea name="resolution_notes" rows="3" required
                         placeholder="Pelaku berhasil diamankan beserta barang bukti sepeda motor utuh..."
-                        class="w-full bg-[#070F1E] border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 outline-none focus:border-emerald-500">Perkara telah selesai ditangani secara profesional dan barang bukti telah diamankan.</textarea>
+                        class="w-full bg-[#0C0A08] border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 outline-none focus:border-emerald-500">Perkara telah selesai ditangani secara profesional dan barang bukti telah diamankan.</textarea>
             </div>
 
             <button type="submit" class="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-black rounded-xl text-xs transition-colors shadow">
@@ -244,7 +244,7 @@
     <!-- Percakapan Case Messages -->
     <div class="space-y-4 max-h-[400px] overflow-y-auto pr-2 mb-6" id="messagesContainer">
       <?php if (empty($messages)): ?>
-        <div class="p-6 text-center rounded-xl bg-[#070F1E] border border-slate-800 text-slate-400 text-xs">
+        <div class="p-6 text-center rounded-xl bg-[#0C0A08] border border-slate-800 text-slate-400 text-xs">
           <i class="fas fa-handshake-angle text-2xl text-amber-500/40 mb-2 block"></i>
           <p class="font-medium text-slate-300">Belum ada pertukaran pesan klarifikasi dengan pelapor.</p>
           <p class="text-[11px] text-slate-500 mt-1">Gunakan formulir di bawah ini untuk meminta keterangan tambahan atau mengundang pelapor secara transparan.</p>
@@ -261,7 +261,7 @@
               </div>
             <?php endif; ?>
 
-            <div class="max-w-xl <?= $isPolice ? 'bg-[#0E1E38] border-amber-500/40' : 'bg-slate-800/90 border-slate-700' ?> p-4 rounded-2xl border text-xs shadow-md">
+            <div class="max-w-xl <?= $isPolice ? 'bg-[#1B1610] border-amber-500/40' : 'bg-slate-800/90 border-slate-700' ?> p-4 rounded-2xl border text-xs shadow-md">
               <div class="flex items-center justify-between gap-3 mb-1.5 border-b border-slate-700/50 pb-1">
                 <span class="font-bold <?= $isPolice ? 'text-amber-400' : 'text-slate-200' ?> flex items-center gap-1.5">
                   <?php if ($isPolice): ?>
@@ -300,7 +300,7 @@
 
     <!-- Form Kirim Pesan Penyidik ke Pelapor -->
     <?php if ($canHandle): ?>
-    <form action="<?= $baseUrl ?>/investigator/sendMessage" method="POST" enctype="multipart/form-data" class="bg-[#070F1E] p-4 rounded-xl border border-slate-700/80 space-y-3">
+    <form action="<?= $baseUrl ?>/investigator/sendMessage" method="POST" enctype="multipart/form-data" class="bg-[#0C0A08] p-4 rounded-xl border border-slate-700/80 space-y-3">
       <input type="hidden" name="_csrf_token" value="<?= $csrfToken ?>">
       <input type="hidden" name="report_id" value="<?= $report['id'] ?>">
 
@@ -311,7 +311,7 @@
         </label>
         <textarea name="message_text" rows="3" required
                   placeholder="Contoh: Yth. Pelapor, mohon dapat melampirkan salinan mutasi rekening koran atau hadir untuk memberikan keterangan tambahan pada hari..."
-                  class="w-full bg-[#0A192F] border border-slate-700 focus:border-amber-500 rounded-xl p-3 text-xs text-slate-100 placeholder-slate-500 outline-none"><?= htmlspecialchars($messageDraft ?? '') ?></textarea>
+                  class="w-full bg-[#14100C] border border-slate-700 focus:border-amber-500 rounded-xl p-3 text-xs text-slate-100 placeholder-slate-500 outline-none"><?= htmlspecialchars($messageDraft ?? '') ?></textarea>
       </div>
 
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
@@ -334,7 +334,7 @@
   </div>
 
   <!-- Complete Timeline (Public + Internal Notes) -->
-  <div class="polri-glass-card rounded-2xl p-6 border border-[#1E355B]">
+  <div class="polri-glass-card rounded-2xl p-6 border border-[#3B2F1C]">
     <h3 class="text-base font-bold text-slate-100 flex items-center gap-2 font-heading border-b border-slate-700 pb-3 mb-5">
       <i class="fas fa-list-check text-blue-400"></i>
       Histori Audit Lengkap Penanganan Perkara
@@ -342,7 +342,7 @@
 
     <div class="space-y-4">
       <?php foreach ($timeline as $t): ?>
-        <div class="p-4 rounded-xl bg-[#070F1E] border border-slate-800 text-xs space-y-2">
+        <div class="p-4 rounded-xl bg-[#0C0A08] border border-slate-800 text-xs space-y-2">
           <div class="flex items-center justify-between">
             <span class="font-bold text-slate-100 text-sm"><?= htmlspecialchars($t['title']) ?></span>
             <span class="text-[10px] text-slate-500 font-mono"><?= date('d M Y, H:i', strtotime($t['created_at'])) ?> WIB</span>

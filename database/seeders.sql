@@ -35,24 +35,25 @@ INSERT INTO `report_categories` (`id`, `code`, `name`, `default_satker_type`, `s
 ON DUPLICATE KEY UPDATE `name`=VALUES(`name`), `default_satker_type`=VALUES(`default_satker_type`);
 
 -- 3. SEED AKUN PENGGUNA RESMI (9 ROLES KEPOLISIAN & MASYARAKAT) — NAMA FIKTIF
+-- Pangkat disimpan di kolom `rank` (tidak diulang di `name`; tampilan menggabungkan pangkat + nama)
 -- Hash bcrypt '$2y$10$qnlaf/DOh0vbZBtPBuRjkOTZJm/fghNF2D8e4xBwuD7iTervauH.O' = password123
 INSERT INTO `users` (`id`, `nrp`, `nik`, `name`, `email`, `phone`, `password_hash`, `role`, `satker_id`, `rank`, `position`) VALUES
 -- Superadmin IT (Divisi TIK Polri)
-(1, '90010101', NULL, 'Bripka Adhi Nugraha, S.Kom', 'superadmin@sigap.polri.go.id', '081211110001', '$2y$10$qnlaf/DOh0vbZBtPBuRjkOTZJm/fghNF2D8e4xBwuD7iTervauH.O', 'ROLE_SUPERADMIN', 1, 'Bripka', 'Administrator Sistem Divisi TIK Polri'),
+(1, '90010101', NULL, 'Adhi Nugraha, S.Kom', 'superadmin@sigap.polri.go.id', '081211110001', '$2y$10$qnlaf/DOh0vbZBtPBuRjkOTZJm/fghNF2D8e4xBwuD7iTervauH.O', 'ROLE_SUPERADMIN', 1, 'Bripka', 'Administrator Sistem Divisi TIK Polri'),
 -- Kapolri (Executive)
-(2, '70050201', NULL, 'Jenderal Pol. Dr. Arya Wiratama, M.Si.', 'kapolri@sigap.polri.go.id', '081211110002', '$2y$10$qnlaf/DOh0vbZBtPBuRjkOTZJm/fghNF2D8e4xBwuD7iTervauH.O', 'ROLE_EXECUTIVE', 1, 'Jenderal Pol', 'Kepala Kepolisian Negara Republik Indonesia'),
+(2, '70050201', NULL, 'Dr. Arya Wiratama, M.Si.', 'kapolri@sigap.polri.go.id', '081211110002', '$2y$10$qnlaf/DOh0vbZBtPBuRjkOTZJm/fghNF2D8e4xBwuD7iTervauH.O', 'ROLE_EXECUTIVE', 1, 'Jenderal Pol', 'Kepala Kepolisian Negara Republik Indonesia'),
 -- Operator SPKT / Command Center Mabes
-(3, '88030301', NULL, 'Aipda Hendra Gunawan', 'spkt@sigap.polri.go.id', '081211110003', '$2y$10$qnlaf/DOh0vbZBtPBuRjkOTZJm/fghNF2D8e4xBwuD7iTervauH.O', 'ROLE_SPKT_OPERATOR', 1, 'Aipda', 'Operator Verifikator SPKT Mabes Polri'),
+(3, '88030301', NULL, 'Hendra Gunawan', 'spkt@sigap.polri.go.id', '081211110003', '$2y$10$qnlaf/DOh0vbZBtPBuRjkOTZJm/fghNF2D8e4xBwuD7iTervauH.O', 'ROLE_SPKT_OPERATOR', 1, 'Aipda', 'Operator Verifikator SPKT Mabes Polri'),
 -- Tim Divisi Humas / Patroli Siber Medsos
-(4, '92080401', NULL, 'Briptu Cindy Permata', 'humas@sigap.polri.go.id', '081211110004', '$2y$10$qnlaf/DOh0vbZBtPBuRjkOTZJm/fghNF2D8e4xBwuD7iTervauH.O', 'ROLE_CYBER_HUMAS', 1, 'Briptu', 'Petugas Patroli Siber Divisi Humas Polri'),
+(4, '92080401', NULL, 'Cindy Permata', 'humas@sigap.polri.go.id', '081211110004', '$2y$10$qnlaf/DOh0vbZBtPBuRjkOTZJm/fghNF2D8e4xBwuD7iTervauH.O', 'ROLE_CYBER_HUMAS', 1, 'Briptu', 'Petugas Patroli Siber Divisi Humas Polri'),
 -- Pimpinan Satker: Dirtipidum Bareskrim
-(5, '75020501', NULL, 'Brigjen Pol. Wira Satya Triputra', 'dirtipidum@sigap.polri.go.id', '081211110005', '$2y$10$qnlaf/DOh0vbZBtPBuRjkOTZJm/fghNF2D8e4xBwuD7iTervauH.O', 'ROLE_SATKER_HEAD', 2, 'Brigjen Pol', 'Direktur Tindak Pidana Umum Bareskrim Polri'),
+(5, '75020501', NULL, 'Wira Satya Triputra', 'dirtipidum@sigap.polri.go.id', '081211110005', '$2y$10$qnlaf/DOh0vbZBtPBuRjkOTZJm/fghNF2D8e4xBwuD7iTervauH.O', 'ROLE_SATKER_HEAD', 2, 'Brigjen Pol', 'Direktur Tindak Pidana Umum Bareskrim Polri'),
 -- Kanit Dittipidum (Admin Satker)
-(6, '83090601', NULL, 'Kompol Denny Arifin, S.H.', 'kanit.tipidum@sigap.polri.go.id', '081211110006', '$2y$10$qnlaf/DOh0vbZBtPBuRjkOTZJm/fghNF2D8e4xBwuD7iTervauH.O', 'ROLE_SATKER_ADMIN', 2, 'Kompol', 'Kanit 1 Subdit Jatanras Dittipidum Bareskrim Polri'),
+(6, '83090601', NULL, 'Denny Arifin, S.H.', 'kanit.tipidum@sigap.polri.go.id', '081211110006', '$2y$10$qnlaf/DOh0vbZBtPBuRjkOTZJm/fghNF2D8e4xBwuD7iTervauH.O', 'ROLE_SATKER_ADMIN', 2, 'Kompol', 'Kanit 1 Subdit Jatanras Dittipidum Bareskrim Polri'),
 -- Penyidik Pelaksana Dittipidum
-(7, '91040701', NULL, 'Ipda Rian Prasetya, S.Tr.K.', 'penyidik.rian@sigap.polri.go.id', '081211110007', '$2y$10$qnlaf/DOh0vbZBtPBuRjkOTZJm/fghNF2D8e4xBwuD7iTervauH.O', 'ROLE_INVESTIGATOR', 2, 'Ipda', 'Penyidik Pembantu Dittipidum Bareskrim Polri'),
+(7, '91040701', NULL, 'Rian Prasetya, S.Tr.K.', 'penyidik.rian@sigap.polri.go.id', '081211110007', '$2y$10$qnlaf/DOh0vbZBtPBuRjkOTZJm/fghNF2D8e4xBwuD7iTervauH.O', 'ROLE_INVESTIGATOR', 2, 'Ipda', 'Penyidik Pembantu Dittipidum Bareskrim Polri'),
 -- Pengawas Internal (Itwasum Polri)
-(8, '78010801', NULL, 'Irjen Pol. Raden Firman, S.I.K.', 'itwasum@sigap.polri.go.id', '081211110008', '$2y$10$qnlaf/DOh0vbZBtPBuRjkOTZJm/fghNF2D8e4xBwuD7iTervauH.O', 'ROLE_INTERNAL_AFFAIRS', 1, 'Irjen Pol', 'Auditor Inspektorat Pengawasan Umum (Itwasum) Polri'),
+(8, '78010801', NULL, 'Raden Firman, S.I.K.', 'itwasum@sigap.polri.go.id', '081211110008', '$2y$10$qnlaf/DOh0vbZBtPBuRjkOTZJm/fghNF2D8e4xBwuD7iTervauH.O', 'ROLE_INTERNAL_AFFAIRS', 1, 'Irjen Pol', 'Auditor Inspektorat Pengawasan Umum (Itwasum) Polri'),
 -- Warga Pelapor Terverifikasi
 (9, NULL, '3171012304950001', 'Budi Santoso (Masyarakat)', 'budi.santoso95@gmail.com', '081298765432', '$2y$10$qnlaf/DOh0vbZBtPBuRjkOTZJm/fghNF2D8e4xBwuD7iTervauH.O', 'ROLE_CITIZEN', NULL, NULL, 'Wiraswasta')
 ON DUPLICATE KEY UPDATE `name`=VALUES(`name`), `email`=VALUES(`email`), `satker_id`=VALUES(`satker_id`),
