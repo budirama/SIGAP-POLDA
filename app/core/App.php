@@ -78,6 +78,10 @@ class App
     private function render404(string $message = 'Halaman Tidak Ditemukan'): void
     {
         http_response_code(404);
+        // Detail teknis (nama controller/action) hanya untuk development
+        $message = \App\Config\Config::isDevelopment()
+            ? htmlspecialchars($message, ENT_QUOTES, 'UTF-8')
+            : 'Halaman yang Anda cari tidak tersedia.';
         echo "<!DOCTYPE html><html lang='id'><head><meta charset='utf-8'><title>404 - SIGAP POLDA</title>
               <script src='https://cdn.tailwindcss.com'></script></head>
               <body class='bg-[#070F1E] text-slate-200 flex items-center justify-center min-h-screen p-4'>

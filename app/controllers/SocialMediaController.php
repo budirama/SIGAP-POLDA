@@ -90,7 +90,8 @@ class SocialMediaController extends Controller
 
             Session::setFlash('success', "Berhasil! Postingan @{$feed['author_username']} telah dikonversi menjadi Tiket Resmi: {$ticketNumber}");
         } catch (\Throwable $e) {
-            Session::setFlash('error', 'Gagal mengonversi postingan: ' . $e->getMessage());
+            error_log('[SIGAP-POLDA] Gagal konversi postingan medsos: ' . $e);
+            Session::setFlash('error', 'Gagal mengonversi postingan menjadi tiket. Silakan coba lagi.');
         }
 
         $this->redirect('/social');

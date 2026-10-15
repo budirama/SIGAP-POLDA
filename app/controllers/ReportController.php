@@ -82,11 +82,12 @@ class ReportController extends Controller
 
         // Handle akun pelapor
         $reporterId = null;
-        if (!empty($nik)) {
+        if (Auth::check() && Auth::role() === Constants::ROLE_CITIZEN) {
+            // Warga yang sedang login: laporan selalu terhubung ke akunnya sendiri
+            $reporterId = Auth::id();
+        } elseif (!empty($nik)) {
             $citizenUser = $this->userModel->findOrCreateCitizen($nik, $name, $phone);
             $reporterId = $citizenUser['id'];
-        } elseif (Auth::check()) {
-            $reporterId = Auth::id();
         }
 
         // Handle File Upload Bukti
@@ -152,7 +153,8 @@ class ReportController extends Controller
             Session::setFlash('success', 'Laporan Anda berhasil dikirim ke Command Center SPKT Polda!');
             $this->redirect("/report/success?ticket={$ticketNumber}");
         } catch (\Throwable $e) {
-            Session::setFlash('error', 'Gagal memproses laporan: ' . $e->getMessage());
+            error_log('[SIGAP-POLDA] Gagal membuat laporan: ' . $e);
+            Session::setFlash('error', 'Gagal memproses laporan. Silakan coba lagi atau hubungi Call Center 110.');
             $this->redirect('/report/create');
         }
     }

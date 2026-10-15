@@ -101,14 +101,21 @@ git clone https://github.com/budirama/SIGAP-POLDA.git
    - `database/schema.sql`
    - `database/seeders.sql`
 
-### 3. Konfigurasi Koneksi (Jika Dibutuhkan)
-Periksa berkas `app/config/Config.php`. Pengaturan default XAMPP telah siap pakai:
-```php
-public static string $dbHost = '127.0.0.1';
-public static string $dbName = 'sigap_polda';
-public static string $dbUser = 'root';
-public static string $dbPass = '';
+### 3. Konfigurasi Environment (`.env`)
+Salin `.env.example` menjadi `.env` di root proyek, lalu sesuaikan nilainya:
+```bash
+cp .env.example .env
 ```
+```ini
+APP_ENV=development   # development: detail error + Quick Login uji coba aktif
+DB_HOST=127.0.0.1
+DB_NAME=sigap_polda
+DB_USER=root
+DB_PASS=
+```
+> ⚠️ Untuk server produksi gunakan `APP_ENV=production` (default bila `.env` tidak ada) — detail error disembunyikan dan Quick Login dinonaktifkan. File `.env` tidak di-commit.
+
+Bila database sudah terpasang dari versi sebelumnya, jalankan migrasi di `database/migrations/` (file `.sql` via MySQL, file `.php` via `php <file>`).
 
 ### 4. Buka di Browser
 * **Portal Warga:** `http://localhost/SIGAP-Polda/` atau `http://localhost/SIGAP-Polda/public/`
@@ -118,7 +125,7 @@ public static string $dbPass = '';
 
 ## 🔑 Akun Uji Coba Pengujian (Demo 9 Roles)
 Semua akun pengujian menggunakan kata sandi default: **`password123`**.  
-*(Pada halaman login tersedia switcher 1-klik untuk berganti role secara instan).*
+*(Saat `APP_ENV=development`, halaman login menyediakan switcher 1-klik untuk berganti role secara instan).*
 
 | Role | Akun Login | Deskripsi Wewenang |
 |---|---|---|

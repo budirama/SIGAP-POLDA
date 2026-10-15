@@ -21,10 +21,10 @@ class Database
         if (self::$instance === null) {
             $dsn = sprintf(
                 'mysql:host=%s;port=%s;dbname=%s;charset=%s',
-                Config::DB_HOST,
-                Config::DB_PORT,
-                Config::DB_NAME,
-                Config::DB_CHARSET
+                Config::env('DB_HOST', '127.0.0.1'),
+                Config::env('DB_PORT', '3306'),
+                Config::env('DB_NAME', 'sigap_polda'),
+                Config::env('DB_CHARSET', 'utf8mb4')
             );
 
             $options = [
@@ -35,7 +35,7 @@ class Database
             ];
 
             try {
-                self::$instance = new PDO($dsn, Config::DB_USER, Config::DB_PASS, $options);
+                self::$instance = new PDO($dsn, Config::env('DB_USER', 'root'), Config::env('DB_PASS'), $options);
             } catch (PDOException $e) {
                 throw new RuntimeException("Koneksi Database SIGAP-POLDA Gagal: " . $e->getMessage());
             }
