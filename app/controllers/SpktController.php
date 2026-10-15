@@ -44,16 +44,17 @@ class SpktController extends Controller
         $statusFilter = $this->get('status', '');
         $search = $this->get('search', '');
 
-        $reports = $this->reportModel->getFilteredReports([
+        $pager = $this->reportModel->paginateFilteredReports([
             'status' => $statusFilter,
             'search' => $search
-        ]);
+        ], (int)$this->get('page', 1));
 
         $satkers = $this->satkerModel->getAll();
 
         $this->render('backoffice/spkt_triage', [
             'pageTitle'    => 'Meja Triage SPKT & Command Center Polda',
-            'reports'      => $reports,
+            'reports'      => $pager['items'],
+            'pager'        => $pager,
             'satkers'      => $satkers,
             'statusFilter' => $statusFilter,
             'search'       => $search,

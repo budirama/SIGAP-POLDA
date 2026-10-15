@@ -23,7 +23,7 @@
     <div class="flex items-center gap-3">
       <div class="px-4 py-2 rounded-xl bg-[#070F1E] border border-slate-800 text-center">
         <div class="text-xs text-slate-400">Total Tiket</div>
-        <div class="text-lg font-black text-amber-400 font-mono"><?= count($reports) ?></div>
+        <div class="text-lg font-black text-amber-400 font-mono"><?= (int)$pager['total'] ?></div>
       </div>
     </div>
   </div>
@@ -182,6 +182,7 @@
         </tbody>
       </table>
     </div>
+    <?php $pagerPath = '/spkt'; require __DIR__ . '/_pagination.php'; ?>
   </div>
 
 </div>

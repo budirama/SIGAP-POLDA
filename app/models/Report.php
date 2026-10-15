@@ -240,22 +240,64 @@ class Report extends Model
     /**
      * Dapatkan Daftar Laporan dengan Filter Backoffice
      */
-    public function getFilteredReports(array $filters = []): array
+    public function getFilteredReports(array $filters = [], int $limit = 100, int $offset = 0): array
     {
+        [$where, $params] = $this->buildReportFilters($filters);
+
         // Kolom eksplisit: daftar backoffice tidak memuat PIN pelacakan & NIK pelapor
         $sql = "SELECT r.id, r.ticket_number, r.source_channel, r.is_anonymous, r.reporter_name_raw, r.reporter_phone,
                        r.category_id, r.title, r.description, r.incident_date, r.incident_location,
                        r.latitude, r.longitude, r.status, r.urgency_level, r.sla_deadline,
                        r.current_satker_id, r.assigned_investigator_id, r.is_kapolda_attention,
                        r.created_at, r.closed_at,
-                       c.name AS category_name, s.name AS satker_name,
+                       c.name AS category_name, s.name AS satker_name, s.code AS satker_code,
                        inv.name AS investigator_name, inv.rank AS investigator_rank
                 FROM reports r
                 JOIN report_categories c ON r.category_id = c.id
                 LEFT JOIN satkers s ON r.current_satker_id = s.id
                 LEFT JOIN users inv ON r.assigned_investigator_id = inv.id
-                WHERE 1=1 ";
+                WHERE 1=1 {$where}";
 
+        $limit = max(1, $limit);
+        $offset = max(0, $offset);
+        $sql .= "ORDER BY r.is_kapolda_attention DESC, r.created_at DESC, r.id DESC LIMIT {$limit} OFFSET {$offset}";
+
+        return $this->fetchAll($sql, $params);
+    }
+
+    /**
+     * Jumlah laporan yang cocok dengan filter backoffice (untuk paginasi)
+     */
+    public function countFilteredReports(array $filters = []): int
+    {
+        [$where, $params] = $this->buildReportFilters($filters);
+        return (int)($this->fetch("SELECT COUNT(*) AS n FROM reports r WHERE 1=1 {$where}", $params)['n'] ?? 0);
+    }
+
+    /**
+     * Daftar laporan per halaman: ['items', 'total', 'page', 'pages', 'perPage']
+     */
+    public function paginateFilteredReports(array $filters, int $page, int $perPage = 25): array
+    {
+        $total = $this->countFilteredReports($filters);
+        $pages = max(1, (int)ceil($total / $perPage));
+        $page = min(max(1, $page), $pages);
+
+        return [
+            'items'   => $this->getFilteredReports($filters, $perPage, ($page - 1) * $perPage),
+            'total'   => $total,
+            'page'    => $page,
+            'pages'   => $pages,
+            'perPage' => $perPage,
+        ];
+    }
+
+    /**
+     * Klausa WHERE (diawali "AND") & parameter untuk filter daftar laporan
+     */
+    private function buildReportFilters(array $filters): array
+    {
+        $sql = '';
         $params = [];
 
         if (!empty($filters['status'])) {
@@ -294,9 +336,7 @@ class Report extends Model
             $params[] = $kw;
         }
 
-        $sql .= "ORDER BY r.is_kapolda_attention DESC, r.created_at DESC LIMIT 100";
-
-        return $this->fetchAll($sql, $params);
+        return [$sql, $params];
     }
 
     /**

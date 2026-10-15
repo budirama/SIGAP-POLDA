@@ -126,7 +126,7 @@
                 <td class="p-4 text-center">
                   <div class="flex items-center justify-center gap-2">
                     <?php if (in_array($r['status'], ['DISPATCHED', 'ASSIGNED'], true)): ?>
-                    <button onclick="openAssignModal(<?= htmlspecialchars(json_encode(['id' => (int)$r['id'], 'ticket_number' => $r['ticket_number'], 'title' => $r['title'], 'current_satker_id' => $r['current_satker_id'], 'assigned_investigator_id' => $r['assigned_investigator_id']])) ?>)"
+                    <button onclick="openAssignModal(<?= htmlspecialchars(json_encode(['id' => (int)$r['id'], 'ticket_number' => $r['ticket_number'], 'title' => $r['title'], 'current_satker_id' => $r['current_satker_id'], 'assigned_investigator_id' => $r['assigned_investigator_id'], 'sprintgas_number' => \App\Config\Constants::documentNumber('SP.Gas', $r['satker_code'] ?? null)])) ?>)"
                             class="px-3 py-1.5 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-bold rounded-lg text-xs shadow transition-all flex items-center gap-1">
                       <i class="fas fa-user-plus text-[10px]"></i>
                       <span><?= empty($r['investigator_name']) ? 'Tunjuk Penyidik' : 'Ganti' ?></span>
@@ -147,6 +147,7 @@
         </tbody>
       </table>
     </div>
+    <?php $pagerPath = '/satker'; require __DIR__ . '/_pagination.php'; ?>
   </div>
 
 </div>
@@ -175,7 +176,7 @@
 
       <div>
         <label class="block text-xs font-semibold text-slate-300 mb-1">Nomor Surat Perintah Tugas (Sprintgas):</label>
-        <input type="text" name="sprintgas_number" value="SP.Gas/<?= random_int(100, 999) ?>/<?= date('m/Y') ?>/Ditreskrimum" required
+        <input type="text" name="sprintgas_number" id="assign_sprintgas_number" maxlength="100" required
                class="w-full bg-[#070F1E] border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 font-mono outline-none focus:border-amber-500">
       </div>
 
@@ -210,6 +211,7 @@
   function openAssignModal(report) {
     document.getElementById('assign_report_id').value = report.id;
     document.getElementById('assign_ticket_label').innerText = report.ticket_number + ' - ' + report.title;
+    document.getElementById('assign_sprintgas_number').value = report.sprintgas_number;
     const select = document.getElementById('assign_investigator_id');
     // Hanya penyidik dari Satker pemilik laporan yang dapat dipilih
     Array.from(select.options).forEach(opt => {

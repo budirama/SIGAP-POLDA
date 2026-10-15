@@ -16,7 +16,7 @@
 
     <div>
       <span class="text-xs font-bold text-amber-400 bg-amber-500/10 px-3 py-1.5 rounded-xl border border-amber-500/30">
-        <?= count($reports) ?> Kasus Terdata
+        <?= (int)$pager['total'] ?> Kasus Terdata
       </span>
     </div>
   </div>
@@ -65,5 +65,7 @@
       <?php endforeach; ?>
     <?php endif; ?>
   </div>
+
+  <div class="polri-glass-card rounded-2xl border border-slate-800 overflow-hidden empty:hidden"><?php $pagerPath = '/investigator'; require __DIR__ . '/_pagination.php'; ?></div>
 
 </div>

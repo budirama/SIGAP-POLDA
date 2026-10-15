@@ -69,7 +69,7 @@ Hasil review ulang 15 Oktober 2026 setelah PR #1–#11 (lihat `docs/TASK_HARDENI
 ## 🟡 Prioritas Rendah
 
 ### U13 — Kegunaan & konsistensi
-- [ ] **Masalah:** daftar laporan berhenti di 100 tanpa paginasi; menu backoffice tak dapat dipakai di HP; nomor Sprintgas/SP2HP default selalu "/Ditreskrimum"; pesan dengan lampiran ditolak tetap tersimpan & tampil sukses; rating bintang tak dapat dipakai keyboard; data seeder tidak konsisten.
+- [x] **Masalah:** daftar laporan berhenti di 100 tanpa paginasi; menu backoffice tak dapat dipakai di HP; nomor Sprintgas/SP2HP default selalu "/Ditreskrimum"; pesan dengan lampiran ditolak tetap tersimpan & tampil sukses; rating bintang tak dapat dipakai keyboard; data seeder tidak konsisten.
 - **Solusi:** paginasi, menu off-canvas, sufiks kode Satker, alur lampiran ditolak yang jelas, rating aksesibel, perbaiki seeder.
 
 ---
