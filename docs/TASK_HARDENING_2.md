@@ -33,7 +33,7 @@ Hasil review ulang 15 Oktober 2026 setelah PR #1–#11 (lihat `docs/TASK_HARDENI
 ## 🟠 Prioritas Sedang
 
 ### U5 — Pengerasan sesi
-- [ ] **Masalah:** user nonaktif/dipindah tetap memegang sesi lama; tanpa idle/absolute timeout; cookie tanpa `Secure`; `use_strict_mode` mati; fingerprint IP memutus pengguna seluler.
+- [x] **Masalah:** user nonaktif/dipindah tetap memegang sesi lama; tanpa idle/absolute timeout; cookie tanpa `Secure`; `use_strict_mode` mati; fingerprint IP memutus pengguna seluler.
 - **Solusi:** muat ulang user (aktif/role/satker) tiap request, timeout idle 30 menit & absolut 8 jam, `Secure` saat HTTPS, `use_strict_mode`, regenerasi ID sesi saat PIN diverifikasi, fingerprint tanpa IP.
 
 ### U6 — Akses baca per role & navigasi

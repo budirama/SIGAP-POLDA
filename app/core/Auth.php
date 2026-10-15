@@ -10,13 +10,17 @@ use App\Config\Constants;
 
 class Auth
 {
+    private static bool $refreshed = false;
+
     public static function login(array $user): void
     {
         Session::start();
         // Hapus password hash dari session demi keamanan
         unset($user['password_hash']);
         Session::set('auth_user', $user);
-        session_regenerate_id(true); // Mencegah session fixation
+        Session::remove('_csrf_token'); // token CSRF baru untuk sesi login
+        Session::regenerate(); // Mencegah session fixation
+        self::$refreshed = true;
     }
 
     public static function logout(): void
@@ -28,12 +32,40 @@ class Auth
 
     public static function check(): bool
     {
-        return Session::has('auth_user');
+        return self::user() !== null;
     }
 
     public static function user(): ?array
     {
+        self::refresh();
         return Session::get('auth_user');
+    }
+
+    /**
+     * Sekali per request: muat ulang data user dari database agar penonaktifan,
+     * perubahan role, atau mutasi Satker langsung berlaku pada sesi yang sedang berjalan.
+     */
+    private static function refresh(): void
+    {
+        if (self::$refreshed) {
+            return;
+        }
+        self::$refreshed = true;
+
+        $cached = Session::get('auth_user');
+        if (!$cached) {
+            return;
+        }
+
+        $fresh = (new \App\Models\User())->findById((int)$cached['id']);
+        if (!$fresh || !(int)$fresh['is_active']) {
+            Session::restart();
+            Session::setFlash('error', 'Akun Anda tidak aktif. Silakan hubungi Admin TIK Polda.');
+            return;
+        }
+
+        unset($fresh['password_hash']);
+        Session::set('auth_user', $fresh);
     }
 
     public static function id(): ?int

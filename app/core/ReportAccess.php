@@ -59,5 +59,6 @@ class ReportAccess
         $granted = Session::get('report_access', []);
         $granted[$ticketNumber] = true;
         Session::set('report_access', $granted);
+        Session::regenerate(); // akses baru ke data laporan: cegah session fixation
     }
 }
