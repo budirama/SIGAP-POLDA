@@ -352,12 +352,19 @@ $this->feedbackModel = new Feedback();
             $this->redirect('/report/track?ticket=' . urlencode($ticket));
         }
 
+        $sp2hp = $this->reportModel->getLatestSp2hp((int)$report['id']);
+        if (!$sp2hp || empty($report['assigned_investigator_id'])) {
+            Session::setFlash('error', 'Dokumen SP2HP tersedia setelah penyidik menerbitkan Surat Pemberitahuan Perkembangan pertama.');
+            $this->redirect('/report/track?ticket=' . urlencode($report['ticket_number']));
+        }
+
         $timeline = $this->reportModel->getTimeline($report['id'], false);
 
         $this->render('public/sp2hp_print', [
-            'pageTitle' => "SP2HP Digital - {$ticket}",
+            'pageTitle' => "SP2HP Digital - {$report['ticket_number']}",
             'report'    => $report,
-            'timeline'  => $timeline
+            'timeline'  => $timeline,
+            'sp2hp'     => $sp2hp
         ], 'none'); // Print layout tanpa navbar
     }
 
