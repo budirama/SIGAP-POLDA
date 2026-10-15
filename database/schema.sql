@@ -236,3 +236,10 @@ CREATE TABLE IF NOT EXISTS `pin_attempts` (
     INDEX `idx_pin_ticket` (`ticket_number`, `attempted_at`),
     INDEX `idx_pin_ip` (`ip_address`, `attempted_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 12. TABEL SEQUENCE NOMOR TIKET PER PERIODE (PENOMORAN ATOMIK ANTI-BENTROK)
+CREATE TABLE IF NOT EXISTS `ticket_sequences` (
+    `period` CHAR(6) PRIMARY KEY COMMENT 'Format YYYYMM',
+    `last_seq` INT NOT NULL DEFAULT 0,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

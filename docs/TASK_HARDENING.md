@@ -28,7 +28,7 @@ Lanjutan hasil code review 15 Oktober 2026. Setiap task dikerjakan di branch ter
 - **Kriteria selesai:** semua rute tetap berfungsi di `http://localhost/SIGAP-Polda/public/`.
 
 ### T3 — Nomor tiket atomik (anti-bentrok)
-- [ ] **Masalah:** nomor tiket dari `COUNT(*) + 1` → dua laporan bersamaan mendapat nomor sama dan gagal di constraint UNIQUE; nomor juga bisa berulang bila ada laporan yang dihapus.
+- [x] **Masalah:** nomor tiket dari `COUNT(*) + 1` → dua laporan bersamaan mendapat nomor sama dan gagal di constraint UNIQUE; nomor juga bisa berulang bila ada laporan yang dihapus.
 - **Solusi:** tabel `ticket_sequences` per periode `YYYYMM` dengan increment atomik `INSERT ... ON DUPLICATE KEY UPDATE last_seq = LAST_INSERT_ID(last_seq + 1)` di dalam transaksi pembuatan laporan + migrasi inisialisasi dari nomor tiket tertinggi yang sudah ada.
 - **Kriteria selesai:** laporan paralel menghasilkan nomor unik berurutan; tiket baru melanjutkan nomor tertinggi yang ada.
 
