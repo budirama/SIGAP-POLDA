@@ -363,7 +363,8 @@
           <?php endif; ?>
 
           <div class="text-[10px] text-slate-500 pt-1 border-t border-slate-800/80">
-            Dicatat oleh: <b><?= htmlspecialchars($t['actor_rank'] . ' ' . $t['actor_name']) ?></b> (<?= htmlspecialchars($t['actor_role']) ?>)
+            Dicatat oleh: <b><?= htmlspecialchars(empty($t['actor_name']) ? 'Sistem SIGAP-POLDA' : trim(($t['actor_rank'] ?? '') . ' ' . $t['actor_name'])) ?></b>
+            <?php if (!empty($t['actor_role'])): ?>(<?= htmlspecialchars(\App\Config\Constants::getRoleLabel($t['actor_role'])) ?>)<?php endif; ?>
           </div>
         </div>
       <?php endforeach; ?>

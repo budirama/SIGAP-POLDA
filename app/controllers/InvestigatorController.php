@@ -111,6 +111,11 @@ class InvestigatorController extends Controller
             $this->redirect("/investigator/detail/{$reportId}");
         }
 
+        if (mb_strlen((string)$sp2hpNumber) > 100) {
+            Session::setFlash('error', 'Nomor SP2HP maksimal 100 karakter.');
+            $this->redirect("/investigator/detail/{$reportId}");
+        }
+
         if (empty($publicNotes)) {
             Session::setFlash('error', 'Catatan perkembangan resmi (publik) wajib diisi untuk pelapor.');
             $this->redirect("/investigator/detail/{$reportId}");
