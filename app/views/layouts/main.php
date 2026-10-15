@@ -144,14 +144,8 @@
         <p class="text-xs leading-relaxed">
           Gedung Pelayanan Terpadu Mapolda<br>
           Jl. Jenderal Sudirman Kav. 55<br>
-          Hotline: 021-5234000 / 110<br>
-          WhatsApp Dumas: 0812-9876-5432
+          Hotline: 021-5234000 / 110
         </p>
-        <div class="flex items-center gap-3 pt-1">
-          <a href="#" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-sky-600 text-white flex items-center justify-center transition-colors"><i class="fab fa-x-twitter text-xs"></i></a>
-          <a href="#" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-pink-600 text-white flex items-center justify-center transition-colors"><i class="fab fa-instagram text-xs"></i></a>
-          <a href="#" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-emerald-600 text-white flex items-center justify-center transition-colors"><i class="fab fa-whatsapp text-xs"></i></a>
-        </div>
       </div>
 
     </div>

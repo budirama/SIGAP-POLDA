@@ -81,8 +81,8 @@
                 <div class="p-3 rounded-xl bg-[#070F1E]/80 border border-slate-800 flex items-center gap-3">
                   <div class="w-8 h-8 rounded-lg bg-blue-950 text-blue-400 flex items-center justify-center font-bold text-xs"><i class="fas fa-mobile-screen"></i></div>
                   <div>
-                    <div class="text-xs font-bold text-slate-200">Notifikasi Otomatis WhatsApp</div>
-                    <div class="text-[11px] text-slate-400">Pemberitahuan tiap ada terbitan SP2HP baru</div>
+                    <div class="text-xs font-bold text-slate-200">Pantau Progres Kapan Saja</div>
+                    <div class="text-[11px] text-slate-400">Cek SP2HP terbaru dengan Nomor Tiket &amp; PIN Keamanan</div>
                   </div>
                 </div>
 
@@ -98,7 +98,7 @@
                   <div class="w-8 h-8 rounded-lg bg-emerald-950 text-emerald-400 flex items-center justify-center font-bold text-xs"><i class="fas fa-file-shield"></i></div>
                   <div>
                     <div class="text-xs font-bold text-slate-200">Unduh Dokumen SP2HP Digital</div>
-                    <div class="text-[11px] text-slate-400">Lengkap dengan QR Code keabsahan dinas</div>
+                    <div class="text-[11px] text-slate-400">Cetak atau simpan sebagai PDF setelah SP2HP diterbitkan</div>
                   </div>
                 </div>
               </div>

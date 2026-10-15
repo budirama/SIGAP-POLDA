@@ -34,6 +34,10 @@
   <!-- Document Paper (A4 Style) -->
   <div class="max-w-3xl mx-auto bg-white p-8 sm:p-12 shadow-2xl rounded border border-slate-300 print-shadow relative">
     
+    <?php
+      $bulan = [1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+      $tanggal = fn(string $dt): string => date('j', strtotime($dt)) . ' ' . $bulan[(int)date('n', strtotime($dt))] . ' ' . date('Y', strtotime($dt));
+    ?>
     <!-- Watermark Background -->
     <div class="absolute inset-0 flex items-center justify-center opacity-[0.04] pointer-events-none">
       <img src="<?= $baseUrl ?>/assets/img/logo-polisi-masyarakat.png" alt="Polisi Bersama Masyarakat" class="w-96 h-auto">
@@ -54,7 +58,7 @@
     <!-- Header Dokumen SP2HP -->
     <div class="text-center mb-6">
       <h3 class="text-sm font-black underline uppercase tracking-wider">SURAT PEMBERITAHUAN PERKEMBANGAN HASIL PENYELIDIKAN</h3>
-      <p class="text-xs font-mono font-bold mt-1">Nomor: SP2HP / <?= substr($report['ticket_number'], 9) ?> / <?= date('m/Y') ?> / Reskrim</p>
+      <p class="text-xs font-mono font-bold mt-1">Nomor: <?= htmlspecialchars($sp2hp['sp2hp_number']) ?></p>
     </div>
 
     <!-- Letter Meta -->
@@ -88,7 +92,7 @@
       <div class="pl-4 space-y-1">
         <p>a. Undang-Undang Nomor 2 Tahun 2002 tentang Kepolisian Negara Republik Indonesia;</p>
         <p>b. Undang-Undang Nomor 8 Tahun 1981 tentang Kitab Undang-Undang Hukum Acara Pidana (KUHAP);</p>
-        <p>c. Laporan Pengaduan Masyarakat dengan Nomor Registrasi: <b><?= htmlspecialchars($report['ticket_number']) ?></b> tanggal <?= date('d F Y', strtotime($report['incident_date'])) ?> tentang dugaan tindak pidana <i>"<?= htmlspecialchars($report['title']) ?>"</i>.</p>
+        <p>c. Laporan Pengaduan Masyarakat dengan Nomor Registrasi: <b><?= htmlspecialchars($report['ticket_number']) ?></b> tanggal <?= $tanggal($report['created_at']) ?> tentang dugaan tindak pidana <i>"<?= htmlspecialchars($report['title']) ?>"</i> yang terjadi pada tanggal <?= $tanggal($report['incident_date']) ?>.</p>
       </div>
 
       <p>
@@ -112,8 +116,8 @@
         3. Penyidik akan terus melakukan langkah-langkah penyelidikan secara profesional, transparan, dan akuntabel sesuai ketentuan perundang-undangan yang berlaku. Apabila Saudara/i memiliki keterangan tambahan atau informasi baru, dapat menghubungi langsung Penyidik Pelaksana:
       </p>
       <div class="pl-4 text-[11px] font-sans">
-        <p>Nama Penyidik : <b><?= htmlspecialchars($report['investigator_name'] ?? 'Petugas Piket Reskrim') ?></b></p>
-        <p>Pangkat/NRP   : <?= htmlspecialchars($report['investigator_rank'] ?? '-') ?></p>
+        <p>Nama Penyidik : <b><?= htmlspecialchars($report['investigator_name']) ?></b></p>
+        <p>Pangkat       : <?= htmlspecialchars($report['investigator_rank'] ?? '-') ?></p>
         <p>Satuan Kerja  : <?= htmlspecialchars($report['satker_name'] ?? 'Polda') ?></p>
       </div>
 
@@ -122,30 +126,23 @@
       </p>
     </div>
 
-    <!-- Tanda Tangan & QR Verification -->
+    <!-- Tanda Tangan & Keterangan Dokumen -->
     <div class="mt-8 pt-4 border-t border-slate-300 font-sans grid grid-cols-2 text-xs items-end">
-      
-      <!-- QR Keabsahan -->
-      <div class="flex items-center gap-3">
-        <div class="w-16 h-16 border border-slate-400 p-1 bg-white flex items-center justify-center font-mono text-[9px] text-center font-bold">
-          [ QR VALIDASI DOKUMEN DIGITAL ]
-        </div>
-        <div>
-          <div class="font-bold text-[10px] text-emerald-800">✓ TERVERIFIKASI SISTEM ELEKTRONIK</div>
-          <p class="text-[9px] text-slate-500">Keabsahan dokumen dapat diverifikasi secara daring pada portal SIGAP-POLDA.</p>
-        </div>
+
+      <!-- Keterangan Dokumen Elektronik -->
+      <div class="text-[9px] text-slate-500 pr-4">
+        Dokumen ini dicetak dari sistem SIGAP-POLDA. Perkembangan perkara dapat dicocokkan pada portal pelacakan
+        dengan Nomor Tiket <b class="font-mono"><?= htmlspecialchars($report['ticket_number']) ?></b> dan PIN Keamanan pelapor.
       </div>
 
       <!-- TTD Petugas -->
       <div class="text-center space-y-1">
-        <p><?= date('d F Y') ?></p>
+        <p><?= $tanggal($sp2hp['created_at']) ?></p>
         <p class="font-bold uppercase">a.n. KEPALA SATUAN KERJA PENYIDIK</p>
         <p class="text-[10px] text-slate-500">Penyidik Pembantu Pelaksana,</p>
-        <div class="h-12 flex items-center justify-center italic text-slate-400 text-[10px]">
-          [ Ditandatangani secara Digital ]
-        </div>
-        <p class="font-bold underline uppercase"><?= htmlspecialchars($report['investigator_name'] ?? 'Penyidik Reskrim') ?></p>
-        <p class="text-[10px] text-slate-600"><?= htmlspecialchars($report['investigator_rank'] ?? 'Inspektur Polisi') ?></p>
+        <div class="h-12"></div>
+        <p class="font-bold underline uppercase"><?= htmlspecialchars($report['investigator_name']) ?></p>
+        <p class="text-[10px] text-slate-600"><?= htmlspecialchars($report['investigator_rank'] ?? '') ?></p>
       </div>
 
     </div>

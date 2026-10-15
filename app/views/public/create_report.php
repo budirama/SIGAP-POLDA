@@ -75,7 +75,7 @@
                    placeholder="081298765432"
                    class="w-full bg-[#070F1E] border border-[#1E355B] focus:border-amber-500 rounded-xl pl-9 pr-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-600 outline-none">
           </div>
-          <p class="text-[10px] text-slate-400 mt-1">Notifikasi SP2HP dan nomor tiket akan dikirimkan ke nomor ini.</p>
+          <p class="text-[10px] text-slate-400 mt-1">Dipakai penyidik untuk menghubungi Anda bila perlu klarifikasi. Nomor tiket &amp; PIN ditampilkan setelah laporan terkirim &mdash; mohon dicatat.</p>
         </div>
 
         <!-- Urgency Level -->

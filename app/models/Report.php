@@ -69,6 +69,19 @@ class Report extends Model
         );
     }
 
+    /**
+     * SP2HP terakhir yang diterbitkan penyidik untuk laporan ini (null bila belum ada)
+     */
+    public function getLatestSp2hp(int $reportId): ?array
+    {
+        return $this->fetch(
+            "SELECT sp2hp_number, created_at FROM report_timeline
+             WHERE report_id = ? AND is_sp2hp = 1 AND sp2hp_number IS NOT NULL
+             ORDER BY created_at DESC, id DESC LIMIT 1",
+            [$reportId]
+        );
+    }
+
     public function findAttachment(int $id): ?array
     {
         return $this->fetch("SELECT * FROM report_attachments WHERE id = ? LIMIT 1", [$id]);

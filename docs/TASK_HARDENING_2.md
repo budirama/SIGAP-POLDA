@@ -53,7 +53,7 @@ Hasil review ulang 15 Oktober 2026 setelah PR #1–#11 (lihat `docs/TASK_HARDENI
 - **Solusi:** PIN via POST + redirect tanpa PIN, share hanya nomor tiket, pesan seragam; validasi NIK 16 digit, tanggal, kategori, maks 5 file; tidak menautkan ke akun lain berdasarkan NIK ketikan; simpan input lama.
 
 ### U10 — Dokumen SP2HP cetak & klaim fitur
-- [ ] **Masalah:** nomor SP2HP cetak dikarang & berubah per bulan; tanggal kejadian ditulis sebagai tanggal registrasi; laporan ditolak tertulis "telah ditangani"; klaim WhatsApp/SMS/QR yang tidak ada.
+- [x] **Masalah:** nomor SP2HP cetak dikarang & berubah per bulan; tanggal kejadian ditulis sebagai tanggal registrasi; laporan ditolak tertulis "telah ditangani"; klaim WhatsApp/SMS/QR yang tidak ada.
 - **Solusi:** pakai data SP2HP terakhir yang sebenarnya, hanya dapat dicetak setelah ada penyidik; hapus klaim fitur yang belum ada.
 
 ### U11 — Audit log
