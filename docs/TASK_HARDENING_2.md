@@ -13,7 +13,7 @@ Hasil review ulang 15 Oktober 2026 setelah PR #1–#11 (lihat `docs/TASK_HARDENI
 ## 🔴 Prioritas Tinggi
 
 ### U1 — Pisahkan akses pelapor vs personil & hapus PII dari source HTML
-- [ ] **Masalah:** `ReportController::canAccessReport` mengizinkan *semua* personil → Humas/penyidik unit lain dapat melihat PIN di halaman sukses, mengirim pesan atas nama pelapor, dan menimpa SKM. Halaman SPKT/Satker menanam `json_encode(r.*)` berisi PIN, NIK, nama & HP whistleblower ke source HTML.
+- [x] **Masalah:** `ReportController::canAccessReport` mengizinkan *semua* personil → Humas/penyidik unit lain dapat melihat PIN di halaman sukses, mengirim pesan atas nama pelapor, dan menimpa SKM. Halaman SPKT/Satker menanam `json_encode(r.*)` berisi PIN, NIK, nama & HP whistleblower ke source HTML.
 - **Solusi:** halaman publik hanya untuk personil berwenang (`ReportAccess::officerCanView`) atau pelapor; aksi pelapor (halaman sukses, pesan warga, SKM) hanya untuk pelapor. Query daftar laporan memakai kolom eksplisit tanpa `security_pin`/NIK; modal hanya menerima data minimal.
 
 ### U2 — State machine disposisi & Itwasda read-only

@@ -179,8 +179,8 @@ class ReportController extends Controller
         }
 
         $report = $this->reportModel->findByTicket($ticketNumber);
-        // Halaman ini menampilkan PIN, hanya untuk pembuat laporan di sesi yang sama
-        if (!$report || !$this->canAccessReport($report)) {
+        // Halaman ini menampilkan PIN, hanya untuk pelapor (bukan personil)
+        if (!$report || !ReportAccess::reporterCanView($report)) {
             $this->redirect('/');
         }
 
@@ -251,7 +251,8 @@ class ReportController extends Controller
             'attachments'  => $attachments,
             'messages'     => $messages ?? [],
             'feedback'     => $feedback,
-            'errorMessage' => $errorMessage
+            'errorMessage' => $errorMessage,
+            'isReporter'   => $report !== null && ReportAccess::reporterCanView($report)
         ], 'main');
     }
 
@@ -278,7 +279,8 @@ class ReportController extends Controller
         }
 
         $report = $this->reportModel->findByTicket($ticket);
-        if (!$report || !$this->canAccessReport($report)) {
+        // Pesan warga hanya dapat dikirim oleh pelapor (personil memakai workspace kasus)
+        if (!$report || !ReportAccess::reporterCanView($report)) {
             Session::setFlash('error', 'Laporan tidak ditemukan atau PIN Keamanan belum diverifikasi.');
             $this->redirect('/report/track');
         }
@@ -324,7 +326,8 @@ class ReportController extends Controller
 
         // Laporan diidentifikasi dari tiket yang aksesnya sudah diverifikasi, bukan report_id dari form
         $report = $ticket !== '' ? $this->reportModel->findByTicket($ticket) : null;
-        if (!$report || !$this->canAccessReport($report)) {
+        // SKM hanya dari pelapor, bukan personil yang dinilai
+        if (!$report || !ReportAccess::reporterCanView($report)) {
             Session::setFlash('error', 'Laporan tidak ditemukan atau PIN Keamanan belum diverifikasi.');
             $this->redirect('/report/track');
         }
@@ -372,13 +375,12 @@ class ReportController extends Controller
     }
 
     /**
-     * Cek hak akses ke halaman publik laporan (catatan publik): personil dinas,
-     * akun pelapor pemilik laporan, atau sesi yang telah memverifikasi PIN tiket.
+     * Hak baca halaman publik laporan (catatan publik): personil yang berwenang atas
+     * laporan ini, akun pelapor pemilik laporan, atau sesi yang telah memverifikasi PIN.
      */
     private function canAccessReport(array $report): bool
     {
-        return (Auth::check() && Auth::role() !== Constants::ROLE_CITIZEN)
-            || ReportAccess::reporterCanView($report);
+        return ReportAccess::officerCanView($report) || ReportAccess::reporterCanView($report);
     }
 
     private function storeClarificationFile(): ?string
