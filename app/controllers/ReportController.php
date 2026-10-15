@@ -143,6 +143,9 @@ class ReportController extends Controller
                 'attachments'       => $attachments
             ]);
 
+            // Pelapor yang baru membuat laporan langsung mendapat akses ke tiketnya
+            $this->grantReportAccess($ticketNumber);
+
             Session::setFlash('success', 'Laporan Anda berhasil dikirim ke Command Center SPKT Polda!');
             $this->redirect("/report/success?ticket={$ticketNumber}");
         } catch (\Throwable $e) {
@@ -162,7 +165,8 @@ class ReportController extends Controller
         }
 
         $report = $this->reportModel->findByTicket($ticketNumber);
-        if (!$report) {
+        // Halaman ini menampilkan PIN, hanya untuk pembuat laporan di sesi yang sama
+        if (!$report || !$this->canAccessReport($report)) {
             $this->redirect('/');
         }
 
@@ -189,10 +193,14 @@ class ReportController extends Controller
         if (!empty($ticketNumber)) {
             $report = $this->reportModel->findByTicket($ticketNumber);
             if ($report) {
-                // Verifikasi PIN hanya jika laporan tidak dibuka oleh personil dinas
-                $isOfficer = Auth::check() && Auth::role() !== Constants::ROLE_CITIZEN;
-                if (!$isOfficer && !empty($report['security_pin']) && !empty($pin) && $report['security_pin'] !== $pin) {
-                    $errorMessage = "PIN Keamanan tidak cocok untuk nomor tiket {$ticketNumber}.";
+                if ($pin !== '' && hash_equals((string)$report['security_pin'], $pin)) {
+                    $this->grantReportAccess($report['ticket_number']);
+                }
+
+                if (!$this->canAccessReport($report)) {
+                    $errorMessage = $pin === ''
+                        ? "Masukkan PIN Keamanan untuk membuka nomor tiket {$ticketNumber}."
+                        : "PIN Keamanan tidak cocok untuk nomor tiket {$ticketNumber}.";
                     $report = null;
                 } else {
                     $timeline = $this->reportModel->getTimeline($report['id'], false); // Hanya catatan publik
@@ -223,20 +231,29 @@ class ReportController extends Controller
      */
     public function sendMessage(): void
     {
-        $this->validateCsrf();
+        if (!$this->isPost()) {
+            $this->redirect('/report/track');
+        }
+
         $ticket = trim($this->post('ticket_number', ''));
         $messageText = trim($this->post('message_text', ''));
 
+        if (!$this->validateCsrf()) {
+            Session::setFlash('error', 'Token keamanan CSRF tidak valid. Silakan coba lagi.');
+            $this->redirect('/report/track?ticket=' . urlencode($ticket));
+        }
+
         if (empty($ticket) || empty($messageText)) {
             Session::setFlash('error', 'Pesan klarifikasi tidak boleh kosong.');
-            $this->redirect("/report/track?ticket={$ticket}");
+            $this->redirect('/report/track?ticket=' . urlencode($ticket));
         }
 
         $report = $this->reportModel->findByTicket($ticket);
-        if (!$report) {
-            Session::setFlash('error', 'Laporan tidak ditemukan.');
+        if (!$report || !$this->canAccessReport($report)) {
+            Session::setFlash('error', 'Laporan tidak ditemukan atau PIN Keamanan belum diverifikasi.');
             $this->redirect('/report/track');
         }
+        $ticket = $report['ticket_number'];
 
         $senderName = $report['reporter_name_raw'] ?? 'Pelapor';
         $senderId = null;
@@ -267,7 +284,7 @@ class ReportController extends Controller
         );
 
         Session::setFlash('success', 'Pesan klarifikasi Anda berhasil dikirimkan ke Tim Penyidik Polri.');
-        $this->redirect("/report/track?ticket={$ticket}#ruang-klarifikasi");
+        $this->redirect('/report/track?ticket=' . urlencode($ticket) . '#ruang-klarifikasi');
     }
 
     /**
@@ -279,19 +296,35 @@ class ReportController extends Controller
             $this->redirect('/report/track');
         }
 
-        $reportId = (int)$this->post('report_id', 0);
-        $ticket = $this->post('ticket_number', '');
-        $rating = (int)$this->post('rating_stars', 5);
-        $speed = (int)$this->post('speed_score', 5);
-        $fairness = (int)$this->post('fairness_score', 5);
-        $comments = $this->post('comments', '');
+        $ticket = trim($this->post('ticket_number', ''));
 
-        if ($reportId > 0) {
-            $this->feedbackModel->saveFeedback($reportId, $rating, $speed, $fairness, $comments);
-            Session::setFlash('success', 'Terima kasih! Ulasan Survei Kepuasan Masyarakat (SKM) Anda telah kami terima.');
+        if (!$this->validateCsrf()) {
+            Session::setFlash('error', 'Token keamanan CSRF tidak valid. Silakan coba lagi.');
+            $this->redirect('/report/track?ticket=' . urlencode($ticket));
         }
 
-        $this->redirect("/report/track?ticket={$ticket}");
+        // Laporan diidentifikasi dari tiket yang aksesnya sudah diverifikasi, bukan report_id dari form
+        $report = $ticket !== '' ? $this->reportModel->findByTicket($ticket) : null;
+        if (!$report || !$this->canAccessReport($report)) {
+            Session::setFlash('error', 'Laporan tidak ditemukan atau PIN Keamanan belum diverifikasi.');
+            $this->redirect('/report/track');
+        }
+
+        if ($report['status'] !== Constants::STATUS_CLOSED) {
+            Session::setFlash('error', 'Survei kepuasan hanya dapat diisi setelah perkara dinyatakan selesai.');
+            $this->redirect('/report/track?ticket=' . urlencode($report['ticket_number']));
+        }
+
+        $clamp = fn(int $v): int => max(1, min(5, $v));
+        $rating = $clamp((int)$this->post('rating_stars', 5));
+        $speed = $clamp((int)$this->post('speed_score', 5));
+        $fairness = $clamp((int)$this->post('fairness_score', 5));
+        $comments = $this->post('comments', '');
+
+        $this->feedbackModel->saveFeedback((int)$report['id'], $rating, $speed, $fairness, $comments);
+        Session::setFlash('success', 'Terima kasih! Ulasan Survei Kepuasan Masyarakat (SKM) Anda telah kami terima.');
+
+        $this->redirect('/report/track?ticket=' . urlencode($report['ticket_number']));
     }
 
     /**
@@ -305,8 +338,9 @@ class ReportController extends Controller
         }
 
         $report = $this->reportModel->findByTicket($ticket);
-        if (!$report) {
-            $this->redirect('/report/track');
+        if (!$report || !$this->canAccessReport($report)) {
+            Session::setFlash('error', 'Masukkan PIN Keamanan untuk membuka dokumen SP2HP.');
+            $this->redirect('/report/track?ticket=' . urlencode($ticket));
         }
 
         $timeline = $this->reportModel->getTimeline($report['id'], false);
@@ -316,5 +350,31 @@ class ReportController extends Controller
             'report'    => $report,
             'timeline'  => $timeline
         ], 'none'); // Print layout tanpa navbar
+    }
+
+    /**
+     * Cek hak akses ke laporan: personil dinas, akun pelapor pemilik laporan,
+     * atau sesi yang telah memverifikasi PIN tiket tersebut.
+     */
+    private function canAccessReport(array $report): bool
+    {
+        if (Auth::check()) {
+            if (Auth::role() !== Constants::ROLE_CITIZEN) {
+                return true;
+            }
+            if (!empty($report['reporter_id']) && (int)$report['reporter_id'] === Auth::id()) {
+                return true;
+            }
+        }
+
+        $granted = Session::get('report_access', []);
+        return !empty($granted[$report['ticket_number']]);
+    }
+
+    private function grantReportAccess(string $ticketNumber): void
+    {
+        $granted = Session::get('report_access', []);
+        $granted[$ticketNumber] = true;
+        Session::set('report_access', $granted);
     }
 }

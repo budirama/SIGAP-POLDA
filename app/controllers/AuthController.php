@@ -9,6 +9,7 @@ use App\Core\Controller;
 use App\Core\Auth;
 use App\Core\Session;
 use App\Models\User;
+use App\Config\Config;
 use App\Config\Constants;
 
 class AuthController extends Controller
@@ -67,6 +68,12 @@ class AuthController extends Controller
      */
     public function quickLogin(string $roleKey = ''): void
     {
+        // Hanya tersedia di lingkungan development
+        if (!Config::isDevelopment()) {
+            Session::setFlash('error', 'Login cepat uji coba tidak tersedia.');
+            $this->redirect('/auth/login');
+        }
+
         $roleMap = [
             'superadmin' => 'superadmin@sigap.polda.go.id',
             'kapolda'    => 'kapolda@sigap.polda.go.id',

@@ -356,8 +356,8 @@
               </div>
             <?php else: ?>
               <form action="<?= $baseUrl ?>/report/submitFeedback" method="POST" class="mt-4 space-y-4">
-                <input type="hidden" name="report_id" value="<?= $report['id'] ?>">
-                <input type="hidden" name="ticket_number" value="<?= $report['ticket_number'] ?>">
+                <input type="hidden" name="_csrf_token" value="<?= $csrfToken ?>">
+                <input type="hidden" name="ticket_number" value="<?= htmlspecialchars($report['ticket_number']) ?>">
 
                 <div>
                   <label class="block text-xs font-semibold text-slate-300 mb-1">Rating Kepuasan Pelayanan (1 - 5 Bintang):</label>

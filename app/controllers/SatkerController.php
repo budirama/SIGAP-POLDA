@@ -73,6 +73,28 @@ class SatkerController extends Controller
             $this->redirect('/satker');
         }
 
+        // Laporan harus berada di Satker pengguna dan dalam tahap disposisi/penugasan
+        $report = $this->reportModel->findById($reportId);
+        $isSuper = Auth::role() === Constants::ROLE_SUPERADMIN;
+        $reportSatkerId = (int)($report['current_satker_id'] ?? 0);
+
+        if (!$report || $reportSatkerId <= 0 || (!$isSuper && $reportSatkerId !== Auth::satkerId())) {
+            Session::setFlash('error', 'Laporan tidak ditemukan atau bukan disposisi untuk Satker Anda.');
+            $this->redirect('/satker');
+        }
+
+        if (!in_array($report['status'], [Constants::STATUS_DISPATCHED, Constants::STATUS_ASSIGNED], true)) {
+            Session::setFlash('error', 'Penugasan penyidik hanya untuk laporan yang telah didisposisikan.');
+            $this->redirect('/satker');
+        }
+
+        // Penyidik harus anggota aktif Satker pemilik laporan
+        $investigatorIds = array_map('intval', array_column($this->userModel->getInvestigatorsBySatker($reportSatkerId), 'id'));
+        if (!in_array($investigatorId, $investigatorIds, true)) {
+            Session::setFlash('error', 'Penyidik yang dipilih bukan personil Satker pemilik laporan.');
+            $this->redirect('/satker');
+        }
+
         $success = $this->reportModel->assignInvestigator($reportId, $investigatorId, Auth::id(), $sprintgas);
 
         if ($success) {

@@ -149,6 +149,16 @@
                       <span class="hidden lg:inline text-[11px]">Disposisi</span>
                     </button>
 
+                    <?php if (in_array($r['status'], ['SUBMITTED', 'VERIFIED_SPKT'], true)): ?>
+                      <!-- Tombol Tolak -->
+                      <button onclick="openRejectModal(<?= htmlspecialchars(json_encode($r)) ?>)"
+                              class="px-2.5 py-1.5 bg-rose-950/70 hover:bg-rose-900 text-rose-200 font-bold rounded-lg transition-colors flex items-center gap-1"
+                              title="Tolak Laporan">
+                        <i class="fas fa-ban text-xs"></i>
+                        <span class="hidden lg:inline text-[11px]">Tolak</span>
+                      </button>
+                    <?php endif; ?>
+
                     <!-- Tombol Cek Detail -->
                     <a href="<?= $baseUrl ?>/report/track?ticket=<?= urlencode($r['ticket_number']) ?>" target="_blank"
                        class="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition-colors"
@@ -230,7 +240,49 @@
   </div>
 </div>
 
+<!-- Modal Tolak Laporan -->
+<div id="modalReject" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="bg-[#0E1E38] border border-rose-500/40 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
+    <div class="flex items-center justify-between border-b border-slate-700 pb-3 mb-4">
+      <h3 class="text-base font-bold text-slate-100 flex items-center gap-2">
+        <i class="fas fa-ban text-rose-400"></i>
+        Tolak Laporan
+      </h3>
+      <button onclick="document.getElementById('modalReject').classList.add('hidden')" class="text-slate-400 hover:text-slate-200">
+        <i class="fas fa-xmark text-lg"></i>
+      </button>
+    </div>
+
+    <form action="<?= $baseUrl ?>/spkt/reject" method="POST" class="space-y-4" onsubmit="return confirm('Tolak laporan ini? Alasan penolakan akan terlihat oleh pelapor.');">
+      <input type="hidden" name="_csrf_token" value="<?= $csrfToken ?>">
+      <input type="hidden" name="report_id" id="reject_report_id">
+
+      <p class="text-xs text-slate-300 font-mono" id="reject_ticket_label"></p>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1" for="rejection_reason">Alasan Penolakan (terlihat oleh pelapor):</label>
+        <textarea name="rejection_reason" id="rejection_reason" rows="3" required
+                  placeholder="Contoh: Laporan tidak memenuhi unsur tindak pidana / terindikasi hoaks."
+                  class="w-full bg-[#070F1E] border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 outline-none focus:border-rose-500"></textarea>
+      </div>
+
+      <div class="flex justify-end gap-2">
+        <button type="button" onclick="document.getElementById('modalReject').classList.add('hidden')"
+                class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold">Batal</button>
+        <button type="submit"
+                class="px-4 py-2 bg-rose-700 hover:bg-rose-600 text-white rounded-xl text-xs font-bold">Tolak Laporan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <script>
+  function openRejectModal(report) {
+    document.getElementById('reject_report_id').value = report.id;
+    document.getElementById('reject_ticket_label').innerText = report.ticket_number + ' - ' + report.title;
+    document.getElementById('modalReject').classList.remove('hidden');
+  }
+
   function openDispatchModal(report) {
     document.getElementById('dispatch_report_id').value = report.id;
     document.getElementById('dispatch_ticket_label').innerText = report.ticket_number + ' - ' + report.title;

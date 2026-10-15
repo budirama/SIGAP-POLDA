@@ -54,6 +54,7 @@
         </div>
 
         <!-- Quick Credentials Switcher (Developer & Review Mode) -->
+        <?php if (\App\Config\Config::isDevelopment()): ?>
         <div class="bg-[#0E1E38]/90 border border-amber-500/25 rounded-2xl p-4 text-left shadow-lg">
           <div class="flex items-center justify-between mb-3 border-b border-slate-700/60 pb-2">
             <span class="text-xs font-bold text-amber-400 flex items-center gap-1.5">
@@ -82,6 +83,7 @@
             </a>
           </div>
         </div>
+        <?php endif; ?>
       </div>
 
       <!-- Right Column: Formal Login Form -->
