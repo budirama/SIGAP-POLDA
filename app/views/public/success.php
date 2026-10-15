@@ -14,11 +14,11 @@
     </h1>
     
     <p class="text-slate-300 text-xs sm:text-sm mt-2 max-w-md mx-auto leading-relaxed">
-      Laporan telah masuk ke antrean verifikasi petugas SPKT Command Center Polda. Harap simpan data kredensial di bawah ini untuk melacak perkembangan perkara.
+      Laporan telah masuk ke antrean verifikasi petugas SPKT Command Center Polri. Harap simpan data kredensial di bawah ini untuk melacak perkembangan perkara.
     </p>
 
     <!-- Ticket & PIN Credentials Box -->
-    <div class="my-6 p-6 rounded-2xl bg-[#070F1E] border border-amber-500/30 text-left space-y-4 shadow-inner">
+    <div class="my-6 p-6 rounded-2xl bg-[#0C0A08] border border-amber-500/30 text-left space-y-4 shadow-inner">
       
       <div>
         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Nomor Registrasi Laporan (Nomor Tiket):</span>

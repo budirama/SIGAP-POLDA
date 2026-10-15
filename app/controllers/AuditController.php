@@ -1,6 +1,6 @@
 <?php
 /**
- * SIGAP-POLDA: Audit Controller (Jejak Audit untuk Superadmin & Pengawas Internal)
+ * SIGAP-POLRI: Audit Controller (Jejak Audit untuk Superadmin & Pengawas Internal)
  */
 
 namespace App\Controllers;

@@ -1,6 +1,6 @@
 <?php
 /**
- * SIGAP-POLDA: Satker Controller (Inbox Disposisi & Penugasan Kanit)
+ * SIGAP-POLRI: Satker Controller (Inbox Disposisi & Penugasan Kanit)
  */
 
 namespace App\Controllers;
@@ -32,7 +32,7 @@ class SatkerController extends Controller
     }
 
     /**
-     * Inbox Laporan Disposisi Tingkat Satker / Polres
+     * Inbox Laporan Disposisi Tingkat Satker / Polda
      */
     public function index(): void
     {
@@ -121,7 +121,7 @@ class SatkerController extends Controller
     }
 
     /**
-     * Tanggapi Instruksi Atensi Kapolda: terima (acknowledge) atau selesaikan (resolve)
+     * Tanggapi Instruksi Atensi Kapolri: terima (acknowledge) atau selesaikan (resolve)
      */
     public function directive(): void
     {
@@ -155,15 +155,15 @@ class SatkerController extends Controller
             $this->redirect('/satker');
         }
         if ($newStatus === 'RESOLVED' && $notes === '') {
-            Session::setFlash('error', 'Laporan tanggapan wajib diisi untuk menyelesaikan instruksi Kapolda.');
+            Session::setFlash('error', 'Laporan tanggapan wajib diisi untuk menyelesaikan instruksi Kapolri.');
             $this->redirect('/satker');
         }
 
         if ($directiveModel->respond((int)$directive['id'], Auth::id(), $newStatus, $notes)) {
             Audit::log('directive.respond', (int)$directive['report_id'], "Instruksi #{$directive['id']} → {$newStatus}");
             Session::setFlash('success', $newStatus === 'ACKNOWLEDGED'
-                ? 'Instruksi Atensi Kapolda telah diterima.'
-                : 'Instruksi Atensi Kapolda dilaporkan selesai.');
+                ? 'Instruksi Atensi Kapolri telah diterima.'
+                : 'Instruksi Atensi Kapolri dilaporkan selesai.');
         } else {
             Session::setFlash('error', 'Instruksi sudah ditanggapi sebelumnya.');
         }

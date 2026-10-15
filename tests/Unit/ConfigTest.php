@@ -16,9 +16,9 @@ return [
     },
 
     'parseEnv mempertahankan nilai berkutip apa adanya' => function () {
-        $env = Config::parseEnv("DB_PASS=\"rahasia # bukan komentar\"\nAPP_NAME='SIGAP POLDA'\nTOKEN=abc#def");
+        $env = Config::parseEnv("DB_PASS=\"rahasia # bukan komentar\"\nAPP_NAME='SIGAP POLRI'\nTOKEN=abc#def");
         T::same('rahasia # bukan komentar', $env['DB_PASS']);
-        T::same('SIGAP POLDA', $env['APP_NAME']);
+        T::same('SIGAP POLRI', $env['APP_NAME']);
         T::same('abc#def', $env['TOKEN'], '"#" tanpa spasi sebelumnya bagian dari nilai');
     },
 

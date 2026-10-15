@@ -34,7 +34,7 @@ return [
     },
 
     'disposisi ulang sebelum penyidikan mencabut penyidik lama' => function () use ($dispatch) {
-        $penyidikRian = (int)Db::value("SELECT id FROM users WHERE email = 'penyidik.rian@sigap.polda.go.id'");
+        $penyidikRian = (int)Db::value("SELECT id FROM users WHERE email = 'penyidik.rian@sigap.polri.go.id'");
         [, $ticket] = Db::createReport(['title' => Db::PREFIX . 'disposisi ulang']);
         $id = (int)Db::value("SELECT id FROM reports WHERE ticket_number = ?", [$ticket]);
 
@@ -56,11 +56,11 @@ return [
         T::same(302, $penyidik->get("/investigator/detail/{$id}")->status, 'penyidik lama kehilangan akses');
     },
 
-    'Itwasda hanya dapat melihat meja SPKT, tidak dapat mendisposisi atau menolak' => function () use ($dispatch) {
-        [, $ticket] = Db::createReport(['title' => Db::PREFIX . 'itwasda']);
+    'Itwasum hanya dapat melihat meja SPKT, tidak dapat mendisposisi atau menolak' => function () use ($dispatch) {
+        [, $ticket] = Db::createReport(['title' => Db::PREFIX . 'itwasum']);
         $id = (int)Db::value("SELECT id FROM reports WHERE ticket_number = ?", [$ticket]);
 
-        $itwasda = Http::as('itwasda');
+        $itwasda = Http::as('itwasum');
         $page = $itwasda->get('/spkt');
         T::same(200, $page->status);
         T::contains('Mode pengawasan', $page->body);

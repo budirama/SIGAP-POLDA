@@ -1,6 +1,6 @@
 <?php
 /**
- * SIGAP-POLDA: Satker Model
+ * SIGAP-POLRI: Satker Model
  */
 
 namespace App\Models;
@@ -19,9 +19,9 @@ class Satker extends Model
         return $this->fetchAll("SELECT * FROM satkers WHERE type = 'DIREKTORAT' ORDER BY name ASC");
     }
 
-    public function getPolres(): array
+    public function getPoldas(): array
     {
-        return $this->fetchAll("SELECT * FROM satkers WHERE type = 'POLRES' ORDER BY name ASC");
+        return $this->fetchAll("SELECT * FROM satkers WHERE type = 'POLDA' ORDER BY name ASC");
     }
 
     public function findById(int $id): ?array

@@ -29,11 +29,11 @@ $btn = 'min-w-[2.25rem] px-3 py-2 rounded-lg border text-center transition-color
   </p>
   <div class="flex flex-wrap items-center gap-1.5">
     <?php if ($current > 1): ?>
-      <a href="<?= $pageUrl($current - 1) ?>" class="<?= $btn ?> border-slate-700 text-slate-300 hover:bg-[#0E1E38]" aria-label="Halaman sebelumnya"><i class="fas fa-chevron-left"></i></a>
+      <a href="<?= $pageUrl($current - 1) ?>" class="<?= $btn ?> border-slate-700 text-slate-300 hover:bg-[#1B1610]" aria-label="Halaman sebelumnya"><i class="fas fa-chevron-left"></i></a>
     <?php endif; ?>
 
     <?php if ($window[0] > 1): ?>
-      <a href="<?= $pageUrl(1) ?>" class="<?= $btn ?> border-slate-700 text-slate-300 hover:bg-[#0E1E38]">1</a>
+      <a href="<?= $pageUrl(1) ?>" class="<?= $btn ?> border-slate-700 text-slate-300 hover:bg-[#1B1610]">1</a>
       <?php if ($window[0] > 2): ?><span class="px-1 text-slate-500">…</span><?php endif; ?>
     <?php endif; ?>
 
@@ -41,17 +41,17 @@ $btn = 'min-w-[2.25rem] px-3 py-2 rounded-lg border text-center transition-color
       <?php if ($p === $current): ?>
         <span class="<?= $btn ?> border-amber-500/60 bg-amber-500/15 text-amber-300 font-bold" aria-current="page"><?= $p ?></span>
       <?php else: ?>
-        <a href="<?= $pageUrl($p) ?>" class="<?= $btn ?> border-slate-700 text-slate-300 hover:bg-[#0E1E38]"><?= $p ?></a>
+        <a href="<?= $pageUrl($p) ?>" class="<?= $btn ?> border-slate-700 text-slate-300 hover:bg-[#1B1610]"><?= $p ?></a>
       <?php endif; ?>
     <?php endforeach; ?>
 
     <?php if (end($window) < $last): ?>
       <?php if (end($window) < $last - 1): ?><span class="px-1 text-slate-500">…</span><?php endif; ?>
-      <a href="<?= $pageUrl($last) ?>" class="<?= $btn ?> border-slate-700 text-slate-300 hover:bg-[#0E1E38]"><?= $last ?></a>
+      <a href="<?= $pageUrl($last) ?>" class="<?= $btn ?> border-slate-700 text-slate-300 hover:bg-[#1B1610]"><?= $last ?></a>
     <?php endif; ?>
 
     <?php if ($current < $last): ?>
-      <a href="<?= $pageUrl($current + 1) ?>" class="<?= $btn ?> border-slate-700 text-slate-300 hover:bg-[#0E1E38]" aria-label="Halaman berikutnya"><i class="fas fa-chevron-right"></i></a>
+      <a href="<?= $pageUrl($current + 1) ?>" class="<?= $btn ?> border-slate-700 text-slate-300 hover:bg-[#1B1610]" aria-label="Halaman berikutnya"><i class="fas fa-chevron-right"></i></a>
     <?php endif; ?>
   </div>
 </nav>

@@ -1,7 +1,7 @@
 <div class="space-y-6">
   
   <!-- Page Header -->
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 polri-glass-card p-6 rounded-2xl border border-[#1E355B]">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 polri-glass-card p-6 rounded-2xl border border-[#3B2F1C]">
     <div>
       <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-950/80 border border-indigo-700/60 text-indigo-300 text-xs font-bold mb-2">
         <i class="fas fa-inbox text-amber-400"></i> Satuan Kerja Operasional
@@ -10,7 +10,7 @@
         Inbox Disposisi & Manajemen Kasus Satker
       </h2>
       <p class="text-xs text-slate-400 mt-1">
-        Daftar perkara yang didisposisikan oleh SPKT Polda. Terbitkan Surat Perintah Penugasan (Sprintgas) ke Penyidik Pelaksana.
+        Daftar perkara yang didisposisikan oleh SPKT Polri. Terbitkan Surat Perintah Penugasan (Sprintgas) ke Penyidik Pelaksana.
       </p>
     </div>
 
@@ -21,15 +21,15 @@
     </div>
   </div>
 
-  <!-- Instruksi Atensi Kapolda yang belum selesai -->
+  <!-- Instruksi Atensi Kapolri yang belum selesai -->
   <?php if (!empty($directives)): ?>
   <div class="polri-glass-card rounded-2xl p-5 border border-red-800/70 bg-red-950/10 space-y-3">
     <h3 class="text-sm font-black text-red-300 flex items-center gap-2">
       <img src="<?= $baseUrl ?>/assets/img/badge-kapolda.svg" alt="" class="w-5 h-5">
-      Instruksi Atensi Kapolda (<?= count($directives) ?>)
+      Instruksi Atensi Kapolri (<?= count($directives) ?>)
     </h3>
     <?php foreach ($directives as $d): ?>
-      <div class="p-4 rounded-xl bg-[#070F1E] border border-slate-800 space-y-2">
+      <div class="p-4 rounded-xl bg-[#0C0A08] border border-slate-800 space-y-2">
         <div class="flex flex-wrap items-center justify-between gap-2 text-[11px]">
           <span class="font-mono font-bold text-amber-400"><?= htmlspecialchars($d['ticket_number']) ?> · <?= htmlspecialchars($d['report_title']) ?></span>
           <span class="px-2 py-0.5 rounded font-bold border <?= $d['status'] === 'PENDING' ? 'bg-red-950 text-red-300 border-red-800' : 'bg-amber-950 text-amber-300 border-amber-700' ?>">
@@ -44,8 +44,8 @@
         <form action="<?= $baseUrl ?>/satker/directive" method="POST" class="flex flex-col sm:flex-row gap-2">
           <input type="hidden" name="_csrf_token" value="<?= $csrfToken ?>">
           <input type="hidden" name="directive_id" value="<?= (int)$d['id'] ?>">
-          <input type="text" name="response_notes" maxlength="1000" placeholder="Laporan tanggapan kepada Kapolda"
-                 class="flex-1 bg-[#0A192F] border border-slate-700 rounded-xl p-2 text-xs text-slate-100 outline-none focus:border-amber-500">
+          <input type="text" name="response_notes" maxlength="1000" placeholder="Laporan tanggapan kepada Kapolri"
+                 class="flex-1 bg-[#14100C] border border-slate-700 rounded-xl p-2 text-xs text-slate-100 outline-none focus:border-amber-500">
           <?php if ($d['status'] === 'PENDING'): ?>
             <button type="submit" name="action" value="acknowledge" class="px-3 py-2 bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold rounded-xl text-xs">Terima</button>
           <?php endif; ?>
@@ -60,7 +60,7 @@
   <div class="polri-glass-card rounded-2xl border border-slate-800 overflow-hidden shadow-2xl">
     <div class="overflow-x-auto">
       <table class="w-full text-left text-xs">
-        <thead class="bg-[#0A192F] text-slate-400 border-b border-slate-800 uppercase font-semibold text-[10px] tracking-wider">
+        <thead class="bg-[#14100C] text-slate-400 border-b border-slate-800 uppercase font-semibold text-[10px] tracking-wider">
           <tr>
             <th class="p-4">No. Tiket</th>
             <th class="p-4">Perkara & Judul</th>
@@ -85,7 +85,7 @@
                 <td class="p-4">
                   <span class="font-mono font-bold text-amber-400"><?= htmlspecialchars($r['ticket_number']) ?></span>
                   <?php if ($r['is_kapolda_attention']): ?>
-                    <span class="block text-[9px] font-black text-red-400 animate-pulse mt-0.5">★ ATENSI KAPOLDA</span>
+                    <span class="block text-[9px] font-black text-red-400 animate-pulse mt-0.5">★ ATENSI KAPOLRI</span>
                   <?php endif; ?>
                 </td>
 
@@ -154,7 +154,7 @@
 
 <!-- Modal Penunjukan Penyidik (Sprintgas) -->
 <div id="modalAssign" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-  <div class="bg-[#0E1E38] border border-amber-500/40 rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
+  <div class="bg-[#1B1610] border border-amber-500/40 rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
     <div class="flex items-center justify-between border-b border-slate-700 pb-3 mb-4">
       <h3 class="text-base font-bold text-slate-100 flex items-center gap-2">
         <i class="fas fa-id-card-clip text-amber-400"></i>
@@ -177,13 +177,13 @@
       <div>
         <label class="block text-xs font-semibold text-slate-300 mb-1">Nomor Surat Perintah Tugas (Sprintgas):</label>
         <input type="text" name="sprintgas_number" id="assign_sprintgas_number" maxlength="100" required
-               class="w-full bg-[#070F1E] border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 font-mono outline-none focus:border-amber-500">
+               class="w-full bg-[#0C0A08] border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 font-mono outline-none focus:border-amber-500">
       </div>
 
       <div>
         <label class="block text-xs font-semibold text-slate-300 mb-1">Pilih Personel Penyidik Pelaksana:</label>
         <select name="investigator_id" id="assign_investigator_id" required
-                class="w-full bg-[#070F1E] border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 outline-none focus:border-amber-500">
+                class="w-full bg-[#0C0A08] border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 outline-none focus:border-amber-500">
           <option value="">-- Pilih Anggota Penyidik --</option>
           <?php foreach ($investigators as $inv): ?>
             <option value="<?= (int)$inv['id'] ?>" data-satker="<?= (int)$inv['satker_id'] ?>">

@@ -39,14 +39,14 @@ return [
     },
 
     'nomor Sprintgas & SP2HP default bersufiks kode Satker' => function () {
-        // Laporan seeder #1 ditangani Ditreskrimum (DIT-KRIMUM) oleh penyidik Rian
+        // Laporan seeder #1 ditangani Dittipidum Bareskrim (DITTIPIDUM) oleh penyidik Rian
         $page = Http::as('penyidik')->get('/investigator/detail/1')->body;
-        T::true((bool)preg_match('#value="SP2HP/\d{3}/\d{2}/\d{4}/DIT-KRIMUM"#', $page), 'SP2HP bersufiks kode Satker');
+        T::true((bool)preg_match('#value="SP2HP/\d{3}/\d{2}/\d{4}/DITTIPIDUM"#', $page), 'SP2HP bersufiks kode Satker');
         T::notContains('/Ditreskrimum"', $page);
 
         T::same('SP.Gas', explode('/', \App\Config\Constants::documentNumber('SP.Gas', 'POLRES-JAKSEL'))[0]);
         T::true(str_ends_with(\App\Config\Constants::documentNumber('SP.Gas', 'POLRES-JAKSEL'), '/POLRES-JAKSEL'), 'sufiks Satker');
-        T::true(str_ends_with(\App\Config\Constants::documentNumber('SP2HP', null), '/POLDA'), 'tanpa Satker jatuh ke POLDA');
+        T::true(str_ends_with(\App\Config\Constants::documentNumber('SP2HP', null), '/POLRI'), 'tanpa Satker jatuh ke POLRI');
     },
 
     'pesan dengan lampiran ditolak tidak tersimpan & teks dikembalikan' => function () use ($fakePdf) {
@@ -91,8 +91,8 @@ return [
         T::same(null, Db::value("SELECT reporter_id FROM reports WHERE id = 2"), 'whistleblower tidak ditautkan ke akun warga');
         T::same(0, (int)Db::value(
             "SELECT COUNT(*) FROM reports r JOIN users u ON u.id = r.assigned_investigator_id
-             WHERE r.id <= 3 AND u.satker_id <> r.current_satker_id"
+             WHERE r.id <= 4 AND u.satker_id <> r.current_satker_id"
         ), 'penyidik berasal dari Satker penanganan');
-        T::same(0, (int)Db::value("SELECT COUNT(*) FROM reports WHERE id <= 3 AND status = 'CLOSED' AND closed_at IS NULL"), 'kasus selesai punya closed_at');
+        T::same(0, (int)Db::value("SELECT COUNT(*) FROM reports WHERE id <= 4 AND status = 'CLOSED' AND closed_at IS NULL"), 'kasus selesai punya closed_at');
     },
 ];

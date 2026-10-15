@@ -28,13 +28,13 @@ return [
     'atensi tidak dapat diberikan pada perkara selesai' => function () use ($attention) {
         $closed = (int)Db::value("SELECT id FROM reports WHERE status = 'CLOSED' LIMIT 1");
         $before = (int)Db::value("SELECT COUNT(*) FROM kapolda_directives WHERE report_id = ?", [$closed]);
-        T::contains('hanya dapat diberikan pada perkara yang masih aktif', $attention(Http::as('kapolda'), $closed));
+        T::contains('hanya dapat diberikan pada perkara yang masih aktif', $attention(Http::as('kapolri'), $closed));
         T::same($before, (int)Db::value("SELECT COUNT(*) FROM kapolda_directives WHERE report_id = ?", [$closed]));
     },
 
     'atensi mempertahankan EMERGENCY & tidak dobel selama instruksi terbuka' => function () use ($attention, $newReport) {
         $id = $newReport('atensi darurat', ['urgency_level' => 'EMERGENCY']);
-        $kapolda = Http::as('kapolda');
+        $kapolda = Http::as('kapolri');
         T::contains('berhasil diterbitkan', $attention($kapolda, $id));
         T::same('EMERGENCY', Db::value("SELECT urgency_level FROM reports WHERE id = ?", [$id]));
         T::contains('belum diselesaikan', $attention($kapolda, $id), 'atensi kedua');
@@ -43,16 +43,16 @@ return [
 
     'target instruksi mengikuti disposisi (tanpa Satker default)' => function () use ($attention, $newReport, $dispatch) {
         $id = $newReport('atensi sebelum disposisi');
-        $attention(Http::as('kapolda'), $id);
+        $attention(Http::as('kapolri'), $id);
         T::same(null, Db::value("SELECT target_satker_id FROM kapolda_directives WHERE report_id = ?", [$id]), 'belum didisposisikan');
         $dispatch($id, 3);
         T::same(3, (int)Db::value("SELECT target_satker_id FROM kapolda_directives WHERE report_id = ?", [$id]), 'setelah disposisi');
     },
 
-    'Satker menerima & menyelesaikan instruksi, terlihat di dashboard Kapolda' => function () use ($attention, $newReport, $dispatch, $respond) {
+    'Satker menerima & menyelesaikan instruksi, terlihat di dashboard Kapolri' => function () use ($attention, $newReport, $dispatch, $respond) {
         $id = $newReport('atensi ditanggapi');
         $dispatch($id, 2);
-        $attention(Http::as('kapolda'), $id, 'Tuntaskan dalam 1x24 jam (uji)');
+        $attention(Http::as('kapolri'), $id, 'Tuntaskan dalam 1x24 jam (uji)');
         $directiveId = (int)Db::value("SELECT id FROM kapolda_directives WHERE report_id = ?", [$id]);
 
         $kanit = Http::as('kanit');
@@ -63,14 +63,14 @@ return [
 
         $row = Db::row("SELECT status, response_notes FROM kapolda_directives WHERE id = ?", [$directiveId]);
         T::same(['RESOLVED', 'Pelaku diamankan (uji)'], [$row['status'], $row['response_notes']]);
-        T::same(2, (int)Db::value("SELECT COUNT(*) FROM report_timeline WHERE report_id = ? AND title = 'Tanggapan Atensi Kapolda'", [$id]), 'jejak timeline');
-        T::contains('Pelaku diamankan (uji)', Http::as('kapolda')->get('/executive')->body, 'tanggapan terlihat Kapolda');
+        T::same(2, (int)Db::value("SELECT COUNT(*) FROM report_timeline WHERE report_id = ? AND title = 'Tanggapan Atensi Kapolri'", [$id]), 'jejak timeline');
+        T::contains('Pelaku diamankan (uji)', Http::as('kapolri')->get('/executive')->body, 'tanggapan terlihat Kapolri');
     },
 
     'Satker lain tidak dapat menanggapi instruksi' => function () use ($attention, $newReport, $dispatch, $respond) {
         $id = $newReport('atensi satker lain');
         $dispatch($id, 3);
-        $attention(Http::as('kapolda'), $id);
+        $attention(Http::as('kapolri'), $id);
         $directiveId = (int)Db::value("SELECT id FROM kapolda_directives WHERE report_id = ?", [$id]);
         T::contains('bukan untuk Satker Anda', $respond(Http::as('kanit'), $directiveId, 'acknowledge'));
         T::same('PENDING', Db::value("SELECT status FROM kapolda_directives WHERE id = ?", [$directiveId]));
@@ -79,8 +79,8 @@ return [
     'penutupan perkara menyelesaikan instruksi yang masih terbuka' => function () use ($attention, $newReport, $dispatch) {
         $id = $newReport('atensi ditutup');
         $dispatch($id, 2);
-        $attention(Http::as('kapolda'), $id);
-        $penyidikRian = (int)Db::value("SELECT id FROM users WHERE email = 'penyidik.rian@sigap.polda.go.id'");
+        $attention(Http::as('kapolri'), $id);
+        $penyidikRian = (int)Db::value("SELECT id FROM users WHERE email = 'penyidik.rian@sigap.polri.go.id'");
         $kanit = Http::as('kanit');
         $kanit->post('/satker/assign', ['_csrf_token' => $kanit->get('/satker')->csrf(), 'report_id' => $id, 'investigator_id' => $penyidikRian]);
         $penyidik = Http::as('penyidik');

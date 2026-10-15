@@ -1,6 +1,6 @@
 <?php
 /**
- * SIGAP-POLDA: Social Media Controller (Omnichannel Ingestion & Triage)
+ * SIGAP-POLRI: Social Media Controller (Omnichannel Ingestion & Triage)
  */
 
 namespace App\Controllers;
@@ -77,7 +77,7 @@ class SocialMediaController extends Controller
             Session::setFlash('error', 'Kategori perkara tidak valid.');
             $this->redirect('/social');
         }
-        $location = $this->post('incident_location', 'Wilayah Hukum Polda Metro Jaya');
+        $location = $this->post('incident_location', 'Wilayah Hukum Polri');
         $title = mb_substr((string)$this->post('title', "Pengaduan Medsos {$feed['platform']}: @" . $feed['author_username']), 0, 200);
         $description = $feed['post_content'];
 
@@ -104,7 +104,7 @@ class SocialMediaController extends Controller
             Audit::log('social.convert', null, "Postingan #{$feed['id']} → {$ticketNumber}");
             Session::setFlash('success', "Berhasil! Postingan @{$feed['author_username']} telah dikonversi menjadi Tiket Resmi: {$ticketNumber}");
         } catch (\Throwable $e) {
-            error_log('[SIGAP-POLDA] Gagal konversi postingan medsos: ' . $e);
+            error_log('[SIGAP-POLRI] Gagal konversi postingan medsos: ' . $e);
             Session::setFlash('error', 'Gagal mengonversi postingan menjadi tiket. Silakan coba lagi.');
         }
 

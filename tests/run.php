@@ -1,6 +1,6 @@
 <?php
 /**
- * SIGAP-POLDA: Test Runner (tanpa dependensi)
+ * SIGAP-POLRI: Test Runner (tanpa dependensi)
  *
  * Penggunaan:
  *   php tests/run.php              # semua test

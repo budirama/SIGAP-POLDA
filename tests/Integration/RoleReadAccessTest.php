@@ -9,7 +9,7 @@ $ticket1 = (string)Db::value("SELECT ticket_number FROM reports WHERE id = ?", [
 
 return [
     'pimpinan & pengawas membuka workspace kasus dalam mode baca' => function () use ($case1) {
-        foreach (['kapolda', 'kasatker', 'itwasda'] as $role) {
+        foreach (['kapolri', 'kasatker', 'itwasum'] as $role) {
             $res = Http::as($role)->get("/investigator/detail/{$case1}");
             T::same(200, $res->status, $role);
             T::contains('Mode baca', $res->body, $role);
@@ -29,7 +29,7 @@ return [
 
     'pembaca tidak dapat menjalankan aksi penyidikan' => function () use ($case1) {
         $before = (int)Db::value("SELECT COUNT(*) FROM report_timeline WHERE report_id = ?", [$case1]);
-        $kapolda = Http::as('kapolda');
+        $kapolda = Http::as('kapolri');
         $kapolda->post('/investigator/updateSp2hp', ['_csrf_token' => $kapolda->get("/executive")->csrf(), 'report_id' => $case1, 'public_notes' => 'x', 'status' => 'INVESTIGATING']);
         T::contains('bukan dalam kewenangan Anda', $kapolda->flash());
         T::same($before, (int)Db::value("SELECT COUNT(*) FROM report_timeline WHERE report_id = ?", [$case1]));
@@ -41,14 +41,14 @@ return [
         T::same(302, Http::as('kasatker')->get("/investigator/detail/{$other}")->status, 'Kasatker Satker lain');
     },
 
-    'navigasi Kapolda tidak menautkan halaman yang tidak dapat diaksesnya' => function () {
-        $html = Http::as('kapolda')->get('/executive')->body;
+    'navigasi Kapolri tidak menautkan halaman yang tidak dapat diaksesnya' => function () {
+        $html = Http::as('kapolri')->get('/executive')->body;
         T::notContains('/spkt"', $html, 'Meja SPKT');
         T::notContains('/social"', $html, 'Radar Medsos');
     },
 
     'Kanit melihat seluruh kasus Satker-nya, bukan hanya yang ditugaskan kepadanya' => function () use ($ticket1) {
-        $kanitId = (int)Db::value("SELECT id FROM users WHERE email = 'kanit.krimum@sigap.polda.go.id'");
+        $kanitId = (int)Db::value("SELECT id FROM users WHERE email = 'kanit.tipidum@sigap.polri.go.id'");
         T::true((int)Db::value("SELECT assigned_investigator_id FROM reports WHERE ticket_number = ?", [$ticket1]) !== $kanitId, 'prasyarat: kasus milik penyidik lain');
         T::contains($ticket1, Http::as('kanit')->get('/investigator')->body);
     },

@@ -1,6 +1,6 @@
 <?php
 /**
- * SIGAP-POLDA: Front Controller & URL Routing Engine
+ * SIGAP-POLRI: Front Controller & URL Routing Engine
  */
 
 namespace App\Core;
@@ -160,7 +160,7 @@ class App
         $message = \App\Config\Config::isDevelopment()
             ? htmlspecialchars($message, ENT_QUOTES, 'UTF-8')
             : 'Halaman yang Anda cari tidak tersedia.';
-        echo "<!DOCTYPE html><html lang='id'><head><meta charset='utf-8'><title>404 - SIGAP POLDA</title>
+        echo "<!DOCTYPE html><html lang='id'><head><meta charset='utf-8'><title>404 - SIGAP POLRI</title>
               <script src='https://cdn.tailwindcss.com'></script></head>
               <body class='bg-[#070F1E] text-slate-200 flex items-center justify-center min-h-screen p-4'>
                 <div class='max-w-md w-full bg-[#0E1E38] p-8 rounded-2xl border border-amber-600/30 text-center shadow-2xl'>

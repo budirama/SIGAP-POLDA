@@ -5,7 +5,7 @@ use Tests\T;
 
 return [
     'nomor tiket berurutan melanjutkan nomor tertinggi yang ada' => function () {
-        $prefix = 'LP-POLDA-' . date('Ym') . '-';
+        $prefix = 'LP-POLRI-' . date('Ym') . '-';
         $max = (int)Db::value("SELECT COALESCE(MAX(CAST(SUBSTRING(ticket_number, ?) AS UNSIGNED)), 0) FROM reports WHERE ticket_number LIKE ?", [strlen($prefix) + 1, $prefix . '%']);
 
         [, $first] = Db::createReport(['title' => Db::PREFIX . 'tiket 1']);

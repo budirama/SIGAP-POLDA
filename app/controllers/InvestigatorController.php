@@ -1,6 +1,6 @@
 <?php
 /**
- * SIGAP-POLDA: Investigator Controller (Workspace Penyelidikan & Penerbitan SP2HP)
+ * SIGAP-POLRI: Investigator Controller (Workspace Penyelidikan & Penerbitan SP2HP)
  */
 
 namespace App\Controllers;

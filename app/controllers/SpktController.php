@@ -1,6 +1,6 @@
 <?php
 /**
- * SIGAP-POLDA: Spkt Controller (Sentra Pelayanan Kepolisian Terpadu)
+ * SIGAP-POLRI: Spkt Controller (Sentra Pelayanan Kepolisian Terpadu)
  */
 
 namespace App\Controllers;
@@ -18,7 +18,7 @@ class SpktController extends Controller
     private Report $reportModel;
     private Satker $satkerModel;
 
-    // Itwasda (pengawas internal) dapat melihat meja triage, tetapi hanya role ini yang dapat bertindak
+    // Itwasum (pengawas internal) dapat melihat meja triage, tetapi hanya role ini yang dapat bertindak
     private const ACTION_ROLES = [
         Constants::ROLE_SPKT_OPERATOR,
         Constants::ROLE_SUPERADMIN,
@@ -52,7 +52,7 @@ class SpktController extends Controller
         $satkers = $this->satkerModel->getAll();
 
         $this->render('backoffice/spkt_triage', [
-            'pageTitle'    => 'Meja Triage SPKT & Command Center Polda',
+            'pageTitle'    => 'Meja Triage SPKT & Command Center Polri',
             'reports'      => $pager['items'],
             'pager'        => $pager,
             'satkers'      => $satkers,
@@ -63,7 +63,7 @@ class SpktController extends Controller
     }
 
     /**
-     * Proses Disposisi Laporan ke Satuan Kerja (Ditreskrimum/Polres, dll)
+     * Proses Disposisi Laporan ke Satuan Kerja (Bareskrim, Korlantas, Polda jajaran, dll)
      */
     public function dispatch(): void
     {

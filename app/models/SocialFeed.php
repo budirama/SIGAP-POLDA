@@ -1,6 +1,6 @@
 <?php
 /**
- * SIGAP-POLDA: SocialFeed Model (Omnichannel Medsos Ingestion)
+ * SIGAP-POLRI: SocialFeed Model (Omnichannel Medsos Ingestion)
  */
 
 namespace App\Models;

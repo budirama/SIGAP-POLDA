@@ -1,6 +1,6 @@
 <?php
 /**
- * SIGAP-POLDA: Feedback Model (Survei Kepuasan Masyarakat / SKM)
+ * SIGAP-POLRI: Feedback Model (Survei Kepuasan Masyarakat / SKM)
  */
 
 namespace App\Models;

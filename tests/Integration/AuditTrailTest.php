@@ -13,17 +13,17 @@ return [
         Db::exec("DELETE FROM throttle_events");
         $client = new Http(TEST_BASE_URL);
         $login = fn(string $password) => $client->post('/auth/authenticate', [
-            '_csrf_token' => $client->get('/auth/login')->csrf(), 'identifier' => 'spkt@sigap.polda.go.id', 'password' => $password,
+            '_csrf_token' => $client->get('/auth/login')->csrf(), 'identifier' => 'spkt@sigap.polri.go.id', 'password' => $password,
         ]);
 
         $login('salah-audit');
         $failed = $lastAudit('auth.login_failed');
         T::true($failed !== null && $failed['user_id'] === null, 'login gagal tanpa user');
-        T::contains('spkt@sigap.polda.go.id', (string)$failed['detail']);
+        T::contains('spkt@sigap.polri.go.id', (string)$failed['detail']);
 
         $login('password123');
         $ok = $lastAudit('auth.login');
-        T::same((int)Db::value("SELECT id FROM users WHERE email = 'spkt@sigap.polda.go.id'"), (int)$ok['user_id']);
+        T::same((int)Db::value("SELECT id FROM users WHERE email = 'spkt@sigap.polri.go.id'"), (int)$ok['user_id']);
         T::same('ROLE_SPKT_OPERATOR', $ok['user_role']);
         Db::exec("DELETE FROM throttle_events");
     },
@@ -41,7 +41,7 @@ return [
         $kanit->get("/investigator/detail/{$id}");
         $view = $lastAudit('case.view');
         T::same($id, (int)$view['report_id']);
-        T::same((int)Db::value("SELECT id FROM users WHERE email = 'kanit.krimum@sigap.polda.go.id'"), (int)$view['user_id']);
+        T::same((int)Db::value("SELECT id FROM users WHERE email = 'kanit.tipidum@sigap.polri.go.id'"), (int)$view['user_id']);
         T::contains('whistleblower', (string)$view['detail']);
 
         $attId = (int)Db::value("SELECT id FROM report_attachments WHERE report_id = ?", [$id]);
@@ -49,15 +49,15 @@ return [
         T::same($id, (int)$lastAudit('file.download')['report_id'], 'unduhan tercatat');
     },
 
-    'halaman audit hanya untuk Superadmin & Itwasda, dengan filter' => function () {
-        foreach (['kapolda', 'spkt', 'kanit', 'penyidik'] as $role) {
+    'halaman audit hanya untuk Superadmin & Itwasum, dengan filter' => function () {
+        foreach (['kapolri', 'spkt', 'kanit', 'penyidik'] as $role) {
             T::same(302, Http::as($role)->get('/audit')->status, $role);
         }
-        $itwasda = Http::as('itwasda');
+        $itwasda = Http::as('itwasum');
         $html = $itwasda->get('/audit?action=auth.quick_login')->body;
         T::contains('Jejak Audit', $html);
         T::contains('auth.quick_login', $html);
         T::notContains('whitespace-nowrap">case.view</td>', $html, 'filter aksi diterapkan');
-        T::same(200, Http::as('superadmin')->get('/audit?q=' . urlencode('LP-POLDA'))->status);
+        T::same(200, Http::as('superadmin')->get('/audit?q=' . urlencode('LP-POLRI'))->status);
     },
 ];

@@ -1,6 +1,6 @@
 <?php
 /**
- * SIGAP-POLDA: Secure Session Management & CSRF Protection
+ * SIGAP-POLRI: Secure Session Management & CSRF Protection
  */
 
 namespace App\Core;

@@ -1,7 +1,7 @@
 <?php
 /**
- * SIGAP-POLDA: Single Entry Point
- * Sistem Informasi & Pengaduan Terpadu Polda (PHP Native MVC)
+ * SIGAP-POLRI: Single Entry Point
+ * Sistem Informasi & Pengaduan Terpadu Polri (PHP Native MVC)
  */
 
 declare(strict_types=1);
@@ -56,13 +56,13 @@ if ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (int)($_SERVER
 try {
     new \App\Core\App();
 } catch (\Throwable $e) {
-    error_log('[SIGAP-POLDA] ' . $e);
+    error_log('[SIGAP-POLRI] ' . $e);
     http_response_code(500);
 
     $errorDetail = $isDevelopment
         ? "<p class='text-slate-300 font-mono text-sm bg-black/40 p-3 rounded-lg border border-red-900/30 mb-4'>" . htmlspecialchars($e->getMessage()) . "</p>
               <pre class='text-xs text-slate-400 overflow-x-auto p-3 bg-black/30 rounded border border-slate-800'>" . htmlspecialchars($e->getTraceAsString()) . "</pre>"
-        : "<p class='text-slate-300 text-sm'>Terjadi kesalahan pada sistem. Silakan coba beberapa saat lagi atau hubungi Admin TIK Polda.</p>";
+        : "<p class='text-slate-300 text-sm'>Terjadi kesalahan pada sistem. Silakan coba beberapa saat lagi atau hubungi Admin TIK Polri.</p>";
 
     echo "<!DOCTYPE html><html><head><meta charset='utf-8'><title>500 - Server Error</title>
           <script src='https://cdn.tailwindcss.com'></script></head>

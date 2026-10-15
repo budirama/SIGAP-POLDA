@@ -1,7 +1,7 @@
 <div class="space-y-6">
   
   <!-- Page Header -->
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 polri-glass-card p-6 rounded-2xl border border-[#1E355B]">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 polri-glass-card p-6 rounded-2xl border border-[#3B2F1C]">
     <div>
       <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-950/80 border border-yellow-700/60 text-yellow-300 text-xs font-bold mb-2">
         <i class="fas fa-user-edit text-amber-400"></i> Penyidik Pelaksana Lapangan
@@ -30,7 +30,7 @@
       </div>
     <?php else: ?>
       <?php foreach ($reports as $r): ?>
-        <div class="polri-glass-card rounded-2xl p-5 border <?= $r['is_kapolda_attention'] ? 'border-red-600 animate-kapolda-pulse' : 'border-[#1E355B]' ?> flex flex-col justify-between">
+        <div class="polri-glass-card rounded-2xl p-5 border <?= $r['is_kapolda_attention'] ? 'border-red-600 animate-kapolda-pulse' : 'border-[#3B2F1C]' ?> flex flex-col justify-between">
           
           <div>
             <div class="flex items-center justify-between mb-2">
@@ -40,7 +40,7 @@
 
             <?php if ($r['is_kapolda_attention']): ?>
               <div class="mb-2 px-2 py-0.5 rounded bg-red-950 text-red-300 border border-red-800 text-[10px] font-black flex items-center gap-1">
-                <i class="fas fa-star text-amber-400"></i> ATENSI KHUSUS KAPOLDA
+                <i class="fas fa-star text-amber-400"></i> ATENSI KHUSUS KAPOLRI
               </div>
             <?php endif; ?>
 

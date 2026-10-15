@@ -1,6 +1,6 @@
 <?php
 /**
- * SIGAP-POLDA: AuditLog Model (Jejak Audit Akses & Tindakan Personil)
+ * SIGAP-POLRI: AuditLog Model (Jejak Audit Akses & Tindakan Personil)
  */
 
 namespace App\Models;

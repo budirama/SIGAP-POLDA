@@ -1,6 +1,6 @@
 <?php
 /**
- * SIGAP-POLDA: Report Model (Manajemen Laporan Pengaduan)
+ * SIGAP-POLRI: Report Model (Manajemen Laporan Pengaduan)
  */
 
 namespace App\Models;
@@ -118,7 +118,7 @@ class Report extends Model
     {
         $this->beginTransaction();
         try {
-            // Generate Nomor Tiket: LP-POLDA-YYYYMM-XXXX
+            // Generate Nomor Tiket: LP-POLRI-YYYYMM-XXXX
             $ticketNumber = $this->nextTicketNumber(date('Ym'));
 
             // PIN Keamanan 6 Digit
@@ -189,7 +189,7 @@ class Report extends Model
             $actorId = $data['actor_id'] ?? null; // Petugas konversi medsos, atau NULL = diterima sistem
             $this->execute(
                 "INSERT INTO report_timeline (report_id, actor_id, status_from, status_to, title, public_notes, internal_notes)
-                 VALUES (?, ?, 'NEW', 'SUBMITTED', 'Laporan Diterima Sistem', 'Laporan pengaduan Anda telah terdaftar dan menunggu verifikasi kelayakan oleh Petugas SPKT Polda.', 'Laporan baru masuk melalui portal publik.')",
+                 VALUES (?, ?, 'NEW', 'SUBMITTED', 'Laporan Diterima Sistem', 'Laporan pengaduan Anda telah terdaftar dan menunggu verifikasi kelayakan oleh Petugas SPKT Polri.', 'Laporan baru masuk melalui portal publik.')",
                 [$reportId, $actorId]
             );
 
@@ -223,7 +223,7 @@ class Report extends Model
      */
     private function nextTicketNumber(string $period): string
     {
-        $prefix = "LP-POLDA-{$period}-";
+        $prefix = "LP-POLRI-{$period}-";
 
         $this->execute(
             "INSERT INTO ticket_sequences (period, last_seq)
@@ -374,7 +374,7 @@ class Report extends Model
                 [$satkerId, $reportId]
             );
 
-            // Instruksi Atensi Kapolda yang masih terbuka ikut berpindah ke Satker tujuan
+            // Instruksi Atensi Kapolri yang masih terbuka ikut berpindah ke Satker tujuan
             $this->execute(
                 "UPDATE kapolda_directives SET target_satker_id = ? WHERE report_id = ? AND status IN ('PENDING', 'ACKNOWLEDGED')",
                 [$satkerId, $reportId]
@@ -388,7 +388,7 @@ class Report extends Model
                     $actorId,
                     $report['status'],
                     $isRedispatch ? 'Disposisi Ulang ke Satker Lain' : 'Disposisi ke Satker Terkait',
-                    "Laporan telah diverifikasi oleh SPKT Polda dan didisposisikan ke {$satker['name']} untuk tindak lanjut.",
+                    "Laporan telah diverifikasi oleh SPKT Polri dan didisposisikan ke {$satker['name']} untuk tindak lanjut.",
                     $internalNotes
                 ]
             );
@@ -554,7 +554,7 @@ class Report extends Model
     }
 
     /**
-     * Berikan Atensi Kapolda (Instruksi Prioritas Bintang Merah)
+     * Berikan Atensi Kapolri (Instruksi Prioritas Bintang Merah)
      */
     public function giveKapoldaAttention(int $reportId, int $kapoldaId, string $directiveText): bool
     {
@@ -588,13 +588,13 @@ class Report extends Model
 
             $this->execute(
                 "INSERT INTO report_timeline (report_id, actor_id, status_from, status_to, title, public_notes, internal_notes)
-                 VALUES (?, ?, ?, ?, 'Instruksi Khusus: Atensi Kapolda', 'Laporan Anda mendapatkan atensi khusus langsung dari Kapolda untuk penanganan prioritas cepat.', ?)",
+                 VALUES (?, ?, ?, ?, 'Instruksi Khusus: Atensi Kapolri', 'Laporan Anda mendapatkan atensi khusus langsung dari Kapolri untuk penanganan prioritas cepat.', ?)",
                 [
                     $reportId,
                     $kapoldaId,
                     $report['status'],
                     $report['status'],
-                    "ATENSI KAPOLDA: {$directiveText}"
+                    "ATENSI KAPOLRI: {$directiveText}"
                 ]
             );
 
@@ -607,7 +607,7 @@ class Report extends Model
     }
 
     /**
-     * Data Titik GIS untuk Heatmap Kriminalitas Kapolda
+     * Data Titik GIS untuk Heatmap Kriminalitas Kapolri
      */
     public function getHeatmapPoints(): array
     {
@@ -629,7 +629,7 @@ class Report extends Model
         $closedReports = (int)($this->fetch("SELECT COUNT(*) AS c FROM reports WHERE status = 'CLOSED'")['c'] ?? 0);
         $investigating = (int)($this->fetch("SELECT COUNT(*) AS c FROM reports WHERE status IN ('ASSIGNED', 'INVESTIGATING')")['c'] ?? 0);
         $rejectedReports = (int)($this->fetch("SELECT COUNT(*) AS c FROM reports WHERE status = 'REJECTED'")['c'] ?? 0);
-        // Atensi Kapolda yang masih harus ditindaklanjuti (kasus aktif)
+        // Atensi Kapolri yang masih harus ditindaklanjuti (kasus aktif)
         $kapoldaAttention = (int)($this->fetch("SELECT COUNT(*) AS c FROM reports WHERE is_kapolda_attention = 1 AND status NOT IN ('CLOSED', 'REJECTED')")['c'] ?? 0);
         $socialReports = (int)($this->fetch(
             "SELECT COUNT(*) AS c FROM reports WHERE source_channel IN (?, ?, ?, ?)",
@@ -667,7 +667,7 @@ class Report extends Model
                     COALESCE(SUM(r.sla_deadline >= NOW() AND r.sla_deadline < NOW() + INTERVAL 24 HOUR), 0) AS due_soon_cases
              FROM satkers s
              LEFT JOIN reports r ON r.current_satker_id = s.id AND r.status NOT IN ('CLOSED', 'REJECTED')
-             WHERE s.type IN ('DIREKTORAT', 'POLRES')
+             WHERE s.type IN ('DIREKTORAT', 'POLDA', 'POLRES')
              GROUP BY s.id, s.name, s.code, s.type
              ORDER BY overdue_cases DESC, due_soon_cases DESC, active_cases DESC, s.name ASC"
         );

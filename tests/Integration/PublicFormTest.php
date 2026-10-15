@@ -36,11 +36,11 @@ return [
         $a = new Http(TEST_BASE_URL);
         $a->unlock($ticket1, $wrong);
         $b = new Http(TEST_BASE_URL);
-        $b->unlock('LP-POLDA-000000-9999', $wrong);
+        $b->unlock('LP-POLRI-000000-9999', $wrong);
         T::same($a->flash(), $b->flash());
         T::same(
             str_contains((new Http(TEST_BASE_URL))->get("/report/track?ticket={$ticket1}")->body, 'Masukkan PIN Keamanan'),
-            str_contains((new Http(TEST_BASE_URL))->get('/report/track?ticket=LP-POLDA-000000-9999')->body, 'Masukkan PIN Keamanan'),
+            str_contains((new Http(TEST_BASE_URL))->get('/report/track?ticket=LP-POLRI-000000-9999')->body, 'Masukkan PIN Keamanan'),
             'tampilan GET sama'
         );
         Db::exec("DELETE FROM throttle_events");

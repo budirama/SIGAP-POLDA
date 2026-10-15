@@ -1,6 +1,6 @@
 <?php
 /**
- * SIGAP-POLDA: Home Controller (Landing Page Publik)
+ * SIGAP-POLRI: Home Controller (Landing Page Publik)
  */
 
 namespace App\Controllers;
@@ -22,7 +22,7 @@ class HomeController extends Controller
         $stats = $this->reportModel->getExecutiveStats();
 
         $this->render('public/index', [
-            'pageTitle' => 'Layanan Pengaduan Masyarakat Terpadu - POLDA',
+            'pageTitle' => 'Layanan Pengaduan Masyarakat Terpadu - POLRI',
             'stats'     => $stats
         ], 'main');
     }

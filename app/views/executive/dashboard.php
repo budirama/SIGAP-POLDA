@@ -30,10 +30,10 @@
       </div>
     </div>
 
-    <!-- Atensi Kapolda -->
+    <!-- Atensi Kapolri -->
     <div class="polri-glass-card rounded-2xl p-4 border border-red-800 shadow-lg relative overflow-hidden bg-red-950/20">
       <div class="text-[11px] font-bold text-red-300 uppercase tracking-wider flex items-center gap-1">
-        <span>Atensi Kapolda</span>
+        <span>Atensi Kapolri</span>
         <span class="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
       </div>
       <div class="text-3xl font-black text-red-400 font-heading mt-1"><?= number_format($stats['kapolda_attention']) ?></div>
@@ -53,11 +53,11 @@
 
   </div>
 
-  <!-- 2. Main GIS Heatmap & Atensi Kapolda Split Section -->
+  <!-- 2. Main GIS Heatmap & Atensi Kapolri Split Section -->
   <div class="grid lg:grid-cols-12 gap-6">
     
     <!-- Left: Leaflet GIS Interactive Crime Map -->
-    <div class="lg:col-span-8 polri-glass-card rounded-2xl p-5 border border-[#1E355B] shadow-2xl flex flex-col">
+    <div class="lg:col-span-8 polri-glass-card rounded-2xl p-5 border border-[#3B2F1C] shadow-2xl flex flex-col">
       
       <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
         <div>
@@ -71,7 +71,7 @@
         <!-- Legend Pills -->
         <div class="hidden sm:flex items-center gap-2 text-[10px]">
           <span class="px-2 py-0.5 rounded bg-red-950 text-red-300 border border-red-700 flex items-center gap-1">
-            <span class="w-2 h-2 rounded-full bg-red-500 animate-ping"></span> Atensi Kapolda
+            <span class="w-2 h-2 rounded-full bg-red-500 animate-ping"></span> Atensi Kapolri
           </span>
           <span class="px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-700">
             Penyelidikan
@@ -86,19 +86,19 @@
       <div id="gisHeatmap" class="w-full h-[460px] rounded-xl border border-slate-800 overflow-hidden relative shadow-inner"></div>
 
       <div class="mt-3 flex items-center justify-between text-[11px] text-slate-400">
-        <span>Klik pada sematan pin di peta untuk melihat ringkasan kasus dan memberikan <b>Atensi Kapolda</b>.</span>
+        <span>Klik pada sematan pin di peta untuk melihat ringkasan kasus dan memberikan <b>Atensi Kapolri</b>.</span>
         <span class="font-mono text-amber-400 font-bold"><?= count($heatmapPoints) ?> Titik Koordinat Aktif</span>
       </div>
 
     </div>
 
-    <!-- Right: Daftar Laporan Atensi Kapolda & Intervensi Pimpinan -->
+    <!-- Right: Daftar Laporan Atensi Kapolri & Intervensi Pimpinan -->
     <div class="lg:col-span-4 polri-glass-card rounded-2xl p-5 border border-red-900/50 shadow-2xl flex flex-col justify-between">
       
       <div>
         <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
           <div class="flex items-center gap-2">
-            <img src="<?= $baseUrl ?>/assets/img/badge-kapolda.svg" alt="Kapolda" class="w-6 h-6">
+            <img src="<?= $baseUrl ?>/assets/img/badge-kapolda.svg" alt="Kapolri" class="w-6 h-6">
             <h3 class="text-sm font-black text-red-200 font-heading uppercase tracking-wide">
               Laporan Atensi Pimpinan
             </h3>
@@ -113,18 +113,18 @@
           <?php if (empty($attentionReports)): ?>
             <div class="text-center py-10 text-slate-500 text-xs">
               <i class="fas fa-star text-2xl mb-2 text-slate-700 block"></i>
-              Belum ada perkara yang dibubuhi Atensi Kapolda saat ini.
+              Belum ada perkara yang dibubuhi Atensi Kapolri saat ini.
             </div>
           <?php else: ?>
             <?php foreach ($attentionReports as $ar): ?>
-              <div class="p-3.5 rounded-xl bg-[#030812] border border-red-700/60 hover:border-red-500 transition-colors space-y-2">
+              <div class="p-3.5 rounded-xl bg-[#070504] border border-red-700/60 hover:border-red-500 transition-colors space-y-2">
                 <div class="flex items-center justify-between">
                   <span class="font-mono text-xs font-black text-amber-400"><?= htmlspecialchars($ar['ticket_number']) ?></span>
                   <span class="text-[9px] font-black text-red-400 animate-pulse">★ ATENSI</span>
                 </div>
                 <h4 class="text-xs font-bold text-slate-100 line-clamp-2"><?= htmlspecialchars($ar['title']) ?></h4>
                 <div class="text-[10px] text-slate-400">
-                  <span>Satker: <b class="text-slate-200"><?= htmlspecialchars($ar['satker_name'] ?? 'Polda') ?></b></span>
+                  <span>Satker: <b class="text-slate-200"><?= htmlspecialchars($ar['satker_name'] ?? 'Mabes Polri') ?></b></span>
                   <span class="block text-slate-500">Penyidik: <?= htmlspecialchars($ar['investigator_name'] ?? 'Menunggu Personel') ?></span>
                 </div>
                 <?php $dir = $directiveStatus[$ar['id']] ?? null; if ($dir): ?>
@@ -157,7 +157,7 @@
         <button onclick="document.getElementById('modalAttentionDirective').classList.remove('hidden')"
                 class="w-full py-2.5 px-4 bg-gradient-to-r from-red-600 via-rose-600 to-red-600 hover:from-red-500 hover:to-rose-500 text-white font-black rounded-xl text-xs transition-all shadow-lg flex items-center justify-center gap-2">
           <i class="fas fa-star text-amber-300"></i>
-          <span>Beri Instruksi Atensi Kapolda</span>
+          <span>Beri Instruksi Atensi Kapolri</span>
         </button>
       </div>
 
@@ -166,19 +166,19 @@
   </div>
 
   <!-- 3. Monitoring Kinerja Satuan Kerja & Bottleneck Watchlist -->
-  <div class="polri-glass-card rounded-2xl p-6 border border-[#1E355B] shadow-2xl">
+  <div class="polri-glass-card rounded-2xl p-6 border border-[#3B2F1C] shadow-2xl">
     <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-5">
       <div>
         <h3 class="text-base font-black text-slate-100 font-heading flex items-center gap-2">
           <i class="fas fa-gauge-high text-amber-400"></i>
-          Evaluasi Kinerja Respons & SLA Satuan Kerja Jajaran Polda
+          Evaluasi Kinerja Respons & SLA Satuan Kerja Mabes & Polda Jajaran
         </h3>
         <p class="text-xs text-slate-400 mt-0.5">Pemantauan kepatuhan Service Level Agreement (SLA) untuk mencegah tunggakan perkara.</p>
       </div>
     </div>
 
     <?php if ((int)$spktBacklog['active_cases'] > 0): ?>
-      <div class="mb-4 p-3 rounded-xl border text-xs flex items-center justify-between <?= (int)$spktBacklog['overdue_cases'] > 0 ? 'bg-red-950/40 border-red-800 text-red-200' : 'bg-[#070F1E] border-slate-800 text-slate-300' ?>">
+      <div class="mb-4 p-3 rounded-xl border text-xs flex items-center justify-between <?= (int)$spktBacklog['overdue_cases'] > 0 ? 'bg-red-950/40 border-red-800 text-red-200' : 'bg-[#0C0A08] border-slate-800 text-slate-300' ?>">
         <span><i class="fas fa-inbox mr-1.5"></i> Meja SPKT: <b><?= (int)$spktBacklog['active_cases'] ?></b> laporan belum didisposisikan</span>
         <?php if ((int)$spktBacklog['overdue_cases'] > 0): ?>
           <span class="font-bold"><?= (int)$spktBacklog['overdue_cases'] ?> lewat SLA</span>
@@ -197,7 +197,7 @@
             default      => ['bg-emerald-950 text-emerald-300 border-emerald-800', 'Sesuai SLA'],
         };
       ?>
-        <div class="p-4 rounded-xl bg-[#070F1E] border border-slate-800 flex items-center justify-between">
+        <div class="p-4 rounded-xl bg-[#0C0A08] border border-slate-800 flex items-center justify-between">
           <div>
             <div class="text-xs font-bold text-slate-200"><?= htmlspecialchars($w['name']) ?></div>
             <span class="text-[10px] text-slate-500 font-mono"><?= htmlspecialchars($w['code']) ?> • <?= htmlspecialchars($w['type']) ?></span>
@@ -215,13 +215,13 @@
 
 </div>
 
-<!-- Modal Dialog Instruksi Atensi Kapolda -->
+<!-- Modal Dialog Instruksi Atensi Kapolri -->
 <div id="modalAttentionDirective" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-  <div class="bg-[#0E1E38] border border-red-600 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
+  <div class="bg-[#1B1610] border border-red-600 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
     <div class="flex items-center justify-between border-b border-slate-700 pb-3 mb-4">
       <h3 class="text-base font-bold text-red-200 flex items-center gap-2">
         <i class="fas fa-star text-amber-400"></i>
-        Terbitkan Instruksi Khusus Atensi Kapolda
+        Terbitkan Instruksi Khusus Atensi Kapolri
       </h3>
       <button onclick="document.getElementById('modalAttentionDirective').classList.add('hidden')" class="text-slate-400 hover:text-slate-200">
         <i class="fas fa-xmark text-lg"></i>
@@ -234,7 +234,7 @@
       <div>
         <label class="block text-xs font-semibold text-slate-300 mb-1">Pilih Perkara / Laporan Polisi:</label>
         <select name="report_id" id="attention_report_id" required
-                class="w-full bg-[#070F1E] border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 outline-none focus:border-red-500">
+                class="w-full bg-[#0C0A08] border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 outline-none focus:border-red-500">
           <option value="">-- Pilih Kasus yang Membutuhkan Atensi Prioritas --</option>
           <?php foreach ($recentReports as $rep): ?>
             <option value="<?= $rep['id'] ?>">
@@ -246,10 +246,10 @@
 
       <div>
         <label class="block text-xs font-semibold text-red-300 mb-1">
-          Instruksi Tertulis dari Kapolda (Prioritas Bintang Merah):
+          Instruksi Tertulis dari Kapolri (Prioritas Bintang Merah):
         </label>
         <textarea name="directive_text" rows="4" required
-                  class="w-full bg-[#070F1E] border border-red-800/80 rounded-xl p-3 text-xs text-slate-100 outline-none focus:border-red-500 leading-relaxed">ATENSI KAPOLDA: Berikan prioritas utama penyelidikan perkara ini. Koordinasikan jajaran opsnal dan CCTV terkait, tangkap pelaku dalam 1x24 jam dan laporkan progres setiap 6 jam!</textarea>
+                  class="w-full bg-[#0C0A08] border border-red-800/80 rounded-xl p-3 text-xs text-slate-100 outline-none focus:border-red-500 leading-relaxed">ATENSI KAPOLRI: Berikan prioritas utama penyelidikan perkara ini. Koordinasikan jajaran opsnal dan CCTV terkait, tangkap pelaku dalam 1x24 jam dan laporkan progres setiap 6 jam!</textarea>
         <p class="text-[10px] text-slate-400 mt-1">Instruksi akan langsung bertanda bintang merah pada akun Kasatker dan Penyidik terkait.</p>
       </div>
 
@@ -270,8 +270,8 @@
 <!-- Leaflet GIS Map Init Script -->
 <script>
   document.addEventListener('DOMContentLoaded', function () {
-    const defaultCenter = [-6.2235, 106.8099]; // Polda Metro Jaya Center
-    const map = L.map('gisHeatmap').setView(defaultCenter, 11);
+    const defaultCenter = [-2.5, 118.0]; // Cakupan nasional (seluruh wilayah hukum Polri)
+    const map = L.map('gisHeatmap').setView(defaultCenter, 5);
 
     // Dark Tile Layer for Command Center
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
@@ -289,7 +289,7 @@
         const isClosed = p.status === 'CLOSED';
 
         let color = '#F59E0B'; // Amber default
-        if (isAttention) color = '#EF4444'; // Red for Kapolda Attention
+        if (isAttention) color = '#EF4444'; // Red for Kapolri Attention
         if (isClosed) color = '#10B981'; // Green for Closed
 
         const circleMarker = L.circleMarker([p.latitude, p.longitude], {
@@ -302,7 +302,7 @@
         }).addTo(map);
 
         const popupContent = `
-          <div style="font-family: sans-serif; font-size: 11px; color: #1e293b; max-width: 200px;">
+          <div style="font-family: sans-serif; font-size: 11px; color: #2A2218; max-width: 200px;">
             <b style="color: ${color};">${esc(p.ticket_number)}</b><br>
             <b>${esc(p.title)}</b><br>
             <span style="color: #64748b;">${esc(p.incident_location)}</span><br>

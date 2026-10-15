@@ -1,6 +1,6 @@
 <?php
 /**
- * SIGAP-POLDA: Konfigurasi Global Aplikasi
+ * SIGAP-POLRI: Konfigurasi Global Aplikasi
  */
 
 namespace App\Config;
@@ -10,8 +10,8 @@ class Config
     private static ?array $env = null;
 
     // Konfigurasi Aplikasi & Identitas
-    public const APP_NAME = 'SIGAP-POLDA';
-    public const APP_FULL_NAME = 'Sistem Informasi & Pengaduan Terpadu Polda';
+    public const APP_NAME = 'SIGAP-POLRI';
+    public const APP_FULL_NAME = 'Sistem Informasi & Pengaduan Terpadu Polri';
     public const APP_MOTTO = 'Rastra Sewakotama - Polri Presisi';
     public const APP_VERSION = '1.1.0';
 

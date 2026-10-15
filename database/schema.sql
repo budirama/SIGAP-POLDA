@@ -1,16 +1,17 @@
 -- =============================================================================
--- DATABASE SCHEMA: SIGAP-POLDA (Sistem Informasi & Pengaduan Terpadu Polda)
+-- DATABASE SCHEMA: SIGAP-POLRI (Sistem Informasi & Pengaduan Terpadu Polri)
+-- Catatan: nama database/tabel/kolom bertanda 'polda'/'kapolda' dipertahankan demi kompatibilitas data.
 -- Standard: MySQL 5.7+ / MariaDB 10.4+ InnoDB Engine
 -- =============================================================================
 
 CREATE DATABASE IF NOT EXISTS `sigap_polda` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE `sigap_polda`;
 
--- 1. TABEL SATUAN KERJA (SATKER & WILAYAH POLDA / POLRES)
+-- 1. TABEL SATUAN KERJA (MABES POLRI, SATKER MABES & POLDA JAJARAN)
 CREATE TABLE IF NOT EXISTS `satkers` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
     `parent_id` INT NULL,
-    `type` ENUM('POLDA', 'DIREKTORAT', 'POLRES', 'POLSEK') NOT NULL DEFAULT 'POLRES',
+    `type` ENUM('MABES', 'POLDA', 'DIREKTORAT', 'POLRES', 'POLSEK') NOT NULL DEFAULT 'POLDA',
     `code` VARCHAR(50) NOT NULL UNIQUE,
     `name` VARCHAR(150) NOT NULL,
     `address` TEXT NULL,
@@ -80,7 +81,7 @@ CREATE TABLE IF NOT EXISTS `report_categories` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
     `code` VARCHAR(50) NOT NULL UNIQUE,
     `name` VARCHAR(100) NOT NULL,
-    `default_satker_type` ENUM('DIREKTORAT', 'POLRES') NOT NULL DEFAULT 'DIREKTORAT',
+    `default_satker_type` ENUM('DIREKTORAT', 'POLDA', 'POLRES') NOT NULL DEFAULT 'DIREKTORAT',
     `sla_hours` INT NOT NULL DEFAULT 72 COMMENT 'Batas jam tanggap awal standar',
     `icon` VARCHAR(50) NULL,
     `description` TEXT NULL
@@ -89,7 +90,7 @@ CREATE TABLE IF NOT EXISTS `report_categories` (
 -- 5. TABEL UTAMA LAPORAN PENGADUAN (REPORTS)
 CREATE TABLE IF NOT EXISTS `reports` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
-    `ticket_number` VARCHAR(50) NOT NULL UNIQUE COMMENT 'Format: LP-POLDA-YYYYMM-XXXX',
+    `ticket_number` VARCHAR(50) NOT NULL UNIQUE COMMENT 'Format: LP-POLRI-YYYYMM-XXXX',
     `security_pin` VARCHAR(6) NOT NULL COMMENT 'PIN 6-digit untuk pelacakan tiket publik',
     `source_channel` ENUM(
         'WEB_PORTAL',
@@ -183,12 +184,12 @@ CREATE TABLE IF NOT EXISTS `report_timeline` (
     CONSTRAINT `fk_timeline_actor` FOREIGN KEY (`actor_id`) REFERENCES `users`(`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- 8. TABEL DIRECTIVE KAPOLDA (ATENSI PIMPINAN)
+-- 8. TABEL DIRECTIVE ATENSI KAPOLRI (ATENSI PIMPINAN)
 CREATE TABLE IF NOT EXISTS `kapolda_directives` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
     `report_id` INT NOT NULL,
-    `created_by` INT NOT NULL COMMENT 'User ID Kapolda / Wakapolda',
-    `directive_text` TEXT NOT NULL COMMENT 'Instruksi langsung tertulis dari Kapolda',
+    `created_by` INT NOT NULL COMMENT 'User ID Kapolri / Wakapolri',
+    `directive_text` TEXT NOT NULL COMMENT 'Instruksi langsung tertulis dari Kapolri',
     `target_satker_id` INT NULL COMMENT 'NULL bila laporan belum didisposisikan; diperbarui saat disposisi',
     `response_notes` TEXT NULL COMMENT 'Laporan tanggapan dari Kasatker',
     `status` ENUM('PENDING', 'ACKNOWLEDGED', 'RESOLVED') NOT NULL DEFAULT 'PENDING',

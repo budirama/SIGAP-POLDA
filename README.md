@@ -1,12 +1,12 @@
-# 🚔 SIGAP-POLDA
-### *Sistem Integrasi Pengaduan & Dumas Terpadu Polda*
+# 🚔 SIGAP-POLRI
+### *Sistem Integrasi Pengaduan & Dumas Terpadu Polri*
 > **"POLISI BERSAMA MASYARAKAT • MELINDUNGI, MENGAYOMI DAN MELAYANI"**  
-> *Polda Presisi: Prediktif, Responsibilitas, dan Transparansi Berkeadilan.*
+> *Polri Presisi: Prediktif, Responsibilitas, dan Transparansi Berkeadilan.*
 
 ---
 
 ## 📖 Ringkasan Proyek
-**SIGAP-POLDA** adalah aplikasi komprehensif *case management* penanganan pengaduan masyarakat (*Dumas*) terintegrasi satu pintu untuk Kepolisian Daerah (Polda). Sistem ini menghubungkan portal pengaduan warga, ingestion aduan media sosial (X/Twitter, Instagram, TikTok), meja verifikasi SPKT, lembar kerja penyidikan tingkat Satker/Polres, penerbitan SP2HP Elektronik berkala, ruang komunikasi klarifikasi dua arah warga-penyidik, hingga Situational Command Center & GIS Heatmap bagi Kapolda.
+**SIGAP-POLRI** adalah aplikasi komprehensif *case management* penanganan pengaduan masyarakat (*Dumas*) terintegrasi satu pintu untuk Kepolisian Negara Republik Indonesia tingkat Mabes Polri, dengan disposisi ke Satker Mabes (Bareskrim, Korlantas, Divpropam) dan Polda jajaran. Sistem ini menghubungkan portal pengaduan warga, ingestion aduan media sosial (X/Twitter, Instagram, TikTok), meja verifikasi SPKT, lembar kerja penyidikan tingkat Satker Mabes/Polda, penerbitan SP2HP Elektronik berkala, ruang komunikasi klarifikasi dua arah warga-penyidik, hingga Situational Command Center & GIS Heatmap bagi Kapolri.
 
 ---
 
@@ -35,7 +35,7 @@
    - Fitur *1-Click Convert to Official Police Ticket*.
 
 3. **Meja Verifikasi & Disposisi SPKT (Command Center):**
-   - Triase berkas aduan masyarakat: Verifikasi bukti, penolakan hoax/SP3 dini, dan disposisi cerdas ke Satuan Kerja (Ditreskrimum, Ditreskrimsus, Ditlantas, Ditresnarkoba, Bidpropam, Polres jajaran).
+   - Triase berkas aduan masyarakat: Verifikasi bukti, penolakan hoax/SP3 dini, dan disposisi cerdas ke Satuan Kerja (Dittipidum, Dittipidsiber, Dittipidnarkoba Bareskrim, Korlantas, Divpropam, Polda jajaran).
 
 4. **Inbox Satker & Penugasan Kanit:**
    - Penerimaan disposisi dan penerbitan Surat Perintah Tugas (*Sprintgas*) resmi ke Penyidik Pelaksana.
@@ -46,17 +46,17 @@
    - Penerbitan SP2HP Elektronik format resmi (A1/A2/A3/A4/A5).
    - Penutupan perkara dengan Berita Acara (BAP).
 
-6. **Executive Dashboard Kapolda (Situational Command Center):**
+6. **Executive Dashboard Kapolri (Situational Command Center):**
    - Peta GIS Heatmap sebaran tindak pidana real-time.
    - Metrik KPI: *Clearance Rate*, Waktu Respons Rata-Rata, Watchlist Satker Bottleneck SLA.
-   - Tombol Komando: *"Beri Atensi Kapolda"* (prioritas bintang merah dengan instruksi taktis tertulis).
+   - Tombol Komando: *"Beri Atensi Kapolri"* (prioritas bintang merah dengan instruksi taktis tertulis).
 
 ---
 
 ## 🗂️ Struktur Direktori Proyek
 
 ```text
-SIGAP-POLDA/
+SIGAP-Polda/
 ├── app/
 │   ├── config/             # Konfigurasi Database PDO, URL, & Enums Constants
 │   ├── controllers/        # Controllers (Auth, Home, Report, Spkt, Satker, Investigator, Executive, Social)
@@ -140,14 +140,14 @@ Semua akun pengujian menggunakan kata sandi default: **`password123`**.
 
 | Role | Akun Login | Deskripsi Wewenang |
 |---|---|---|
-| **Kapolda (Executive)** | `kapolda@sigap.polda.go.id` | GIS Heatmap kriminalitas, bottleneck SLA satker, tombol atensi pimpinan |
-| **Ka SPKT** | `spkt@sigap.polda.go.id` | Meja triase verifikasi berkas, tolak hoax, disposisi ke Dit/Polres |
-| **Humas / Siber** | `humas@sigap.polda.go.id` | Radar medsos viral (X, IG, TikTok), 1-klik konversi ke tiket resmi |
-| **Dirreskrimum (Kasatker)** | `dirkrimum@sigap.polda.go.id` | Supervisi penanganan perkara direktorat dan persetujuan SP2HP |
-| **Kanit Jatanras** | `kanit.krimum@sigap.polda.go.id` | Menerima disposisi dari SPKT dan menerbitkan Sprintgas ke Penyidik |
-| **Penyidik Pelaksana** | `penyidik.rian@sigap.polda.go.id` | Olah TKP, ruang klarifikasi dua arah, terbitkan SP2HP-E, tutup perkara BAP |
-| **Irwasda / Propam** | `irwasda@sigap.polda.go.id` | Audit trail kepatuhan, pengawasan dumas, akses catatan intelijen |
-| **Superadmin IT** | `superadmin@sigap.polda.go.id` | Akses menyeluruh data master, manajemen pengguna & sistem |
+| **Kapolri (Executive)** | `kapolri@sigap.polri.go.id` | GIS Heatmap kriminalitas, bottleneck SLA satker, tombol atensi pimpinan |
+| **Ka SPKT** | `spkt@sigap.polri.go.id` | Meja triase verifikasi berkas, tolak hoax, disposisi ke Satker Mabes/Polda |
+| **Humas / Siber** | `humas@sigap.polri.go.id` | Radar medsos viral (X, IG, TikTok), 1-klik konversi ke tiket resmi |
+| **Dirtipidum Bareskrim (Kasatker)** | `dirtipidum@sigap.polri.go.id` | Supervisi penanganan perkara direktorat dan persetujuan SP2HP |
+| **Kanit Jatanras** | `kanit.tipidum@sigap.polri.go.id` | Menerima disposisi dari SPKT dan menerbitkan Sprintgas ke Penyidik |
+| **Penyidik Pelaksana** | `penyidik.rian@sigap.polri.go.id` | Olah TKP, ruang klarifikasi dua arah, terbitkan SP2HP-E, tutup perkara BAP |
+| **Itwasum / Propam** | `itwasum@sigap.polri.go.id` | Audit trail kepatuhan, pengawasan dumas, akses catatan intelijen |
+| **Superadmin IT** | `superadmin@sigap.polri.go.id` | Akses menyeluruh data master, manajemen pengguna & sistem |
 | **Masyarakat (Pelapor)** | `budi.santoso@gmail.com` | Akses portal tracking tiket dan ruang klarifikasi mandiri |
 
 ---
