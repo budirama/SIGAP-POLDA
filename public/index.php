@@ -40,11 +40,12 @@ header('X-Content-Type-Options: nosniff');
 header('Referrer-Policy: strict-origin-when-cross-origin');
 header('Permissions-Policy: geolocation=(self), camera=(), microphone=(), payment=()');
 header("Content-Security-Policy: default-src 'self'; "
-    . "script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://unpkg.com; "
+    . "script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://unpkg.com https://maps.googleapis.com https://maps.gstatic.com; "
     . "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://unpkg.com https://fonts.googleapis.com; "
     . "font-src 'self' data: https://cdnjs.cloudflare.com https://fonts.gstatic.com; "
-    . "img-src 'self' data: https://unpkg.com https://*.basemaps.cartocdn.com https://*.tile.openstreetmap.org; "
-    . "connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'");
+    . "img-src 'self' data: https://unpkg.com https://*.tile.openstreetmap.org "
+    . "https://*.googleapis.com https://*.gstatic.com https://*.ggpht.com; "
+    . "connect-src 'self' https://maps.googleapis.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'");
 if ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (int)($_SERVER['SERVER_PORT'] ?? 0) === 443) {
     header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
 }

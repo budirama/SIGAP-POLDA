@@ -267,50 +267,95 @@
   </div>
 </div>
 
-<!-- Leaflet GIS Map Init Script -->
+<!-- Peta sebaran kasus: Google Maps bila GOOGLE_MAPS_API_KEY diisi, selain itu Leaflet + OpenStreetMap -->
+<?php $gmapsKey = \App\Config\Config::googleMapsKey(); ?>
 <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const defaultCenter = [-2.5, 118.0]; // Cakupan nasional (seluruh wilayah hukum Polri)
-    const map = L.map('gisHeatmap').setView(defaultCenter, 5);
-
-    // Dark Tile Layer for Command Center
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; OpenStreetMap &copy; CARTO',
-      subdomains: 'abcd',
-      maxZoom: 19
-    }).addTo(map);
-
+  (function () {
+    const center = { lat: -2.5, lng: 118.0 }; // Cakupan nasional (seluruh wilayah hukum Polri)
     const points = <?= json_encode($heatmapPoints, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
     const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
 
-    points.forEach(p => {
-      if (p.latitude && p.longitude) {
-        const isAttention = p.is_kapolda_attention == 1;
-        const isClosed = p.status === 'CLOSED';
+    const markerStyle = (p) => {
+      const isAttention = p.is_kapolda_attention == 1;
+      let color = '#F59E0B'; // Amber default
+      if (isAttention) color = '#EF4444'; // Merah: Atensi Kapolri
+      if (p.status === 'CLOSED') color = '#10B981'; // Hijau: selesai
+      return { color, radius: isAttention ? 10 : 7 };
+    };
+    const popupHtml = (p, color) => `
+      <div style="font-family: sans-serif; font-size: 11px; color: #2A2218; max-width: 200px;">
+        <b style="color: ${color};">${esc(p.ticket_number)}</b><br>
+        <b>${esc(p.title)}</b><br>
+        <span style="color: #64748b;">${esc(p.incident_location)}</span><br>
+        <span style="font-size: 9px; color: #94a3b8;">Status: ${esc(p.status)}</span>
+      </div>`;
+    const located = points.filter(p => p.latitude && p.longitude);
 
-        let color = '#F59E0B'; // Amber default
-        if (isAttention) color = '#EF4444'; // Red for Kapolri Attention
-        if (isClosed) color = '#10B981'; // Green for Closed
+    function initLeafletMap() {
+      document.getElementById('gisHeatmap').innerHTML = '';
+      const map = L.map('gisHeatmap').setView([center.lat, center.lng], 5);
+      // Tile OpenStreetMap digelapkan via CSS (.map-tiles-dark) agar serasi dengan tema Command Center
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap',
+        className: 'map-tiles-dark',
+        maxZoom: 19
+      }).addTo(map);
 
-        const circleMarker = L.circleMarker([p.latitude, p.longitude], {
-          radius: isAttention ? 10 : 7,
-          fillColor: color,
-          color: '#FFFFFF',
-          weight: 1.5,
-          opacity: 1,
-          fillOpacity: 0.85
-        }).addTo(map);
+      located.forEach(p => {
+        const { color, radius } = markerStyle(p);
+        L.circleMarker([p.latitude, p.longitude], {
+          radius, fillColor: color, color: '#FFFFFF', weight: 1.5, opacity: 1, fillOpacity: 0.85
+        }).addTo(map).bindPopup(popupHtml(p, color));
+      });
+    }
 
-        const popupContent = `
-          <div style="font-family: sans-serif; font-size: 11px; color: #2A2218; max-width: 200px;">
-            <b style="color: ${color};">${esc(p.ticket_number)}</b><br>
-            <b>${esc(p.title)}</b><br>
-            <span style="color: #64748b;">${esc(p.incident_location)}</span><br>
-            <span style="font-size: 9px; color: #94a3b8;">Status: ${esc(p.status)}</span>
-          </div>
-        `;
-        circleMarker.bindPopup(popupContent);
-      }
-    });
-  });
+    // Dipanggil oleh script Google Maps (callback): tema gelap Command Center
+    window.initGoogleGisMap = function () {
+      const map = new google.maps.Map(document.getElementById('gisHeatmap'), {
+        center, zoom: 5,
+        mapTypeControl: false,
+        streetViewControl: false,
+        styles: [
+          { elementType: 'geometry', stylers: [{ color: '#14100C' }] },
+          { elementType: 'labels.text.fill', stylers: [{ color: '#B8A37A' }] },
+          { elementType: 'labels.text.stroke', stylers: [{ color: '#0C0A08' }] },
+          { featureType: 'administrative', elementType: 'geometry.stroke', stylers: [{ color: '#3B2F1C' }] },
+          { featureType: 'poi', stylers: [{ visibility: 'off' }] },
+          { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#2A2218' }] },
+          { featureType: 'road', elementType: 'labels', stylers: [{ visibility: 'off' }] },
+          { featureType: 'transit', stylers: [{ visibility: 'off' }] },
+          { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#070504' }] }
+        ]
+      });
+      const info = new google.maps.InfoWindow();
+
+      located.forEach(p => {
+        const { color, radius } = markerStyle(p);
+        const marker = new google.maps.Marker({
+          position: { lat: Number(p.latitude), lng: Number(p.longitude) },
+          map,
+          title: String(p.ticket_number ?? ''),
+          icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: radius, fillColor: color, fillOpacity: 0.85, strokeColor: '#FFFFFF', strokeWeight: 1.5
+          }
+        });
+        marker.addListener('click', () => {
+          info.setContent(popupHtml(p, color));
+          info.open({ map, anchor: marker });
+        });
+      });
+    };
+
+    // Key ditolak Google (salah/dibatasi domain): kembali ke peta Leaflet
+    window.gm_authFailure = initLeafletMap;
+
+    <?php if ($gmapsKey === ''): ?>
+    document.addEventListener('DOMContentLoaded', initLeafletMap);
+    <?php endif; ?>
+  })();
 </script>
+
+<?php if ($gmapsKey !== ''): ?>
+<script src="https://maps.googleapis.com/maps/api/js?key=<?= urlencode($gmapsKey) ?>&amp;callback=initGoogleGisMap&amp;loading=async&amp;language=id&amp;region=ID" async defer></script>
+<?php endif; ?>

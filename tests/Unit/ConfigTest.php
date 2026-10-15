@@ -25,4 +25,11 @@ return [
     'parseEnv mengabaikan baris tanpa "="' => function () {
         T::same([], Config::parseEnv("export\nSEMBARANG TEKS\n"));
     },
+
+    'key Google Maps divalidasi sebelum ditanam ke halaman' => function () {
+        T::same('AIzaSyA-valid_key_1234567890', Config::sanitizeMapsKey('  AIzaSyA-valid_key_1234567890 '));
+        T::same('', Config::sanitizeMapsKey(''), 'kosong');
+        T::same('', Config::sanitizeMapsKey('abc'), 'terlalu pendek');
+        T::same('', Config::sanitizeMapsKey('AIza"><script>alert(1)</script>xxxxxxxx'), 'karakter berbahaya');
+    },
 ];

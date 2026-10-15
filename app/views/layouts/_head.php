@@ -43,5 +43,5 @@
   </script>
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <link rel="stylesheet" href="<?= $baseUrl ?>/assets/css/custom-polri.css">
-  <script src="<?= $baseUrl ?>/assets/js/polri-fx.js" defer></script>
+  <link rel="stylesheet" href="<?= $baseUrl ?>/assets/css/custom-polri.css?v=<?= @filemtime(dirname(__DIR__, 3) . '/public/assets/css/custom-polri.css') ?: 1 ?>">
+  <script src="<?= $baseUrl ?>/assets/js/polri-fx.js?v=<?= @filemtime(dirname(__DIR__, 3) . '/public/assets/js/polri-fx.js') ?: 1 ?>" defer></script>

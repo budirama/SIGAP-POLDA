@@ -265,35 +265,54 @@
   </form>
 </div>
 
-<!-- Leaflet Map Script Init -->
+<!-- Peta TKP: Google Maps bila GOOGLE_MAPS_API_KEY diisi, selain itu Leaflet + OpenStreetMap -->
+<?php $gmapsKey = \App\Config\Config::googleMapsKey(); ?>
 <script>
   let map, marker;
+  let useGoogle = <?= $gmapsKey !== '' ? 'true' : 'false' ?>;
   // Titik awal: peta Indonesia (pelapor memperbesar ke lokasi atau memakai GPS)
   const defaultLat = -2.5;
   const defaultLng = 118.0;
 
-  document.addEventListener('DOMContentLoaded', function () {
-    // Inisialisasi Map Leaflet
+  function initLeafletTkpMap() {
+    useGoogle = false;
+    document.getElementById('tkpMap').innerHTML = '';
     map = L.map('tkpMap').setView([defaultLat, defaultLng], 5);
-    
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '&copy; OpenStreetMap'
     }).addTo(map);
 
-    // Default Marker
     marker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(map);
-    
-    // Event Klik di Map
-    map.on('click', function(e) {
-      updateCoordinates(e.latlng.lat, e.latlng.lng);
-    });
-
-    // Event Geser Marker
-    marker.on('dragend', function(e) {
+    map.on('click', e => updateCoordinates(e.latlng.lat, e.latlng.lng));
+    marker.on('dragend', e => {
       const pos = e.target.getLatLng();
       updateCoordinates(pos.lat, pos.lng);
     });
+  }
+
+  // Dipanggil oleh script Google Maps (callback)
+  window.initGoogleTkpMap = function () {
+    map = new google.maps.Map(document.getElementById('tkpMap'), {
+      center: { lat: defaultLat, lng: defaultLng },
+      zoom: 5,
+      mapTypeControl: false,
+      streetViewControl: false,
+      fullscreenControl: false,
+      gestureHandling: 'cooperative'
+    });
+    marker = new google.maps.Marker({ position: { lat: defaultLat, lng: defaultLng }, map, draggable: true });
+    map.addListener('click', e => updateCoordinates(e.latLng.lat(), e.latLng.lng()));
+    marker.addListener('dragend', e => updateCoordinates(e.latLng.lat(), e.latLng.lng()));
+  };
+
+  // Key ditolak Google (salah/dibatasi domain): kembali ke peta OpenStreetMap
+  window.gm_authFailure = initLeafletTkpMap;
+
+  document.addEventListener('DOMContentLoaded', function () {
+    if (!useGoogle) {
+      initLeafletTkpMap();
+    }
 
     // Tombol Gunakan Lokasi Saya
     document.getElementById('btnGetLocation').addEventListener('click', function() {
@@ -302,7 +321,7 @@
           const lat = position.coords.latitude;
           const lng = position.coords.longitude;
           updateCoordinates(lat, lng);
-          map.setView([lat, lng], 15);
+          centerMap(lat, lng, 15);
         }, function(err) {
           alert("Gagal membaca GPS gawai Anda. Silakan klik langsung pada peta.");
         });
@@ -310,8 +329,20 @@
     });
   });
 
+  function centerMap(lat, lng, zoom) {
+    if (!map) return;
+    if (useGoogle) {
+      map.setCenter({ lat, lng });
+      map.setZoom(zoom);
+    } else {
+      map.setView([lat, lng], zoom);
+    }
+  }
+
   function updateCoordinates(lat, lng) {
-    marker.setLatLng([lat, lng]);
+    if (marker) {
+      useGoogle ? marker.setPosition({ lat, lng }) : marker.setLatLng([lat, lng]);
+    }
     document.getElementById('latitude').value = lat.toFixed(8);
     document.getElementById('longitude').value = lng.toFixed(8);
   }
@@ -331,3 +362,7 @@
     }
   }
 </script>
+
+<?php if ($gmapsKey !== ''): ?>
+<script src="https://maps.googleapis.com/maps/api/js?key=<?= urlencode($gmapsKey) ?>&amp;callback=initGoogleTkpMap&amp;loading=async&amp;language=id&amp;region=ID" async defer></script>
+<?php endif; ?>
