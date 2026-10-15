@@ -49,7 +49,7 @@ Hasil review ulang 15 Oktober 2026 setelah PR #1–#11 (lihat `docs/TASK_HARDENI
 - **Solusi:** validasi status & duplikasi, pertahankan EMERGENCY, target mengikuti disposisi; inbox instruksi Kapolda di halaman Satker dengan aksi terima & selesaikan (catatan tanggapan).
 
 ### U9 — Alur PIN & formulir laporan publik
-- [ ] **Masalah:** PIN dikirim via GET/URL & dibagikan via WhatsApp; pesan berbeda untuk tiket tak dikenal (enumerasi); NIK tidak divalidasi; laporan otomatis ditautkan ke akun pemilik NIK; isi formulir hilang saat validasi gagal; jumlah file tak dibatasi.
+- [x] **Masalah:** PIN dikirim via GET/URL & dibagikan via WhatsApp; pesan berbeda untuk tiket tak dikenal (enumerasi); NIK tidak divalidasi; laporan otomatis ditautkan ke akun pemilik NIK; isi formulir hilang saat validasi gagal; jumlah file tak dibatasi.
 - **Solusi:** PIN via POST + redirect tanpa PIN, share hanya nomor tiket, pesan seragam; validasi NIK 16 digit, tanggal, kategori, maks 5 file; tidak menautkan ke akun lain berdasarkan NIK ketikan; simpan input lama.
 
 ### U10 — Dokumen SP2HP cetak & klaim fitur

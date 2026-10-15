@@ -18,7 +18,7 @@ return [
     },
 
     'tracking dengan PIN salah ditolak' => function () use ($ticket1, $wrongPin) {
-        $res = (new Http(TEST_BASE_URL))->get("/report/track?ticket={$ticket1}&pin={$wrongPin}");
+        $res = (new Http(TEST_BASE_URL))->trackWithPin($ticket1, $wrongPin);
         T::contains('PIN Keamanan tidak cocok', $res->body);
         T::notContains('Cetak / Unduh SP2HP', $res->body);
     },
@@ -26,7 +26,7 @@ return [
     'PIN benar membuka laporan & dokumen SP2HP di sesi yang sama' => function () use ($ticket1, $pin1) {
         $guest = new Http(TEST_BASE_URL);
         T::same(302, $guest->get("/report/sp2hpPrint?ticket={$ticket1}")->status, 'SP2HP sebelum PIN');
-        T::contains('Cetak / Unduh SP2HP', $guest->get("/report/track?ticket={$ticket1}&pin={$pin1}")->body);
+        T::contains('Cetak / Unduh SP2HP', $guest->trackWithPin($ticket1, $pin1)->body);
         T::same(200, $guest->get("/report/sp2hpPrint?ticket={$ticket1}")->status, 'SP2HP setelah PIN');
         T::contains('Cetak / Unduh SP2HP', $guest->get("/report/track?ticket={$ticket1}")->body, 'akses tersimpan di sesi');
     },
@@ -54,7 +54,7 @@ return [
 
     'pesan klarifikasi tanpa token CSRF ditolak' => function () use ($ticket1, $pin1) {
         $guest = new Http(TEST_BASE_URL);
-        $guest->get("/report/track?ticket={$ticket1}&pin={$pin1}");
+        $guest->trackWithPin($ticket1, $pin1);
         $guest->post('/report/sendMessage', ['ticket_number' => $ticket1, 'message_text' => 'tanpa csrf']);
         T::contains('CSRF tidak valid', $guest->flash());
         T::same(0, (int)Db::value("SELECT COUNT(*) FROM case_messages WHERE message_text = 'tanpa csrf'"));
@@ -64,9 +64,9 @@ return [
         Db::exec("DELETE FROM throttle_events");
         $guest = new Http(TEST_BASE_URL);
         for ($i = 1; $i <= 5; $i++) {
-            T::contains('tidak cocok', $guest->get("/report/track?ticket={$ticket1}&pin={$wrongPin}")->body, "percobaan {$i}");
+            T::contains('tidak cocok', $guest->trackWithPin($ticket1, $wrongPin)->body, "percobaan {$i}");
         }
-        $res = $guest->get("/report/track?ticket={$ticket1}&pin={$pin1}");
+        $res = $guest->trackWithPin($ticket1, $pin1);
         T::contains('Terlalu banyak percobaan PIN', $res->body);
         T::notContains('Cetak / Unduh SP2HP', $res->body);
         Db::exec("DELETE FROM throttle_events");

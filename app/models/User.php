@@ -31,37 +31,6 @@ class User extends Model
         );
     }
 
-    public function findByNik(string $nik): ?array
-    {
-        return $this->fetch(
-            "SELECT * FROM users WHERE nik = ? AND role = 'ROLE_CITIZEN' LIMIT 1",
-            [$nik]
-        );
-    }
-
-    /**
-     * Cari akun warga berdasarkan NIK, atau buat baru bila belum ada.
-     * Data akun yang sudah ada TIDAK diubah: NIK diketik bebas di formulir publik,
-     * sehingga tidak boleh menjadi dasar untuk menimpa nama/telepon pemilik NIK.
-     */
-    public function findOrCreateCitizen(string $nik, string $name, string $phone): array
-    {
-        $existing = $this->findByNik($nik);
-        if ($existing) {
-            return $existing;
-        }
-
-        // Akun warga baru tidak memiliki password yang dapat ditebak;
-        // pelacakan laporan menggunakan Nomor Tiket + PIN Keamanan.
-        $passwordHash = password_hash(bin2hex(random_bytes(32)), PASSWORD_BCRYPT);
-        $this->execute(
-            "INSERT INTO users (nik, name, phone, password_hash, role) VALUES (?, ?, ?, ?, 'ROLE_CITIZEN')",
-            [$nik, $name, $phone, $passwordHash]
-        );
-
-        return $this->findById($this->lastInsertId());
-    }
-
     public function getInvestigatorsBySatker(int $satkerId): array
     {
         return $this->fetchAll(

@@ -47,8 +47,7 @@ return [
         Db::exec("DELETE FROM throttle_events");
         $guest = new Http(TEST_BASE_URL);
         $guest->get('/report/create');
-        $res = $guest->get("/report/track?ticket={$ticket1}&pin={$pin1}");
-        T::contains('Cetak / Unduh SP2HP', $res->body);
+        $res = $guest->unlock($ticket1, $pin1);
         T::contains('PHPSESSID=', (string)$res->header('set-cookie'), 'cookie sesi diganti');
         T::contains('Cetak / Unduh SP2HP', $guest->get("/report/track?ticket={$ticket1}")->body, 'akses tetap ada setelah ID diganti');
     },
