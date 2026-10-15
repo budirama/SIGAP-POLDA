@@ -12,12 +12,12 @@ $late = $report['deadline_at'] && (($report['submitted_at'] ?: date('Y-m-d H:i:s
       <div>
         <p class="font-bold <?= $missing ? 'text-amber-200' : 'text-emerald-200' ?>">
           <i class="fas <?= $missing ? 'fa-circle-exclamation' : 'fa-circle-check' ?> mr-1"></i>
-          <?= $missing ? 'Pratinjau — laporan belum lengkap' : 'Pratinjau — laporan siap dikirim' ?>
+          <?= $missing ? 'Pratinjau — laporan belum lengkap' : ($report['status'] === 'NEEDS_REVISION' ? 'Pratinjau — siap dikirim ulang' : 'Pratinjau — laporan siap dikirim') ?>
         </p>
         <?php if ($missing): ?>
           <p class="text-amber-200/80 mt-1">Lengkapi: <?= htmlspecialchars(implode(', ', $missing)) ?>.</p>
         <?php else: ?>
-          <p class="text-emerald-200/80 mt-1">Laporan akan diterima <?= $report['satker_level'] < 4 ? 'unit induk' : 'Posko Pusat' ?> persis seperti tampilan di bawah. Setelah dikirim, isi tidak dapat diubah tanpa proses perbaikan.</p>
+          <p class="text-emerald-200/80 mt-1">Laporan akan diterima unit induk langsung persis seperti tampilan di bawah untuk diverifikasi. Setelah dikirim, isi tidak dapat diubah tanpa proses perbaikan.</p>
         <?php endif; ?>
       </div>
       <div class="flex gap-2 flex-shrink-0">
@@ -65,6 +65,8 @@ $late = $report['deadline_at'] && (($report['submitted_at'] ?: date('Y-m-d H:i:s
       </div>
     </dl>
   </section>
+
+  <?php require __DIR__ . '/_workflow.php'; ?>
 
   <section class="polri-glass-card rounded-2xl border border-[#3B2F1C] p-5 space-y-4 text-sm">
     <div><h3 class="text-[11px] font-bold uppercase tracking-wider text-amber-400 mb-1">Ringkasan Situasi</h3><p class="text-slate-200"><?= $text($report['situation_summary']) ?></p></div>

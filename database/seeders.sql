@@ -568,32 +568,66 @@ INSERT INTO `posko_report_fields` (`report_type_id`, `field_key`, `label`, `type
 ON DUPLICATE KEY UPDATE `label`=VALUES(`label`), `type`=VALUES(`type`), `required`=VALUES(`required`), `options`=VALUES(`options`),
     `aggregate`=VALUES(`aggregate`), `unit_label`=VALUES(`unit_label`), `sort_order`=VALUES(`sort_order`);
 
--- 13. CONTOH LAPORAN POSKO (Polsek Benowo & Gubeng, Polrestabes Surabaya). Waktu relatif terhadap NOW().
---     Laporan contoh dibuat ulang setiap seeder dijalankan (nomor PSK/... bersifat demo).
--- FOREIGN_KEY_CHECKS dimatikan selama seeder, jadi data turunan dihapus eksplisit (bukan via CASCADE)
+-- 13. CONTOH LAPORAN POSKO (alur berjenjang Polsek → Polrestabes Surabaya → Polda Jatim). Waktu relatif terhadap NOW().
+--     Laporan contoh dibuat ulang setiap seeder dijalankan (nomor PSK/... ber-urutan 9xxx = demo).
+--     FOREIGN_KEY_CHECKS dimatikan selama seeder, jadi data turunan dihapus eksplisit (bukan via CASCADE).
+DELETE FROM `posko_report_history` WHERE `report_id` BETWEEN 1 AND 99;
+DELETE FROM `posko_report_versions` WHERE `report_id` BETWEEN 1 AND 99;
 DELETE FROM `posko_report_values` WHERE `report_id` BETWEEN 1 AND 99;
 DELETE FROM `posko_report_attachments` WHERE `report_id` BETWEEN 1 AND 99;
 DELETE FROM `posko_reports` WHERE `id` BETWEEN 1 AND 99;
-INSERT INTO `posko_reports` (`id`, `report_number`, `report_type_id`, `satker_id`, `period_start`, `period_end`, `event_time`, `region`, `situation_summary`, `description`, `obstacles`, `follow_up`, `assistance_needed`, `priority`, `status`, `deadline_at`, `submitted_at`, `created_by`, `updated_by`) VALUES
-(1, CONCAT('PSK/POLSEK-SBY-BENOWO/', DATE_FORMAT(CURDATE() - INTERVAL 1 DAY, '%Y%m'), '/9001'), 1, 1000, CURDATE() - INTERVAL 1 DAY, CURDATE() - INTERVAL 1 DAY, NULL,
+INSERT INTO `posko_reports` (`id`, `report_number`, `report_type_id`, `satker_id`, `holder_satker_id`, `period_start`, `period_end`, `period_key`, `event_time`, `region`, `situation_summary`, `description`, `obstacles`, `follow_up`, `assistance_needed`, `priority`, `status`, `version`, `deadline_at`, `submitted_at`, `approved_by`, `approved_at`, `forwarded_at`, `created_by`, `updated_by`) VALUES
+-- 1: Polsek Benowo, harian kemarin — menunggu verifikasi Polrestabes Surabaya
+(1, CONCAT('PSK/POLSEK-SBY-BENOWO/', DATE_FORMAT(CURDATE() - INTERVAL 1 DAY, '%Y%m'), '/9001'), 1, 1000, 113, CURDATE() - INTERVAL 1 DAY, CURDATE() - INTERVAL 1 DAY, CURDATE() - INTERVAL 1 DAY, NULL,
     'Kecamatan Benowo', 'Situasi aman terkendali; satu kejadian curanmor di permukiman Romokalisari.',
     'Patroli malam 3 kali di jalur Benowo–Romokalisari. Satu laporan curanmor ditindaklanjuti olah TKP oleh unit reskrim.',
     'Penerangan jalan di beberapa titik padam.', 'Koordinasi dengan kelurahan untuk perbaikan PJU.', NULL,
-    'NORMAL', 'SUBMITTED', CONCAT(CURDATE() - INTERVAL 1 DAY, ' 23:59:00'), CONCAT(CURDATE() - INTERVAL 1 DAY, ' 21:40:00'), 109, 109),
-(2, NULL, 1, 1000, CURDATE(), CURDATE(), NULL,
+    'NORMAL', 'SUBMITTED', 1, CONCAT(CURDATE() - INTERVAL 1 DAY, ' 23:59:00'), CONCAT(CURDATE() - INTERVAL 1 DAY, ' 21:40:00'), NULL, NULL, NULL, 109, 109),
+-- 2: Polsek Benowo, harian hari ini — masih draft
+(2, NULL, 1, 1000, NULL, CURDATE(), CURDATE(), CURDATE(), NULL,
     'Kecamatan Benowo', 'Draft laporan hari ini.', NULL, NULL, NULL, NULL,
-    'NORMAL', 'DRAFT', CONCAT(CURDATE(), ' 23:59:00'), NULL, 109, 109),
-(3, CONCAT('PSK/POLSEK-SBY-GUBENG/', DATE_FORMAT(CURDATE(), '%Y%m'), '/9001'), 3, 1005, NULL, NULL, NOW() - INTERVAL 5 HOUR,
+    'NORMAL', 'DRAFT', 1, CONCAT(CURDATE(), ' 23:59:00'), NULL, NULL, NULL, NULL, 109, 109),
+-- 3: Polsek Gubeng, kejadian khusus MENDESAK — menunggu verifikasi Polrestabes Surabaya
+(3, CONCAT('PSK/POLSEK-SBY-GUBENG/', DATE_FORMAT(CURDATE(), '%Y%m'), '/9001'), 3, 1005, 113, NULL, NULL, NULL, NOW() - INTERVAL 5 HOUR,
     'Jl. Raya Gubeng', 'Kebakaran ruko dua lantai, api berhasil dipadamkan.',
     'Kebakaran ruko pukul dini hari diduga korsleting listrik. 4 unit damkar dikerahkan, lalu lintas dialihkan sementara.',
     'Akses mobil damkar sempit akibat parkir liar.', 'Penyelidikan penyebab bersama Inafis; penertiban parkir liar.',
-    'Dukungan personel pengaturan lalu lintas dari Satlantas.', 'HIGH', 'SUBMITTED', NOW() + INTERVAL 1 HOUR, NOW() - INTERVAL 3 HOUR, 110, 110);
+    'Dukungan personel pengaturan lalu lintas dari Satlantas.', 'HIGH', 'SUBMITTED', 1, NOW() + INTERVAL 1 HOUR, NOW() - INTERVAL 3 HOUR, NULL, NULL, NULL, 110, 110),
+-- 4: Polsek Gubeng, harian 2 hari lalu — disetujui & diteruskan Polrestabes ke Polda Jatim
+(4, CONCAT('PSK/POLSEK-SBY-GUBENG/', DATE_FORMAT(CURDATE() - INTERVAL 2 DAY, '%Y%m'), '/9002'), 1, 1005, 10, CURDATE() - INTERVAL 2 DAY, CURDATE() - INTERVAL 2 DAY, CURDATE() - INTERVAL 2 DAY, NULL,
+    'Kecamatan Gubeng', 'Situasi aman; pengamanan kegiatan car free day berjalan lancar.',
+    'Pengamanan CFD dengan 12 personel, patroli dialogis di Taman Bungkul. Tidak ada kejadian menonjol.',
+    NULL, NULL, NULL, 'NORMAL', 'FORWARDED', 1, CONCAT(CURDATE() - INTERVAL 2 DAY, ' 23:59:00'), CONCAT(CURDATE() - INTERVAL 2 DAY, ' 20:15:00'),
+    107, CONCAT(CURDATE() - INTERVAL 1 DAY, ' 08:30:00'), CONCAT(CURDATE() - INTERVAL 1 DAY, ' 09:00:00'), 110, 107),
+-- 5: Polsek Gubeng, harian 3 hari lalu — dikembalikan Polrestabes untuk perbaikan
+(5, CONCAT('PSK/POLSEK-SBY-GUBENG/', DATE_FORMAT(CURDATE() - INTERVAL 3 DAY, '%Y%m'), '/9003'), 1, 1005, NULL, CURDATE() - INTERVAL 3 DAY, CURDATE() - INTERVAL 3 DAY, CURDATE() - INTERVAL 3 DAY, NULL,
+    'Kecamatan Gubeng', 'Situasi aman terkendali.', 'Patroli rutin.', NULL, NULL, NULL,
+    'NORMAL', 'NEEDS_REVISION', 1, CONCAT(CURDATE() - INTERVAL 3 DAY, ' 23:59:00'), CONCAT(CURDATE() - INTERVAL 3 DAY, ' 22:05:00'), NULL, NULL, NULL, 110, 107);
 
 INSERT INTO `posko_report_values` (`report_id`, `field_key`, `value_number`, `value_text`) VALUES
 (1, 'situasi_kamtibmas', NULL, 'Aman terkendali'), (1, 'jumlah_kejadian', 1, NULL), (1, 'jumlah_laka_lantas', 0, NULL),
 (1, 'personel_siaga', 18, NULL), (1, 'kegiatan_patroli', 3, NULL),
 (2, 'situasi_kamtibmas', NULL, 'Aman terkendali'), (2, 'personel_siaga', 16, NULL),
 (3, 'korban_meninggal', 0, NULL), (3, 'korban_luka', 1, NULL), (3, 'estimasi_kerugian', 350000000, NULL),
-(3, 'status_situasi', NULL, 'Terkendali');
+(3, 'status_situasi', NULL, 'Terkendali'),
+(4, 'situasi_kamtibmas', NULL, 'Aman terkendali'), (4, 'jumlah_kejadian', 0, NULL), (4, 'jumlah_laka_lantas', 1, NULL),
+(4, 'personel_siaga', 12, NULL), (4, 'kegiatan_patroli', 4, NULL),
+(5, 'situasi_kamtibmas', NULL, 'Aman terkendali'), (5, 'jumlah_kejadian', 0, NULL), (5, 'jumlah_laka_lantas', 0, NULL),
+(5, 'personel_siaga', 14, NULL);
+
+-- Riwayat tindakan contoh (aktor: 107 Operator Polrestabes Surabaya, 109 Operator Benowo, 110 Operator Gubeng)
+INSERT INTO `posko_report_history` (`report_id`, `actor_id`, `actor_satker_id`, `action`, `status_from`, `status_to`, `holder_from`, `holder_to`, `version`, `notes`, `created_at`) VALUES
+(1, 109, 1000, 'create', NULL, 'DRAFT', NULL, NULL, 1, NULL, CONCAT(CURDATE() - INTERVAL 1 DAY, ' 20:50:00')),
+(1, 109, 1000, 'submit', 'DRAFT', 'SUBMITTED', NULL, 113, 1, NULL, CONCAT(CURDATE() - INTERVAL 1 DAY, ' 21:40:00')),
+(2, 109, 1000, 'create', NULL, 'DRAFT', NULL, NULL, 1, NULL, NOW() - INTERVAL 1 HOUR),
+(3, 110, 1005, 'create', NULL, 'DRAFT', NULL, NULL, 1, NULL, NOW() - INTERVAL 4 HOUR),
+(3, 110, 1005, 'submit', 'DRAFT', 'SUBMITTED', NULL, 113, 1, NULL, NOW() - INTERVAL 3 HOUR),
+(4, 110, 1005, 'create', NULL, 'DRAFT', NULL, NULL, 1, NULL, CONCAT(CURDATE() - INTERVAL 2 DAY, ' 19:30:00')),
+(4, 110, 1005, 'submit', 'DRAFT', 'SUBMITTED', NULL, 113, 1, NULL, CONCAT(CURDATE() - INTERVAL 2 DAY, ' 20:15:00')),
+(4, 107, 113, 'approve', 'SUBMITTED', 'APPROVED', 113, 113, 1, 'Data sesuai.', CONCAT(CURDATE() - INTERVAL 1 DAY, ' 08:30:00')),
+(4, 107, 113, 'forward', 'APPROVED', 'FORWARDED', 113, 10, 1, NULL, CONCAT(CURDATE() - INTERVAL 1 DAY, ' 09:00:00')),
+(5, 110, 1005, 'create', NULL, 'DRAFT', NULL, NULL, 1, NULL, CONCAT(CURDATE() - INTERVAL 3 DAY, ' 21:30:00')),
+(5, 110, 1005, 'submit', 'DRAFT', 'SUBMITTED', NULL, 113, 1, NULL, CONCAT(CURDATE() - INTERVAL 3 DAY, ' 22:05:00')),
+(5, 107, 113, 'return', 'SUBMITTED', 'NEEDS_REVISION', 113, NULL, 1, 'Uraian kegiatan terlalu singkat. Lengkapi lokasi patroli dan jumlah kegiatan patroli.', CONCAT(CURDATE() - INTERVAL 2 DAY, ' 08:10:00'));
 
 SET FOREIGN_KEY_CHECKS = 1;
