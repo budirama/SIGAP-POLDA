@@ -310,7 +310,7 @@
           </label>
           <textarea name="message_text" rows="3" required
                     placeholder="Tuliskan pertanyaan, tanggapan atas SP2HP, atau keterangan tambahan Anda..."
-                    class="w-full bg-[#0A192F] border border-slate-700 focus:border-amber-500 rounded-xl p-3 text-xs text-slate-100 placeholder-slate-500 outline-none"></textarea>
+                    class="w-full bg-[#0A192F] border border-slate-700 focus:border-amber-500 rounded-xl p-3 text-xs text-slate-100 placeholder-slate-500 outline-none"><?= htmlspecialchars($messageDraft ?? '') ?></textarea>
         </div>
 
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
@@ -365,17 +365,20 @@
                 <input type="hidden" name="_csrf_token" value="<?= $csrfToken ?>">
                 <input type="hidden" name="ticket_number" value="<?= htmlspecialchars($report['ticket_number']) ?>">
 
-                <div>
-                  <label class="block text-xs font-semibold text-slate-300 mb-1">Rating Kepuasan Pelayanan (1 - 5 Bintang):</label>
-                  <div class="flex items-center gap-3 text-2xl text-amber-400 cursor-pointer" id="starPicker">
-                    <i class="fas fa-star" onclick="setRating(1)"></i>
-                    <i class="fas fa-star" onclick="setRating(2)"></i>
-                    <i class="fas fa-star" onclick="setRating(3)"></i>
-                    <i class="fas fa-star" onclick="setRating(4)"></i>
-                    <i class="fas fa-star" onclick="setRating(5)"></i>
-                    <input type="hidden" name="rating_stars" id="rating_stars" value="5">
+                <!-- Rating: grup radio asli (Tab untuk masuk, panah kiri/kanan untuk memilih) -->
+                <fieldset>
+                  <legend class="block text-xs font-semibold text-slate-300 mb-1">Rating Kepuasan Pelayanan (1 - 5 Bintang):</legend>
+                  <div class="flex items-center gap-1 text-2xl" id="starPicker">
+                    <?php for ($s = 1; $s <= 5; $s++): ?>
+                      <label class="cursor-pointer p-1 rounded-lg focus-within:ring-2 focus-within:ring-amber-400">
+                        <input type="radio" name="rating_stars" value="<?= $s ?>" class="sr-only" <?= $s === 5 ? 'checked' : '' ?> onchange="setRating(<?= $s ?>)">
+                        <i class="fas fa-star text-amber-400" aria-hidden="true"></i>
+                        <span class="sr-only"><?= $s ?> dari 5 bintang</span>
+                      </label>
+                    <?php endfor; ?>
+                    <span id="ratingLabel" class="text-xs text-slate-300 font-bold ml-2" aria-hidden="true">5 / 5</span>
                   </div>
-                </div>
+                </fieldset>
 
                 <div class="grid sm:grid-cols-2 gap-4">
                   <div>
@@ -423,7 +426,7 @@
 
 <script>
   function setRating(val) {
-    document.getElementById('rating_stars').value = val;
+    document.getElementById('ratingLabel').textContent = val + ' / 5';
     const stars = document.querySelectorAll('#starPicker i');
     stars.forEach((star, index) => {
       if (index < val) {

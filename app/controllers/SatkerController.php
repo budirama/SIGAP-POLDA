@@ -38,9 +38,9 @@ class SatkerController extends Controller
     {
         $isSuper = Auth::role() === Constants::ROLE_SUPERADMIN;
 
-        $reports = $this->reportModel->getFilteredReports([
+        $pager = $this->reportModel->paginateFilteredReports([
             'satker_id' => $isSuper ? null : (Auth::satkerId() ?? -1)
-        ]);
+        ], (int)$this->get('page', 1));
 
         // Daftar penyidik: Satker sendiri, atau seluruh Satker untuk superadmin (difilter per laporan di modal)
         $investigators = $isSuper
@@ -49,7 +49,8 @@ class SatkerController extends Controller
 
         $this->render('backoffice/satker_inbox', [
             'pageTitle'     => 'Inbox Disposisi Satker & Penugasan Kanit',
-            'reports'       => $reports,
+            'reports'       => $pager['items'],
+            'pager'         => $pager,
             'investigators' => $investigators,
             'directives'    => (new KapoldaDirective())->getOpenForSatker($isSuper ? null : (Auth::satkerId() ?? -1))
         ], 'admin');
@@ -71,7 +72,7 @@ class SatkerController extends Controller
 
         $reportId = (int)$this->post('report_id', 0);
         $investigatorId = (int)$this->post('investigator_id', 0);
-        $sprintgas = $this->post('sprintgas_number', 'SP.Gas/' . random_int(100, 999) . '/' . date('m/Y') . '/Satker');
+        $sprintgas = (string)$this->post('sprintgas_number', '');
 
         if ($reportId <= 0 || $investigatorId <= 0) {
             Session::setFlash('error', 'Pilih penyidik yang sah.');
@@ -90,6 +91,13 @@ class SatkerController extends Controller
 
         if (!in_array($report['status'], [Constants::STATUS_DISPATCHED, Constants::STATUS_ASSIGNED], true)) {
             Session::setFlash('error', 'Penugasan penyidik hanya untuk laporan yang telah didisposisikan.');
+            $this->redirect('/satker');
+        }
+
+        if ($sprintgas === '') {
+            $sprintgas = Constants::documentNumber('SP.Gas', $report['satker_code'] ?? null);
+        } elseif (mb_strlen($sprintgas) > 100) {
+            Session::setFlash('error', 'Nomor Sprintgas maksimal 100 karakter.');
             $this->redirect('/satker');
         }
 

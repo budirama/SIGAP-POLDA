@@ -98,4 +98,11 @@ class Constants
             default => '<span class="px-2 py-0.5 text-xs rounded bg-slate-800 text-slate-300">'.htmlspecialchars($channel, ENT_QUOTES, 'UTF-8').'</span>'
         };
     }
+
+    // Nomor dokumen default (Sprintgas/SP2HP) bersufiks kode Satker penerbit, mis. SP.Gas/123/10/2026/POLRES-JAKSEL
+    public static function documentNumber(string $prefix, ?string $satkerCode): string
+    {
+        $suffix = trim((string)$satkerCode) !== '' ? trim((string)$satkerCode) : 'POLDA';
+        return $prefix . '/' . random_int(100, 999) . '/' . date('m/Y') . '/' . $suffix;
+    }
 }

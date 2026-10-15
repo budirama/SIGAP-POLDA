@@ -17,8 +17,12 @@
 </head>
 <body class="bg-[#070F1E] text-slate-100 min-h-screen flex selection:bg-amber-500 selection:text-slate-950">
 
-  <!-- Left Sidebar Navigation -->
-  <aside class="w-64 bg-[#0A192F] border-r border-[#1E355B] flex flex-col justify-between flex-shrink-0 min-h-screen sticky top-0 hidden md:flex">
+  <!-- Latar gelap menu off-canvas (layar kecil) -->
+  <div id="sidebarBackdrop" class="hidden fixed inset-0 z-40 bg-black/60 md:hidden" onclick="toggleSidebar(false)"></div>
+
+  <!-- Left Sidebar Navigation: off-canvas di HP, menempel di desktop -->
+  <aside id="sidebar" aria-label="Menu navigasi"
+         class="w-64 bg-[#0A192F] border-r border-[#1E355B] flex flex-col justify-between flex-shrink-0 h-screen overflow-y-auto fixed inset-y-0 left-0 z-50 -translate-x-full transition-transform duration-200 md:sticky md:top-0 md:translate-x-0">
     
     <div>
       <!-- Ribbon Accent -->
@@ -145,7 +149,8 @@
       
       <!-- Left Page Title -->
       <div class="flex items-center gap-3">
-        <button class="md:hidden text-slate-300 p-2" onclick="alert('Menu navigasi dapat diakses pada layar desktop atau gunakan link atas.')">
+        <button type="button" id="sidebarToggle" class="md:hidden text-slate-300 p-2" onclick="toggleSidebar()"
+                aria-controls="sidebar" aria-expanded="false" aria-label="Buka menu navigasi">
           <i class="fas fa-bars text-lg"></i>
         </button>
         <div>
@@ -190,6 +195,17 @@
     </main>
 
   </div>
+
+  <script>
+    function toggleSidebar(open) {
+      const sidebar = document.getElementById('sidebar');
+      const show = open ?? sidebar.classList.contains('-translate-x-full');
+      sidebar.classList.toggle('-translate-x-full', !show);
+      document.getElementById('sidebarBackdrop').classList.toggle('hidden', !show);
+      document.getElementById('sidebarToggle').setAttribute('aria-expanded', String(show));
+    }
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') toggleSidebar(false); });
+  </script>
 
 </body>
 </html>

@@ -137,7 +137,7 @@
         <div class="grid sm:grid-cols-2 gap-3">
           <div>
             <label class="block text-xs font-semibold text-slate-300 mb-1">Nomor Dokumen SP2HP:</label>
-            <input type="text" name="sp2hp_number" value="SP2HP/<?= random_int(100, 999) ?>/<?= date('m/Y') ?>/Ditreskrimum" required
+            <input type="text" name="sp2hp_number" value="<?= htmlspecialchars(\App\Config\Constants::documentNumber('SP2HP', $report['satker_code'] ?? null)) ?>" maxlength="100" required
                    class="w-full bg-[#070F1E] border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 font-mono outline-none focus:border-amber-500">
           </div>
 
@@ -311,7 +311,7 @@
         </label>
         <textarea name="message_text" rows="3" required
                   placeholder="Contoh: Yth. Pelapor, mohon dapat melampirkan salinan mutasi rekening koran atau hadir untuk memberikan keterangan tambahan pada hari..."
-                  class="w-full bg-[#0A192F] border border-slate-700 focus:border-amber-500 rounded-xl p-3 text-xs text-slate-100 placeholder-slate-500 outline-none"></textarea>
+                  class="w-full bg-[#0A192F] border border-slate-700 focus:border-amber-500 rounded-xl p-3 text-xs text-slate-100 placeholder-slate-500 outline-none"><?= htmlspecialchars($messageDraft ?? '') ?></textarea>
       </div>
 
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">

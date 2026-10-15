@@ -46,11 +46,12 @@ class InvestigatorController extends Controller
             Constants::ROLE_SATKER_ADMIN => ['satker_id' => Auth::satkerId() ?? -1],
             default => [],
         };
-        $reports = $this->reportModel->getFilteredReports($filters);
+        $pager = $this->reportModel->paginateFilteredReports($filters, (int)$this->get('page', 1), 24);
 
         $this->render('backoffice/investigator_list', [
             'pageTitle' => 'Workspace Kasus Aktif Penyidik',
-            'reports'   => $reports
+            'reports'   => $pager['items'],
+            'pager'     => $pager
         ], 'admin');
     }
 
@@ -78,6 +79,7 @@ class InvestigatorController extends Controller
             'timeline'    => $timeline,
             'attachments' => $attachments,
             'messages'    => $messages,
+            'messageDraft' => $this->pullMessageDraft($id),
             'canHandle'   => $this->canHandle($report),
             'backUrl'     => $this->homeUrl()
         ], 'admin');
@@ -98,13 +100,17 @@ class InvestigatorController extends Controller
         }
 
         $reportId = (int)$this->post('report_id', 0);
-        $sp2hpNumber = $this->post('sp2hp_number', 'SP2HP/' . random_int(100, 999) . '/' . date('m/Y') . '/Ditreskrimum');
+        $sp2hpNumber = (string)$this->post('sp2hp_number', '');
         $publicNotes = $this->post('public_notes', '');
         $internalNotes = $this->post('internal_notes', '');
         $newStatus = $this->post('status', Constants::STATUS_INVESTIGATING);
 
         $report = $this->findAuthorizedReport($reportId);
         $this->requireActiveCase($report);
+
+        if ($sp2hpNumber === '') {
+            $sp2hpNumber = Constants::documentNumber('SP2HP', $report['satker_code'] ?? null);
+        }
 
         if (!in_array($newStatus, [Constants::STATUS_INVESTIGATING, Constants::STATUS_CLOSED], true)) {
             Session::setFlash('error', 'Status perkara tidak valid.');
@@ -176,7 +182,8 @@ class InvestigatorController extends Controller
                 ['image/jpeg', 'image/png', 'image/webp', 'application/pdf']
             );
             if ($stored === null) {
-                Session::setFlash('error', 'Lampiran tidak dapat dikirim (format harus JPG/PNG/WEBP/PDF, maksimal 20 MB).');
+                Session::setFlash('error', 'Pesan belum terkirim: lampiran ditolak (format harus JPG/PNG/WEBP/PDF, maksimal 20 MB). Pilih file lain atau kirim tanpa lampiran.');
+                Session::set('_message_draft', ['report_id' => $reportId, 'text' => $messageText]);
                 $this->redirect("/investigator/detail/{$reportId}#ruang-klarifikasi");
             }
             $attachmentPath = $stored['file_path'];
@@ -232,6 +239,19 @@ class InvestigatorController extends Controller
      * Ambil laporan dan pastikan pengguna berwenang menanganinya:
      * Penyidik hanya kasus yang ditugaskan kepadanya, Kanit hanya kasus di Satker-nya.
      */
+    /**
+     * Ambil (sekali pakai) teks pesan yang gagal terkirim untuk laporan ini
+     */
+    private function pullMessageDraft(int $reportId): string
+    {
+        $draft = Session::get('_message_draft');
+        if (!is_array($draft) || (int)($draft['report_id'] ?? 0) !== $reportId) {
+            return '';
+        }
+        Session::remove('_message_draft');
+        return (string)($draft['text'] ?? '');
+    }
+
     private function findAuthorizedReport(int $reportId): array
     {
         $report = $reportId > 0 ? $this->reportModel->findById($reportId) : null;

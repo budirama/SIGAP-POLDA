@@ -241,6 +241,7 @@ $timeline = $this->reportModel->getTimeline($report['id'], false); // Hanya cata
             'timeline'     => $timeline,
             'attachments'  => $attachments,
             'messages'     => $messages ?? [],
+            'messageDraft' => $report !== null ? $this->pullMessageDraft((int)$report['id']) : '',
             'feedback'     => $feedback,
             'errorMessage' => $errorMessage,
             'isReporter'   => $report !== null && ReportAccess::reporterCanView($report)
@@ -284,7 +285,15 @@ $timeline = $this->reportModel->getTimeline($report['id'], false); // Hanya cata
             $senderName = Auth::user()['name'];
         }
 
-        $attachmentPath = $this->storeClarificationFile();
+        $attachmentPath = null;
+        if (!empty($_FILES['clarification_file']['name'])) {
+            $attachmentPath = $this->storeClarificationFile();
+            if ($attachmentPath === null) {
+                // Pesan tidak disimpan tanpa lampirannya; teks dikembalikan ke formulir
+                Session::set('_message_draft', ['report_id' => (int)$report['id'], 'text' => $messageText]);
+                $this->redirect('/report/track?ticket=' . urlencode($ticket) . '#ruang-klarifikasi');
+            }
+        }
 
         $this->reportModel->addCaseMessage(
             $report['id'],
@@ -381,12 +390,21 @@ $timeline = $this->reportModel->getTimeline($report['id'], false); // Hanya cata
         return ReportAccess::officerCanView($report) || ReportAccess::reporterCanView($report);
     }
 
+    /**
+     * Ambil (sekali pakai) teks pesan yang gagal terkirim untuk laporan ini
+     */
+    private function pullMessageDraft(int $reportId): string
+    {
+        $draft = Session::get('_message_draft');
+        if (!is_array($draft) || (int)($draft['report_id'] ?? 0) !== $reportId) {
+            return '';
+        }
+        Session::remove('_message_draft');
+        return (string)($draft['text'] ?? '');
+    }
+
     private function storeClarificationFile(): ?string
     {
-        if (empty($_FILES['clarification_file']['name'])) {
-            return null;
-        }
-
         $stored = Upload::store(
             $_FILES['clarification_file']['tmp_name'],
             $_FILES['clarification_file']['error'],
@@ -395,7 +413,7 @@ $timeline = $this->reportModel->getTimeline($report['id'], false); // Hanya cata
         );
 
         if ($stored === null) {
-            Session::setFlash('error', 'Lampiran tidak dapat dikirim (format harus JPG/PNG/WEBP/PDF, maksimal 20 MB).');
+            Session::setFlash('error', 'Pesan belum terkirim: lampiran ditolak (format harus JPG/PNG/WEBP/PDF, maksimal 20 MB). Pilih file lain atau kirim tanpa lampiran.');
         }
 
         return $stored['file_path'] ?? null;
