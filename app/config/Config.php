@@ -21,6 +21,15 @@ class Config
     public const APP_MOTTO = 'Rastra Sewakotama - Polri Presisi';
     public const APP_VERSION = '1.1.0';
 
+    // Lingkungan Aplikasi: 'development' atau 'production'
+    // WAJIB diubah ke 'production' saat deploy (menonaktifkan Quick Login uji coba)
+    public const APP_ENV = 'development';
+
+    public static function isDevelopment(): bool
+    {
+        return self::APP_ENV === 'development';
+    }
+
     // Path Base URL (Deteksi Otomatis atau Fallback)
     public static function getBaseUrl(): string
     {

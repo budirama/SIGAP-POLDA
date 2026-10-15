@@ -96,26 +96,31 @@ class SpktController extends Controller
             $this->redirect('/spkt');
         }
 
+        if (!$this->validateCsrf()) {
+            Session::setFlash('error', 'Token CSRF tidak valid.');
+            $this->redirect('/spkt');
+        }
+
         $reportId = (int)$this->post('report_id', 0);
-        $reason = $this->post('rejection_reason', 'Laporan tidak memenuhi unsur tindak pidana.');
+        $reason = trim($this->post('rejection_reason', ''));
 
-        $this->reportModel->execute(
-            "UPDATE reports SET status = 'REJECTED', rejection_reason = ? WHERE id = ?",
-            [$reason, $reportId]
-        );
+        if ($reportId <= 0 || $reason === '') {
+            Session::setFlash('error', 'Alasan penolakan laporan wajib diisi.');
+            $this->redirect('/spkt');
+        }
 
-        $this->reportModel->execute(
-            "INSERT INTO report_timeline (report_id, actor_id, status_from, status_to, title, public_notes, internal_notes)
-             VALUES (?, ?, 'SUBMITTED', 'REJECTED', 'Laporan Tidak Dapat Diproses', ?, ?)",
-            [
-                $reportId,
-                Auth::id(),
-                "Laporan tidak dapat ditindaklanjuti dengan alasan: {$reason}",
-                "Ditolak oleh SPKT: {$reason}"
-            ]
-        );
+        $report = $this->reportModel->findById($reportId);
+        if (!$report || !in_array($report['status'], [Constants::STATUS_SUBMITTED, Constants::STATUS_VERIFIED_SPKT], true)) {
+            Session::setFlash('error', 'Hanya laporan yang menunggu verifikasi yang dapat ditolak.');
+            $this->redirect('/spkt');
+        }
 
-        Session::setFlash('success', 'Laporan telah ditandai Ditolak.');
+        if ($this->reportModel->rejectReport($reportId, Auth::id(), $reason)) {
+            Session::setFlash('success', 'Laporan telah ditandai Ditolak.');
+        } else {
+            Session::setFlash('error', 'Gagal menolak laporan.');
+        }
+
         $this->redirect('/spkt');
     }
 }

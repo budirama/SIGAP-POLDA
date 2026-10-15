@@ -287,6 +287,7 @@ class Report extends Model
     {
         $this->beginTransaction();
         try {
+            $report = $this->findById($reportId);
             $inv = $this->fetch("SELECT name, rank FROM users WHERE id = ?", [$investigatorId]);
             $invTitle = "{$inv['rank']} {$inv['name']}";
 
@@ -297,10 +298,11 @@ class Report extends Model
 
             $this->execute(
                 "INSERT INTO report_timeline (report_id, actor_id, status_from, status_to, title, public_notes, internal_notes)
-                 VALUES (?, ?, 'DISPATCHED', 'ASSIGNED', 'Penunjukan Penyidik Pelaksana', ?, ?)",
+                 VALUES (?, ?, ?, 'ASSIGNED', 'Penunjukan Penyidik Pelaksana', ?, ?)",
                 [
                     $reportId,
                     $actorId,
+                    $report['status'],
                     "Penyelidikan kasus ini telah dipercayakan kepada Penyidik {$invTitle}.",
                     "Sprintgas No: {$sprintgasNumber}. Penugasan kepada {$invTitle}."
                 ]
@@ -321,17 +323,20 @@ class Report extends Model
     {
         $this->beginTransaction();
         try {
+            $report = $this->findById($reportId);
+
             $this->execute(
-                "UPDATE reports SET status = ? WHERE id = ?",
-                [$newStatus, $reportId]
+                "UPDATE reports SET status = ?, closed_at = IF(? = 'CLOSED', NOW(), closed_at) WHERE id = ?",
+                [$newStatus, $newStatus, $reportId]
             );
 
             $this->execute(
                 "INSERT INTO report_timeline (report_id, actor_id, status_from, status_to, title, public_notes, internal_notes, is_sp2hp, sp2hp_number)
-                 VALUES (?, ?, 'INVESTIGATING', ?, 'Penerbitan SP2HP Elektronik', ?, ?, 1, ?)",
+                 VALUES (?, ?, ?, ?, 'Penerbitan SP2HP Elektronik', ?, ?, 1, ?)",
                 [
                     $reportId,
                     $actorId,
+                    $report['status'],
                     $newStatus,
                     $publicNotes,
                     $internalNotes,
@@ -354,6 +359,8 @@ class Report extends Model
     {
         $this->beginTransaction();
         try {
+            $report = $this->findById($reportId);
+
             $this->execute(
                 "UPDATE reports SET status = 'CLOSED', closed_at = NOW() WHERE id = ?",
                 [$reportId]
@@ -361,12 +368,47 @@ class Report extends Model
 
             $this->execute(
                 "INSERT INTO report_timeline (report_id, actor_id, status_from, status_to, title, public_notes, internal_notes, is_sp2hp, sp2hp_number)
-                 VALUES (?, ?, 'INVESTIGATING', 'CLOSED', 'Penanganan Kasus Selesai', ?, ?, 1, 'SP2HP/FINAL/CLOSED')",
+                 VALUES (?, ?, ?, 'CLOSED', 'Penanganan Kasus Selesai', ?, ?, 1, 'SP2HP/FINAL/CLOSED')",
                 [
                     $reportId,
                     $actorId,
+                    $report['status'],
                     "Perkara ini telah berhasil diselesaikan oleh tim kepolisian. Terima kasih atas partisipasi aktif masyarakat. Silakan luangkan waktu sejenak untuk mengisi Survei Kepuasan Masyarakat (SKM).",
                     "Catatan Penutupan Kasus (BAP): {$resolutionNotes}"
+                ]
+            );
+
+            $this->commit();
+            return true;
+        } catch (\Throwable $e) {
+            $this->rollBack();
+            return false;
+        }
+    }
+
+    /**
+     * Tolak Laporan oleh SPKT (Hoax / Tidak Memenuhi Unsur Pidana)
+     */
+    public function rejectReport(int $reportId, int $actorId, string $reason): bool
+    {
+        $this->beginTransaction();
+        try {
+            $report = $this->findById($reportId);
+
+            $this->execute(
+                "UPDATE reports SET status = 'REJECTED', rejection_reason = ? WHERE id = ?",
+                [$reason, $reportId]
+            );
+
+            $this->execute(
+                "INSERT INTO report_timeline (report_id, actor_id, status_from, status_to, title, public_notes, internal_notes)
+                 VALUES (?, ?, ?, 'REJECTED', 'Laporan Tidak Dapat Diproses', ?, ?)",
+                [
+                    $reportId,
+                    $actorId,
+                    $report['status'],
+                    "Laporan tidak dapat ditindaklanjuti dengan alasan: {$reason}",
+                    "Ditolak oleh SPKT: {$reason}"
                 ]
             );
 

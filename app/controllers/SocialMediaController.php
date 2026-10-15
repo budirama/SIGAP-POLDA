@@ -105,6 +105,11 @@ class SocialMediaController extends Controller
             $this->redirect('/social');
         }
 
+        if (!$this->validateCsrf()) {
+            Session::setFlash('error', 'Token CSRF tidak valid.');
+            $this->redirect('/social');
+        }
+
         $feedId = (int)$this->post('feed_id', 0);
         if ($feedId > 0) {
             $this->socialModel->dismissFeed($feedId, Auth::id());
@@ -123,7 +128,12 @@ class SocialMediaController extends Controller
             $this->redirect('/social');
         }
 
-        $platform = $this->post('platform', 'TWITTER_X');
+        if (!$this->validateCsrf()) {
+            Session::setFlash('error', 'Token CSRF tidak valid.');
+            $this->redirect('/social');
+        }
+
+        $platform =$this->post('platform', 'TWITTER_X');
         $username = $this->post('username', 'warga_netizen');
         $content = $this->post('content', 'Lapor Pak ada pungli parkir liar meresahkan di depan stasiun!');
         $postUrl = $this->post('post_url', 'https://x.com/warga_netizen/status/' . time());

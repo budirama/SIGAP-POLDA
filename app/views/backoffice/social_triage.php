@@ -92,6 +92,7 @@
               </button>
 
               <form action="<?= $baseUrl ?>/social/dismiss" method="POST" onsubmit="return confirm('Abaikan postingan ini sebagai spam?');">
+                <input type="hidden" name="_csrf_token" value="<?= $csrfToken ?>">
                 <input type="hidden" name="feed_id" value="<?= $feed['id'] ?>">
                 <button type="submit" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-rose-400 rounded-xl text-xs transition-colors" title="Abaikan Spam">
                   <i class="fas fa-trash-can"></i>
@@ -182,6 +183,7 @@
     </div>
 
     <form action="<?= $baseUrl ?>/social/simulate" method="POST" class="space-y-4">
+      <input type="hidden" name="_csrf_token" value="<?= $csrfToken ?>">
       <div>
         <label class="block text-xs font-semibold text-slate-300 mb-1">Platform Asal:</label>
         <select name="platform" class="w-full bg-[#070F1E] border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 outline-none">

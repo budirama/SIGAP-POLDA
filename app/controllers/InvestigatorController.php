@@ -49,11 +49,7 @@ class InvestigatorController extends Controller
      */
     public function detail(int $id): void
     {
-        $report = $this->reportModel->findById($id);
-        if (!$report) {
-            Session::setFlash('error', 'Data perkara tidak ditemukan.');
-            $this->redirect('/investigator');
-        }
+        $report = $this->findAuthorizedReport($id);
 
         // Ambil timeline lengkap (termasuk rahasia internal)
         $timeline = $this->reportModel->getTimeline($id, true);
@@ -87,7 +83,15 @@ class InvestigatorController extends Controller
         $sp2hpNumber = $this->post('sp2hp_number', 'SP2HP/' . random_int(100, 999) . '/' . date('m/Y') . '/Ditreskrimum');
         $publicNotes = $this->post('public_notes', '');
         $internalNotes = $this->post('internal_notes', '');
-        $newStatus = $this->post('status', 'INVESTIGATING');
+        $newStatus = $this->post('status', Constants::STATUS_INVESTIGATING);
+
+        $report = $this->findAuthorizedReport($reportId);
+        $this->requireActiveCase($report);
+
+        if (!in_array($newStatus, [Constants::STATUS_INVESTIGATING, Constants::STATUS_CLOSED], true)) {
+            Session::setFlash('error', 'Status perkara tidak valid.');
+            $this->redirect("/investigator/detail/{$reportId}");
+        }
 
         if (empty($publicNotes)) {
             Session::setFlash('error', 'Catatan perkembangan resmi (publik) wajib diisi untuk pelapor.');
@@ -129,7 +133,9 @@ class InvestigatorController extends Controller
         $reportId = (int)$this->post('report_id', 0);
         $messageText = trim($this->post('message_text', ''));
 
-        if ($reportId <= 0 || empty($messageText)) {
+        $this->findAuthorizedReport($reportId);
+
+        if (empty($messageText)) {
             Session::setFlash('error', 'Pesan klarifikasi tidak boleh kosong.');
             $this->redirect("/investigator/detail/{$reportId}");
         }
@@ -179,6 +185,9 @@ class InvestigatorController extends Controller
         $reportId = (int)$this->post('report_id', 0);
         $resolutionNotes = $this->post('resolution_notes', 'Tersangka dan barang bukti telah diamankan secara lengkap.');
 
+        $report = $this->findAuthorizedReport($reportId);
+        $this->requireActiveCase($report);
+
         $success = $this->reportModel->closeReport($reportId, Auth::id(), $resolutionNotes);
 
         if ($success) {
@@ -188,5 +197,43 @@ class InvestigatorController extends Controller
         }
 
         $this->redirect("/investigator/detail/{$reportId}");
+    }
+
+    /**
+     * Ambil laporan dan pastikan pengguna berwenang menanganinya:
+     * Penyidik hanya kasus yang ditugaskan kepadanya, Kanit hanya kasus di Satker-nya.
+     */
+    private function findAuthorizedReport(int $reportId): array
+    {
+        $report = $reportId > 0 ? $this->reportModel->findById($reportId) : null;
+
+        if (!$report || !$this->canHandle($report)) {
+            Session::setFlash('error', 'Data perkara tidak ditemukan atau bukan dalam kewenangan Anda.');
+            $this->redirect('/investigator');
+        }
+
+        return $report;
+    }
+
+    private function canHandle(array $report): bool
+    {
+        return match (Auth::role()) {
+            Constants::ROLE_SUPERADMIN => true,
+            Constants::ROLE_INVESTIGATOR => (int)($report['assigned_investigator_id'] ?? 0) === Auth::id(),
+            Constants::ROLE_SATKER_ADMIN => !empty($report['current_satker_id'])
+                && (int)$report['current_satker_id'] === Auth::satkerId(),
+            default => false,
+        };
+    }
+
+    /**
+     * SP2HP & penutupan hanya untuk perkara yang sedang ditangani penyidik
+     */
+    private function requireActiveCase(array $report): void
+    {
+        if (!in_array($report['status'], [Constants::STATUS_ASSIGNED, Constants::STATUS_INVESTIGATING], true)) {
+            Session::setFlash('error', 'Perkara ini tidak dalam tahap penyelidikan aktif.');
+            $this->redirect("/investigator/detail/{$report['id']}");
+        }
     }
 }
