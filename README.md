@@ -71,6 +71,7 @@ SIGAP-POLDA/
 │   ├── PRD_SIGAP_POLDA.md  # Dokumen Spesifikasi Kebutuhan Produk (PRD)
 │   ├── TASK.md             # Checklist Tahapan Implementasi
 │   └── WALKTHROUGH.md      # Panduan Pengoperasian & Verifikasi Sistem
+├── tests/                  # Test runner tanpa dependensi (Unit & Integration HTTP)
 ├── public/
 │   ├── assets/             # CSS Tema Resmi Polri, Logo Polisi Bersama Masyarakat, Icon
 │   ├── .htaccess           # Apache URL Rewriting
@@ -118,7 +119,16 @@ DB_PASS=
 
 Bila database sudah terpasang dari versi sebelumnya, jalankan migrasi di `database/migrations/` (file `.sql` via MySQL, file `.php` via `php <file>`).
 
-### 4. Buka di Browser
+### 4. Menjalankan Test Otomatis
+Test runner PHP CLI tanpa dependensi (unit test + integration test HTTP):
+```bash
+php tests/run.php              # semua test
+php tests/run.php unit         # unit test saja (tanpa server/DB)
+php tests/run.php integration  # integration test HTTP
+```
+Integration test membutuhkan Apache & MySQL berjalan, database berisi data seeder, dan `.env` dengan `APP_ENV=development`. Data uji (judul berawalan `ZZTEST_`) dibersihkan otomatis. URL dapat diubah via env `TEST_BASE_URL` (default `http://localhost/SIGAP-Polda/public`).
+
+### 5. Buka di Browser
 * **Portal Warga:** `http://localhost/SIGAP-Polda/` atau `http://localhost/SIGAP-Polda/public/`
 * **Portal Personil Backoffice:** `http://localhost/SIGAP-Polda/public/auth/login`
 

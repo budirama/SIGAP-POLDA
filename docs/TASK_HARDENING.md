@@ -49,6 +49,6 @@ Lanjutan hasil code review 15 Oktober 2026. Setiap task dikerjakan di branch ter
 - **Kriteria selesai:** tanpa data feedback beranda menampilkan `–`; laporan Facebook ikut terhitung.
 
 ### T7 — Test otomatis
-- [ ] **Masalah:** belum ada test sama sekali.
+- [x] **Masalah:** belum ada test sama sekali.
 - **Solusi:** test runner PHP CLI tanpa dependensi (`tests/run.php`): unit test (router, `.env` parser) dan integration test HTTP terhadap server lokal untuk alur akses (PIN, rate limit, otorisasi kasus, CSRF, file privat, routing).
 - **Kriteria selesai:** `php tests/run.php` hijau di XAMPP lokal dengan data seeder.
