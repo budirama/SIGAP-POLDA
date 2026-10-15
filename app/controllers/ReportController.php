@@ -13,18 +13,21 @@ use App\Config\Constants;
 use App\Models\Report;
 use App\Models\User;
 use App\Models\Feedback;
+use App\Models\PinAttempt;
 
 class ReportController extends Controller
 {
     private Report $reportModel;
     private User $userModel;
     private Feedback $feedbackModel;
+    private PinAttempt $pinAttemptModel;
 
     public function __construct()
     {
         $this->reportModel = new Report();
         $this->userModel = new User();
         $this->feedbackModel = new Feedback();
+        $this->pinAttemptModel = new PinAttempt();
     }
 
     /**
@@ -193,11 +196,26 @@ class ReportController extends Controller
         if (!empty($ticketNumber)) {
             $report = $this->reportModel->findByTicket($ticketNumber);
             if ($report) {
-                if ($pin !== '' && hash_equals((string)$report['security_pin'], $pin)) {
-                    $this->grantReportAccess($report['ticket_number']);
+                $isLocked = false;
+                if ($pin !== '' && !$this->canAccessReport($report)) {
+                    $ticket = $report['ticket_number'];
+                    $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+
+                    if ($this->pinAttemptModel->isLocked($ticket, $ip)) {
+                        $isLocked = true;
+                    } elseif (hash_equals((string)$report['security_pin'], $pin)) {
+                        $this->pinAttemptModel->clearFailures($ticket);
+                        $this->grantReportAccess($ticket);
+                    } else {
+                        $this->pinAttemptModel->recordFailure($ticket, $ip);
+                    }
                 }
 
-                if (!$this->canAccessReport($report)) {
+                if ($isLocked) {
+                    $errorMessage = 'Terlalu banyak percobaan PIN yang salah. Silakan coba lagi dalam '
+                        . PinAttempt::WINDOW_MINUTES . ' menit.';
+                    $report = null;
+                } elseif (!$this->canAccessReport($report)) {
                     $errorMessage = $pin === ''
                         ? "Masukkan PIN Keamanan untuk membuka nomor tiket {$ticketNumber}."
                         : "PIN Keamanan tidak cocok untuk nomor tiket {$ticketNumber}.";
