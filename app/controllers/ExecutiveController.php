@@ -6,6 +6,7 @@
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Core\Audit;
 use App\Core\Auth;
 use App\Core\Session;
 use App\Config\Constants;
@@ -91,6 +92,7 @@ class ExecutiveController extends Controller
         $success = $this->reportModel->giveKapoldaAttention($reportId, Auth::id(), $directiveText);
 
         if ($success) {
+            Audit::log('report.attention', $reportId, $directiveText);
             Session::setFlash('success', 'Instruksi "Atensi Kapolda" berhasil diterbitkan dan ditandai Bintang Merah pada sistem.');
         } else {
             Session::setFlash('error', 'Perkara ini masih memiliki instruksi Atensi Kapolda yang belum diselesaikan.');
