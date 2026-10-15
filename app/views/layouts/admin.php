@@ -124,6 +124,17 @@
             <i class="fas fa-file-lines text-amber-400 w-4"></i>
             <span>Laporan Posko</span>
           </a>
+          <?php if (\App\Core\PoskoAccess::isOperational()): ?>
+            <?php $poskoQueue = count((new \App\Models\PoskoReport())->inbox((int)\App\Core\Auth::satkerId())); ?>
+            <a href="<?= $baseUrl ?>/posko-laporan/inbox"
+               class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-300 hover:text-slate-100 hover:bg-[#1B1610] transition-colors">
+              <i class="fas fa-inbox text-amber-400 w-4"></i>
+              <span class="flex-1">Antrean Verifikasi</span>
+              <?php if ($poskoQueue > 0): ?>
+                <span class="px-1.5 min-w-[1.25rem] text-center rounded-full bg-red-600 text-white text-[10px] leading-5"><?= $poskoQueue ?></span>
+              <?php endif; ?>
+            </a>
+          <?php endif; ?>
           <?php if (\App\Core\Auth::hasRole([\App\Config\Constants::ROLE_POSKO_ADMIN, \App\Config\Constants::ROLE_SUPERADMIN])): ?>
             <a href="<?= $baseUrl ?>/posko/users"
                class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-300 hover:text-slate-100 hover:bg-[#1B1610] transition-colors">

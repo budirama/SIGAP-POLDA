@@ -140,6 +140,7 @@ class PoskoReportController extends Controller
                 Session::setFlash('error', 'Laporan untuk jenis & periode ini sudah ada.');
                 $this->redirect($back);
             }
+            $this->reports->logCreate($id, (int)Auth::id(), $satkerId);
             Audit::log('posko.report.create', null, "Laporan posko #{$id} ({$type['code']})");
         }
 
@@ -165,6 +166,9 @@ class PoskoReportController extends Controller
             'attachments' => $this->reports->attachments($id),
             'canEdit'     => $this->canEditReport($report),
             'missing'     => $this->canEditReport($report) ? $this->missingForSubmit($report, $type) : [],
+            'history'     => $this->reports->history($id),
+            'versionCount' => count($this->reports->versions($id)),
+            'actions'     => $this->availableActions($report),
         ], 'admin');
     }
 
@@ -184,15 +188,242 @@ class PoskoReportController extends Controller
             $this->redirect("/posko-laporan/edit/{$id}");
         }
 
-        $number = $this->reports->submit($id, (int)Auth::id());
+        $number = $this->reports->submit($id, (int)Auth::id(), (int)Auth::satkerId(), $this->parentOf((int)$report['satker_id']));
         if ($number === null) {
             Session::setFlash('error', 'Laporan tidak dapat dikirim pada status saat ini.');
             $this->redirect("/posko-laporan/show/{$id}");
         }
 
-        Audit::log('posko.report.submit', null, "Laporan posko #{$id} → {$number}");
-        Session::setFlash('success', "Laporan terkirim dengan nomor {$number}.");
+        Audit::log($report['status'] === 'DRAFT' ? 'posko.report.submit' : 'posko.report.resubmit', null, "Laporan posko #{$id} → {$number}");
+        Session::setFlash('success', "Laporan {$number} terkirim ke unit induk untuk diverifikasi.");
         $this->redirect("/posko-laporan/show/{$id}");
+    }
+
+    // ------------------------------------------------------------------ Workflow berjenjang (Tahap 3)
+
+    /**
+     * Antrean tindakan: laporan yang sedang dipegang unit pengguna (P3-03)
+     */
+    public function inbox(): void
+    {
+        $unit = PoskoAccess::unitId();
+        $this->render('posko/inbox', [
+            'pageTitle' => 'Antrean Verifikasi Posko',
+            'items'     => $unit ? $this->reports->inbox($unit) : [],
+            'unitName'  => Auth::user()['satker_name'] ?? '',
+        ], 'admin');
+    }
+
+    public function startReview(): void
+    {
+        $report = $this->actionReport('start_review');
+        $ok = $this->reports->transition((int)$report['id'], 'start_review', ['SUBMITTED'], 'IN_REVIEW',
+            (int)Auth::id(), (int)Auth::satkerId(), ['reviewed_by' => (int)Auth::id()], null, $this->holderGuard());
+        $this->finish($ok, $report, 'posko.report.start_review', 'Verifikasi dimulai.');
+    }
+
+    public function approve(): void
+    {
+        $report = $this->actionReport('approve');
+        $notes = $this->notes(false);
+        $ok = $this->reports->transition((int)$report['id'], 'approve', ['SUBMITTED', 'IN_REVIEW'], 'APPROVED',
+            (int)Auth::id(), (int)Auth::satkerId(), ['approved_by' => (int)Auth::id(), 'approved_at' => date('Y-m-d H:i:s')],
+            $notes, $this->holderGuard());
+        $this->finish($ok, $report, 'posko.report.approve', 'Laporan disetujui. Teruskan ke tingkat atas bila sudah sesuai.');
+    }
+
+    /**
+     * Kembalikan untuk perbaikan (catatan koreksi wajib) — kembali ke unit pembuat
+     */
+    public function returnReport(): void
+    {
+        $report = $this->actionReport('return');
+        $notes = $this->notes(true);
+        $ok = $this->reports->transition((int)$report['id'], 'return', ['SUBMITTED', 'IN_REVIEW', 'APPROVED', 'FORWARDED'], 'NEEDS_REVISION',
+            (int)Auth::id(), (int)Auth::satkerId(),
+            ['holder_satker_id' => null, 'approved_by' => null, 'approved_at' => null, 'reviewed_by' => null],
+            $notes, $this->holderGuard());
+        $this->finish($ok, $report, 'posko.report.return', 'Laporan dikembalikan ke ' . $report['satker_name'] . ' untuk perbaikan.');
+    }
+
+    /**
+     * Teruskan ke unit induk pemegang saat ini (berjenjang, tidak melompati tingkat) — P3-04
+     */
+    public function forward(): void
+    {
+        $report = $this->actionReport('forward');
+        $holder = (int)$report['holder_satker_id'];
+        $next = $this->parentOf($holder);
+        if ($next === $holder) {
+            Session::setFlash('error', 'Laporan sudah berada di tingkat tertinggi (Pusat).');
+            $this->redirect("/posko-laporan/show/{$report['id']}");
+        }
+
+        // Yang meneruskan dianggap telah menerima laporan (eskalasi tercatat per tingkat)
+        if ($report['status'] === 'FORWARDED') {
+            $this->reports->acknowledge((int)$report['id'], (int)Auth::id(), (int)Auth::satkerId());
+        }
+        $notes = $this->notes(false);
+        $from = $report['status'] === 'FORWARDED' ? ['FORWARDED'] : (
+            (int)$report['requires_approval'] ? ['APPROVED'] : ['SUBMITTED', 'IN_REVIEW', 'APPROVED']
+        );
+        $ok = $this->reports->transition((int)$report['id'], 'forward', $from, 'FORWARDED',
+            (int)Auth::id(), (int)Auth::satkerId(), ['holder_satker_id' => $next, 'forwarded_at' => date('Y-m-d H:i:s')],
+            $notes, $this->holderGuard());
+        $name = (new Satker())->findById($next)['name'] ?? 'unit induk';
+        $this->finish($ok, $report, 'posko.report.forward', "Laporan diteruskan ke {$name}.");
+    }
+
+    /**
+     * Tandai laporan yang diteruskan telah diterima unit ini (penerima eskalasi tercatat)
+     */
+    public function acknowledge(): void
+    {
+        $report = $this->actionReport('acknowledge');
+        $ok = $this->reports->acknowledge((int)$report['id'], (int)Auth::id(), (int)Auth::satkerId()) ? $report : null;
+        $this->finish($ok, $report, 'posko.report.acknowledge', 'Penerimaan laporan dicatat.');
+    }
+
+    /**
+     * Ajukan revisi atas laporan yang sudah disetujui/diteruskan (P3-05): versi baru, diverifikasi ulang
+     */
+    public function revise(): void
+    {
+        $report = $this->actionReport('revise');
+        $notes = $this->notes(true);
+        $ok = $this->reports->transition((int)$report['id'], 'revise', ['APPROVED', 'FORWARDED'], 'NEEDS_REVISION',
+            (int)Auth::id(), (int)Auth::satkerId(),
+            fn($row) => ['version' => (int)$row['version'] + 1, 'holder_satker_id' => null,
+                         'approved_by' => null, 'approved_at' => null, 'reviewed_by' => null],
+            $notes, fn($row) => (int)$row['satker_id'] === Auth::satkerId());
+        $this->finish($ok, $report, 'posko.report.revise', 'Revisi dibuka sebagai versi baru. Perbarui laporan lalu kirim ulang untuk diverifikasi.', true);
+    }
+
+    /**
+     * Batalkan laporan yang belum diproses (alasan wajib). Tidak dihapus; periodenya dilepas.
+     */
+    public function cancel(): void
+    {
+        $report = $this->actionReport('cancel');
+        $notes = $this->notes(true);
+        $ok = $this->reports->transition((int)$report['id'], 'cancel', ['DRAFT', 'NEEDS_REVISION'], 'CANCELLED',
+            (int)Auth::id(), (int)Auth::satkerId(),
+            ['period_key' => null, 'holder_satker_id' => null, 'cancel_reason' => mb_substr($notes, 0, 500)],
+            $notes, fn($row) => (int)$row['satker_id'] === Auth::satkerId());
+        $this->finish($ok, $report, 'posko.report.cancel', 'Laporan dibatalkan.');
+    }
+
+    /**
+     * Perbandingan isi antarversi laporan (P3-05)
+     */
+    public function versions(int $id): void
+    {
+        $report = $this->viewableReport($id);
+        $type = $this->types->find((int)$report['report_type_id']);
+        $this->render('posko/report_versions', [
+            'pageTitle' => 'Riwayat Versi ' . ($report['report_number'] ?: 'Laporan'),
+            'report'    => $report,
+            'versions'  => $this->reports->versions($id),
+            'fields'    => $this->types->fields((int)$type['id'], false),
+        ], 'admin');
+    }
+
+    /**
+     * Aksi workflow yang tersedia untuk pengguna atas laporan ini (dipakai tampilan & penjaga server)
+     *
+     * @return string[]
+     */
+    private function availableActions(array $report): array
+    {
+        if (!PoskoAccess::isOperational()) {
+            return [];
+        }
+        $unit = (int)Auth::satkerId();
+        $status = $report['status'];
+        $isHolder = (int)$report['holder_satker_id'] === $unit && $report['holder_satker_id'] !== null;
+        $isDirectParent = $isHolder && ((int)$report['satker_parent_id'] === $unit || (int)$report['satker_id'] === $unit);
+        $isOwner = (int)$report['satker_id'] === $unit;
+        $hasParent = $isHolder && $report['holder_parent_id'] !== null;
+
+        $actions = [];
+        if ($isDirectParent && $status === 'SUBMITTED') {
+            $actions[] = 'start_review';
+        }
+        if ($isDirectParent && in_array($status, ['SUBMITTED', 'IN_REVIEW'], true)) {
+            $actions[] = 'approve';
+        }
+        if ($isHolder && in_array($status, ['SUBMITTED', 'IN_REVIEW', 'APPROVED', 'FORWARDED'], true)) {
+            $actions[] = 'return';
+        }
+        if ($hasParent && ($status === 'APPROVED' || $status === 'FORWARDED'
+                || ($isDirectParent && !(int)$report['requires_approval'] && in_array($status, ['SUBMITTED', 'IN_REVIEW'], true)))) {
+            $actions[] = 'forward';
+        }
+        if ($isHolder && $status === 'FORWARDED'
+                && !$this->reports->acknowledgedBy((int)$report['id'], $unit, (int)$report['version'])) {
+            $actions[] = 'acknowledge';
+        }
+        if ($isOwner && in_array($status, ['APPROVED', 'FORWARDED'], true)) {
+            $actions[] = 'revise';
+        }
+        if ($isOwner && in_array($status, ['DRAFT', 'NEEDS_REVISION'], true)) {
+            $actions[] = 'cancel';
+        }
+        return $actions;
+    }
+
+    /**
+     * POST + CSRF + laporan dapat dilihat + aksi tersedia untuk pengguna
+     */
+    private function actionReport(string $action): array
+    {
+        $this->requirePost('/posko-laporan');
+        $report = $this->viewableReport((int)$this->post('id', 0));
+        if (!in_array($action, $this->availableActions($report), true)) {
+            Session::setFlash('error', 'Tindakan tidak tersedia untuk laporan ini pada status saat ini atau di luar kewenangan unit Anda.');
+            $this->redirect("/posko-laporan/show/{$report['id']}");
+        }
+        return $report;
+    }
+
+    /**
+     * Penjaga atomik: pemegang laporan masih unit pengguna ketika baris dikunci
+     */
+    private function holderGuard(): callable
+    {
+        $unit = (int)Auth::satkerId();
+        return fn($row) => (int)$row['holder_satker_id'] === $unit;
+    }
+
+    private function notes(bool $required): ?string
+    {
+        $notes = mb_substr(trim((string)$this->post('notes', '')), 0, 2000);
+        if ($required && $notes === '') {
+            Session::setFlash('error', 'Catatan/alasan wajib diisi untuk tindakan ini.');
+            $this->redirect('/posko-laporan/show/' . (int)$this->post('id', 0));
+        }
+        return $notes !== '' ? $notes : null;
+    }
+
+    private function finish(?array $ok, array $report, string $audit, string $message, bool $toEdit = false): never
+    {
+        $id = (int)$report['id'];
+        if (!$ok) {
+            Session::setFlash('error', 'Tindakan gagal: status laporan sudah berubah. Muat ulang halaman.');
+            $this->redirect("/posko-laporan/show/{$id}");
+        }
+        Audit::log($audit, null, 'Laporan posko #' . $id . ($report['report_number'] ? " {$report['report_number']}" : ''));
+        Session::setFlash('success', $message);
+        $this->redirect($toEdit ? "/posko-laporan/edit/{$id}" : "/posko-laporan/show/{$id}");
+    }
+
+    /**
+     * Unit induk langsung; unit tertinggi (Pusat) memegang laporannya sendiri
+     */
+    private function parentOf(int $satkerId): int
+    {
+        $unit = (new Satker())->findById($satkerId);
+        return $unit && $unit['parent_id'] !== null ? (int)$unit['parent_id'] : $satkerId;
     }
 
     // ------------------------------------------------------------------ Lampiran
@@ -412,8 +643,8 @@ class PoskoReportController extends Controller
         if (!PoskoAccess::canViewUnit((int)$report['satker_id'])) {
             return false;
         }
-        // Draft hanya terlihat oleh unit pembuatnya
-        return $report['status'] !== 'DRAFT' || (int)$report['satker_id'] === Auth::satkerId();
+        // Draft (termasuk yang dibatalkan sebelum pernah dikirim) hanya terlihat oleh unit pembuatnya
+        return $report['report_number'] !== null || (int)$report['satker_id'] === Auth::satkerId();
     }
 
     private function canEditReport(array $report): bool
@@ -481,6 +712,7 @@ class PoskoReportController extends Controller
             'input'       => $input,
             'attachments' => $report ? $this->reports->attachments((int)$report['id']) : [],
             'unitName'    => Auth::user()['satker_name'] ?? '',
+            'revisionNote' => $report && $report['status'] === 'NEEDS_REVISION' ? $this->reports->lastNote((int)$report['id'], ['return', 'revise']) : null,
         ], 'admin');
     }
 

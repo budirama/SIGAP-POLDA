@@ -22,6 +22,16 @@ $req = '<span class="text-red-400" title="Wajib saat dikirim">*</span>';
     <p class="text-[11px] text-slate-500"><?= $req ?> wajib diisi sebelum dikirim. Draft boleh disimpan belum lengkap.</p>
   </div>
 
+  <?php if (!empty($revisionNote)): ?>
+    <div class="p-4 rounded-2xl border border-amber-600/60 bg-amber-950/40 text-xs text-amber-100" role="alert">
+      <p class="font-bold"><i class="fas fa-rotate-left mr-1"></i>
+        <?= $revisionNote['action'] === 'revise' ? 'Alasan revisi' : 'Catatan koreksi' ?> dari
+        <?= htmlspecialchars(trim(($revisionNote['actor_rank'] ?? '') . ' ' . ($revisionNote['actor_name'] ?? ''))) ?>
+        (<?= htmlspecialchars($revisionNote['actor_satker_name'] ?? '-') ?>)</p>
+      <p class="mt-1 whitespace-pre-line"><?= htmlspecialchars((string)$revisionNote['notes']) ?></p>
+    </div>
+  <?php endif; ?>
+
   <form method="POST" action="<?= $baseUrl ?>/posko-laporan/save" class="space-y-6">
     <input type="hidden" name="_csrf_token" value="<?= $csrfToken ?>">
     <input type="hidden" name="id" value="<?= (int)($report['id'] ?? 0) ?>">

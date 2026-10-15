@@ -347,8 +347,10 @@ CREATE TABLE IF NOT EXISTS `posko_reports` (
     `report_number` VARCHAR(80) NULL UNIQUE COMMENT 'PSK/{KODE-UNIT}/{YYYYMM}/{NNNN}, diberikan saat dikirim',
     `report_type_id` INT NOT NULL,
     `satker_id` INT NOT NULL COMMENT 'Unit pelapor',
+    `holder_satker_id` INT NULL COMMENT 'Unit yang sedang memegang laporan (verifikasi/meneruskan)',
     `period_start` DATE NULL,
     `period_end` DATE NULL,
+    `period_key` DATE NULL COMMENT 'Sama dengan period_start selama laporan tidak dibatalkan',
     `event_time` DATETIME NULL COMMENT 'Waktu kejadian (jenis tanpa periode)',
     `region` VARCHAR(255) NULL COMMENT 'Wilayah kejadian',
     `situation_summary` TEXT NULL,
@@ -363,12 +365,18 @@ CREATE TABLE IF NOT EXISTS `posko_reports` (
     `version` INT NOT NULL DEFAULT 1,
     `deadline_at` DATETIME NULL,
     `submitted_at` DATETIME NULL,
+    `reviewed_by` INT NULL COMMENT 'Pemeriksa yang memulai verifikasi',
+    `approved_by` INT NULL,
+    `approved_at` DATETIME NULL,
+    `forwarded_at` DATETIME NULL,
+    `cancel_reason` VARCHAR(500) NULL,
     `created_by` INT NULL,
     `updated_by` INT NULL,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    -- Satu laporan per unit, jenis & periode (jenis tanpa periode: period_start NULL, tidak dibatasi)
-    UNIQUE KEY `uq_posko_report_period` (`satker_id`, `report_type_id`, `period_start`),
+    -- Satu laporan aktif per unit, jenis & periode (dibatalkan/tanpa periode: period_key NULL, tidak dibatasi)
+    UNIQUE KEY `uq_posko_report_period_key` (`satker_id`, `report_type_id`, `period_key`),
+    INDEX `idx_posko_reports_holder` (`holder_satker_id`, `status`),
     INDEX `idx_posko_reports_status` (`status`, `deadline_at`),
     INDEX `idx_posko_reports_type_period` (`report_type_id`, `period_start`),
     CONSTRAINT `fk_posko_report_type` FOREIGN KEY (`report_type_id`) REFERENCES `posko_report_types`(`id`),
@@ -406,4 +414,35 @@ CREATE TABLE IF NOT EXISTS `posko_report_attachments` (
 CREATE TABLE IF NOT EXISTS `posko_number_sequences` (
     `scope` VARCHAR(80) PRIMARY KEY COMMENT '{KODE-UNIT}/{YYYYMM}',
     `last_seq` INT NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 22. RIWAYAT TINDAKAN LAPORAN POSKO (histori pemeriksaan BRD 4.3; tidak dapat diubah dari aplikasi)
+CREATE TABLE IF NOT EXISTS `posko_report_history` (
+    `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `report_id` INT NOT NULL,
+    `actor_id` INT NULL,
+    `actor_satker_id` INT NULL,
+    `action` VARCHAR(30) NOT NULL COMMENT 'create, submit, start_review, approve, return, forward, acknowledge, revise, cancel',
+    `status_from` VARCHAR(20) NULL,
+    `status_to` VARCHAR(20) NULL,
+    `holder_from` INT NULL,
+    `holder_to` INT NULL,
+    `version` INT NOT NULL DEFAULT 1,
+    `notes` TEXT NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX `idx_posko_history_report` (`report_id`, `id`),
+    CONSTRAINT `fk_posko_history_report` FOREIGN KEY (`report_id`) REFERENCES `posko_reports`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 23. VERSI LAPORAN POSKO (snapshot isi setiap kali dikirim; BRD 5.3)
+CREATE TABLE IF NOT EXISTS `posko_report_versions` (
+    `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `report_id` INT NOT NULL,
+    `version` INT NOT NULL,
+    `snapshot_json` LONGTEXT NOT NULL,
+    `reason` VARCHAR(500) NULL COMMENT 'Alasan revisi (versi > 1)',
+    `changed_by` INT NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY `uq_posko_version` (`report_id`, `version`),
+    CONSTRAINT `fk_posko_version_report` FOREIGN KEY (`report_id`) REFERENCES `posko_reports`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

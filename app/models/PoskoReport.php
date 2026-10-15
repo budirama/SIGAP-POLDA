@@ -23,7 +23,7 @@ class PoskoReport extends Model
     public const MAX_ATTACHMENTS = 10;
 
     private const GENERAL_COLUMNS = [
-        'period_start', 'period_end', 'event_time', 'region', 'situation_summary', 'description',
+        'period_start', 'period_end', 'period_key', 'event_time', 'region', 'situation_summary', 'description',
         'obstacles', 'follow_up', 'assistance_needed', 'priority', 'reference_ticket', 'deadline_at',
     ];
 
@@ -31,11 +31,14 @@ class PoskoReport extends Model
     {
         return $this->fetch(
             "SELECT r.*, t.code AS type_code, t.name AS type_name, t.kind AS type_kind, t.period_unit,
+                    t.requires_approval, t.allows_nil,
                     s.name AS satker_name, s.code AS satker_code, s.level AS satker_level, s.parent_id AS satker_parent_id,
+                    h.name AS holder_name, h.level AS holder_level, h.parent_id AS holder_parent_id,
                     u.name AS creator_name, u.rank AS creator_rank
              FROM posko_reports r
              JOIN posko_report_types t ON t.id = r.report_type_id
              JOIN satkers s ON s.id = r.satker_id
+             LEFT JOIN satkers h ON h.id = r.holder_satker_id
              LEFT JOIN users u ON u.id = r.created_by
              WHERE r.id = ? LIMIT 1",
             [$id]
@@ -54,7 +57,11 @@ class PoskoReport extends Model
             return ['items' => [], 'total' => 0, 'page' => 1, 'pages' => 1, 'perPage' => $perPage];
         }
 
-        $where = ["r.satker_id IN (" . implode(',', $scopeIds) . ")", "(r.status <> 'DRAFT' OR r.satker_id = ?)"];
+        $where = [
+            "r.satker_id IN (" . implode(',', $scopeIds) . ")",
+            // Draft (termasuk draft yang dibatalkan sebelum pernah dikirim) hanya untuk unit pembuat
+            "(r.report_number IS NOT NULL OR r.satker_id = ?)",
+        ];
         $params = [$ownUnitId ?? 0];
 
         if (!empty($filters['type'])) {
@@ -107,7 +114,7 @@ class PoskoReport extends Model
     public function existsForPeriod(int $satkerId, int $typeId, string $periodStart, int $exceptId = 0): bool
     {
         return $this->fetch(
-            "SELECT id FROM posko_reports WHERE satker_id = ? AND report_type_id = ? AND period_start = ? AND id <> ? LIMIT 1",
+            "SELECT id FROM posko_reports WHERE satker_id = ? AND report_type_id = ? AND period_key = ? AND id <> ? LIMIT 1",
             [$satkerId, $typeId, $periodStart, $exceptId]
         ) !== null;
     }
@@ -142,16 +149,18 @@ class PoskoReport extends Model
     {
         $this->beginTransaction();
         try {
-            $set = implode(', ', array_map(fn($c) => "{$c} = ?", self::GENERAL_COLUMNS));
-            $changed = $this->affected(
-                "UPDATE posko_reports SET {$set}, updated_by = ?, updated_at = NOW()
-                 WHERE id = ? AND status IN ('" . implode("','", self::EDITABLE_STATUSES) . "')",
-                array_merge($this->generalParams($general), [$userId, $id])
-            );
-            if ($changed !== 1) {
+            // Status diperiksa pada baris terkunci (bukan dari jumlah baris berubah: UPDATE dengan nilai
+            // identik di MySQL menghasilkan 0 baris berubah walau laporan masih dapat diubah)
+            $row = $this->lockRow($id);
+            if (!$row || !in_array($row['status'], self::EDITABLE_STATUSES, true)) {
                 $this->rollBack();
                 return false;
             }
+            $set = implode(', ', array_map(fn($c) => "{$c} = ?", self::GENERAL_COLUMNS));
+            $this->execute(
+                "UPDATE posko_reports SET {$set}, updated_by = ?, updated_at = NOW() WHERE id = ?",
+                array_merge($this->generalParams($general), [$userId, $id])
+            );
             $this->replaceValues($id, $values);
             $this->commit();
             return true;
@@ -174,34 +183,164 @@ class PoskoReport extends Model
     }
 
     /**
-     * Kirim laporan: beri nomor unik (sekali) & catat waktu kirim. Mengembalikan nomor laporan, atau null bila status tidak sah.
+     * Kirim (atau kirim ulang setelah perbaikan) ke unit induk langsung: nomor unik diberikan sekali,
+     * waktu kirim tercatat, isi disimpan sebagai snapshot versi. Null bila status tidak sah.
      */
-    public function submit(int $id, int $userId): ?string
+    public function submit(int $id, int $userId, int $actorSatkerId, int $holderSatkerId): ?string
     {
         $this->beginTransaction();
         try {
-            $row = $this->fetch(
-                "SELECT r.id, r.status, r.report_number, s.code AS satker_code
-                 FROM posko_reports r JOIN satkers s ON s.id = r.satker_id
-                 WHERE r.id = ? FOR UPDATE",
-                [$id]
-            );
+            $row = $this->lockRow($id);
             if (!$row || !in_array($row['status'], self::EDITABLE_STATUSES, true)) {
                 $this->rollBack();
                 return null;
             }
+            $code = $this->fetch("SELECT code FROM satkers WHERE id = ?", [$row['satker_id']])['code'];
+            $number = $row['report_number'] ?: $this->nextNumber($code);
 
-            $number = $row['report_number'] ?: $this->nextNumber($row['satker_code']);
             $this->execute(
-                "UPDATE posko_reports SET status = 'SUBMITTED', report_number = ?, submitted_at = NOW(), updated_by = ? WHERE id = ?",
-                [$number, $userId, $id]
+                "UPDATE posko_reports
+                 SET status = 'SUBMITTED', report_number = ?, submitted_at = NOW(), holder_satker_id = ?,
+                     reviewed_by = NULL, approved_by = NULL, approved_at = NULL, forwarded_at = NULL, updated_by = ?
+                 WHERE id = ?",
+                [$number, $holderSatkerId, $userId, $id]
             );
+            $this->snapshot($id, (int)$row['version'], $userId);
+            $this->addHistory($id, $userId, $actorSatkerId, $row['status'] === 'DRAFT' ? 'submit' : 'resubmit',
+                $row['status'], 'SUBMITTED', $row['holder_satker_id'], $holderSatkerId, (int)$row['version'], null);
             $this->commit();
             return $number;
         } catch (\Throwable $e) {
             $this->rollBack();
             throw $e;
         }
+    }
+
+    /**
+     * Transisi status atomik: baris dikunci, status asal & penjaga diperiksa, lalu satu baris riwayat dicatat.
+     *
+     * @param string[] $from    status asal yang sah
+     * @param callable|null $guard fn(array $row): bool — pemeriksaan tambahan atas baris terkunci
+     * @param array|callable $sets kolom tambahan, atau fn(array $row): array
+     * @return array|null baris sebelum transisi, null bila ditolak
+     */
+    public function transition(int $id, string $action, array $from, string $to, int $actorId, int $actorSatkerId,
+                               array|callable $sets = [], ?string $notes = null, ?callable $guard = null): ?array
+    {
+        $this->beginTransaction();
+        try {
+            $row = $this->lockRow($id);
+            if (!$row || !in_array($row['status'], $from, true) || ($guard && !$guard($row))) {
+                $this->rollBack();
+                return null;
+            }
+            $sets = is_callable($sets) ? $sets($row) : $sets;
+            $sets['status'] = $to;
+            $sets['updated_by'] = $actorId;
+
+            $assign = implode(', ', array_map(fn($c) => "{$c} = ?", array_keys($sets)));
+            $this->execute("UPDATE posko_reports SET {$assign} WHERE id = ?", array_merge(array_values($sets), [$id]));
+
+            $holderTo = array_key_exists('holder_satker_id', $sets) ? $sets['holder_satker_id'] : $row['holder_satker_id'];
+            $this->addHistory($id, $actorId, $actorSatkerId, $action, $row['status'], $to,
+                $row['holder_satker_id'], $holderTo, (int)($sets['version'] ?? $row['version']), $notes);
+            $this->commit();
+            return $row;
+        } catch (\Throwable $e) {
+            $this->rollBack();
+            throw $e;
+        }
+    }
+
+    /**
+     * Catat penerimaan laporan oleh unit pemegang (tanpa mengubah status), sekali per unit per versi
+     */
+    public function acknowledge(int $id, int $actorId, int $actorSatkerId): bool
+    {
+        $this->beginTransaction();
+        try {
+            $row = $this->lockRow($id);
+            if (!$row || $row['status'] !== 'FORWARDED' || (int)$row['holder_satker_id'] !== $actorSatkerId
+                || $this->acknowledgedBy($id, $actorSatkerId, (int)$row['version'])) {
+                $this->rollBack();
+                return false;
+            }
+            $this->addHistory($id, $actorId, $actorSatkerId, 'acknowledge', 'FORWARDED', 'FORWARDED',
+                $row['holder_satker_id'], $row['holder_satker_id'], (int)$row['version'], null);
+            $this->commit();
+            return true;
+        } catch (\Throwable $e) {
+            $this->rollBack();
+            throw $e;
+        }
+    }
+
+    public function acknowledgedBy(int $id, int $satkerId, int $version): bool
+    {
+        return $this->fetch(
+            "SELECT id FROM posko_report_history WHERE report_id = ? AND action = 'acknowledge' AND actor_satker_id = ? AND version = ? LIMIT 1",
+            [$id, $satkerId, $version]
+        ) !== null;
+    }
+
+    public function history(int $id): array
+    {
+        return $this->fetchAll(
+            "SELECT h.*, u.name AS actor_name, u.rank AS actor_rank, sa.name AS actor_satker_name,
+                    sf.name AS holder_from_name, st.name AS holder_to_name
+             FROM posko_report_history h
+             LEFT JOIN users u ON u.id = h.actor_id
+             LEFT JOIN satkers sa ON sa.id = h.actor_satker_id
+             LEFT JOIN satkers sf ON sf.id = h.holder_from
+             LEFT JOIN satkers st ON st.id = h.holder_to
+             WHERE h.report_id = ? ORDER BY h.id ASC",
+            [$id]
+        );
+    }
+
+    /**
+     * Catatan riwayat terbaru untuk aksi tertentu (mis. catatan koreksi saat dikembalikan)
+     */
+    public function lastNote(int $id, array $actions): ?array
+    {
+        $in = implode(',', array_fill(0, count($actions), '?'));
+        return $this->fetch(
+            "SELECT h.*, u.name AS actor_name, u.rank AS actor_rank, sa.name AS actor_satker_name
+             FROM posko_report_history h
+             LEFT JOIN users u ON u.id = h.actor_id
+             LEFT JOIN satkers sa ON sa.id = h.actor_satker_id
+             WHERE h.report_id = ? AND h.action IN ({$in}) ORDER BY h.id DESC LIMIT 1",
+            array_merge([$id], $actions)
+        );
+    }
+
+    public function versions(int $id): array
+    {
+        return $this->fetchAll(
+            "SELECT v.*, u.name AS changed_by_name FROM posko_report_versions v
+             LEFT JOIN users u ON u.id = v.changed_by
+             WHERE v.report_id = ? ORDER BY v.version ASC",
+            [$id]
+        );
+    }
+
+    /**
+     * Antrean tindakan unit: laporan yang sedang dipegang unit ini. Laporan mendesak (prioritas tinggi/kritis) di atas.
+     */
+    public function inbox(int $holderSatkerId): array
+    {
+        return $this->fetchAll(
+            "SELECT r.id, r.report_number, r.status, r.priority, r.period_start, r.period_end, r.event_time, r.deadline_at,
+                    r.submitted_at, r.forwarded_at, r.version, r.situation_summary, r.satker_id,
+                    t.name AS type_name, t.period_unit, t.kind AS type_kind, s.name AS satker_name, s.parent_id AS satker_parent_id
+             FROM posko_reports r
+             JOIN posko_report_types t ON t.id = r.report_type_id
+             JOIN satkers s ON s.id = r.satker_id
+             WHERE r.holder_satker_id = ? AND r.status IN ('SUBMITTED', 'IN_REVIEW', 'APPROVED', 'FORWARDED')
+             ORDER BY (r.priority = 'CRITICAL') DESC, (r.priority = 'HIGH') DESC,
+                      COALESCE(r.forwarded_at, r.submitted_at) ASC",
+            [$holderSatkerId]
+        );
     }
 
     // ---------------------------------------------------------------- Lampiran
@@ -243,8 +382,57 @@ class PoskoReport extends Model
 
     // ---------------------------------------------------------------- Internal
 
+    private function lockRow(int $id): ?array
+    {
+        return $this->fetch("SELECT * FROM posko_reports WHERE id = ? FOR UPDATE", [$id]);
+    }
+
+    private function addHistory(int $reportId, ?int $actorId, ?int $actorSatkerId, string $action, ?string $from, ?string $to,
+                                $holderFrom, $holderTo, int $version, ?string $notes): void
+    {
+        $this->execute(
+            "INSERT INTO posko_report_history (report_id, actor_id, actor_satker_id, action, status_from, status_to,
+                holder_from, holder_to, version, notes)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            [$reportId, $actorId, $actorSatkerId, $action, $from, $to,
+             $holderFrom !== null ? (int)$holderFrom : null, $holderTo !== null ? (int)$holderTo : null, $version, $notes]
+        );
+    }
+
+    /**
+     * Simpan isi laporan saat ini sebagai snapshot versi (data umum, nilai isian, daftar lampiran)
+     */
+    private function snapshot(int $reportId, int $version, int $userId): void
+    {
+        $row = $this->fetch("SELECT * FROM posko_reports WHERE id = ?", [$reportId]);
+        $data = [
+            'general' => array_intersect_key($row, array_flip(array_merge(self::GENERAL_COLUMNS, ['priority']))),
+            'values' => array_map(fn($v) => $v['value_number'] ?? $v['value_text'], $this->values($reportId)),
+            'attachments' => array_column($this->attachments($reportId), 'file_name_original'),
+        ];
+        $reason = $version > 1 ? ($this->fetch(
+            "SELECT notes FROM posko_report_history WHERE report_id = ? AND action = 'revise' AND version = ? ORDER BY id DESC LIMIT 1",
+            [$reportId, $version]
+        )['notes'] ?? null) : null;
+
+        $this->execute(
+            "INSERT INTO posko_report_versions (report_id, version, snapshot_json, reason, changed_by) VALUES (?, ?, ?, ?, ?)
+             ON DUPLICATE KEY UPDATE snapshot_json = VALUES(snapshot_json), changed_by = VALUES(changed_by), created_at = NOW()",
+            [$reportId, $version, json_encode($data, JSON_UNESCAPED_UNICODE), $reason, $userId]
+        );
+    }
+
+    /**
+     * Catatan pembuatan draft pada riwayat
+     */
+    public function logCreate(int $reportId, int $userId, int $satkerId): void
+    {
+        $this->addHistory($reportId, $userId, $satkerId, 'create', null, 'DRAFT', null, null, 1, null);
+    }
+
     private function generalParams(array $general): array
     {
+        $general['period_key'] = $general['period_start'] ?? null;
         return array_map(fn($c) => ($general[$c] ?? null) === '' ? null : ($general[$c] ?? null), self::GENERAL_COLUMNS);
     }
 
