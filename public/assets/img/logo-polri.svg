@@ -1,0 +1,155 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 520" width="100%" height="100%">
+  <defs>
+    <!-- Gold Gradients for Police Insignia -->
+    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFF3B0" />
+      <stop offset="35%" stop-color="#F59E0B" />
+      <stop offset="70%" stop-color="#D97706" />
+      <stop offset="100%" stop-color="#78350F" />
+    </linearGradient>
+    <linearGradient id="goldLight" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFBEB" />
+      <stop offset="100%" stop-color="#FBBF24" />
+    </linearGradient>
+    <linearGradient id="shieldDark" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0E1E38" />
+      <stop offset="100%" stop-color="#050B14" />
+    </linearGradient>
+    <linearGradient id="redRuby" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#EF4444" />
+      <stop offset="100%" stop-color="#991B1B" />
+    </linearGradient>
+    <linearGradient id="citizenBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="100%" stop-color="#0284C7" />
+    </linearGradient>
+    <filter id="goldGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#D97706" flood-opacity="0.5" />
+    </filter>
+  </defs>
+
+  <!-- Outer Shield Border (Perisai Pelindung Rakyat) -->
+  <path d="M 260 25 C 345 25 450 45 460 95 C 465 240 420 390 260 485 C 100 390 55 240 60 95 C 70 45 175 25 260 25 Z" 
+        fill="url(#goldGradient)" stroke="#78350F" stroke-width="4" filter="url(#goldGlow)"/>
+  
+  <!-- Outer Rim Inset -->
+  <path d="M 260 40 C 335 40 430 58 440 102 C 444 230 405 370 260 460 C 115 370 76 230 80 102 C 90 58 185 40 260 40 Z" 
+        fill="#071224" stroke="url(#goldLight)" stroke-width="2"/>
+
+  <!-- Inner Dark Shield Base -->
+  <path d="M 260 55 C 328 55 412 70 422 110 C 427 222 390 350 260 435 C 130 350 93 222 98 110 C 108 70 192 55 260 55 Z" 
+        fill="url(#shieldDark)" stroke="#1E355B" stroke-width="1.5"/>
+
+  <!-- 3 Stars of Tri Brata at the Top -->
+  <!-- Center Top Star -->
+  <g transform="translate(260, 85) scale(1)" fill="url(#goldGradient)" stroke="#78350F" stroke-width="0.8">
+    <polygon points="0,-18 5.5,-5.5 19,-5.5 8,3.5 12,17 0,8.5 -12,17 -8,3.5 -19,-5.5 -5.5,-5.5"/>
+  </g>
+  <!-- Left Star -->
+  <g transform="translate(205, 96) scale(0.85)" fill="url(#goldGradient)" stroke="#78350F" stroke-width="0.8">
+    <polygon points="0,-18 5.5,-5.5 19,-5.5 8,3.5 12,17 0,8.5 -12,17 -8,3.5 -19,-5.5 -5.5,-5.5"/>
+  </g>
+  <!-- Right Star -->
+  <g transform="translate(315, 96) scale(0.85)" fill="url(#goldGradient)" stroke="#78350F" stroke-width="0.8">
+    <polygon points="0,-18 5.5,-5.5 19,-5.5 8,3.5 12,17 0,8.5 -12,17 -8,3.5 -19,-5.5 -5.5,-5.5"/>
+  </g>
+
+  <!-- Radiating Sunburst of Protection -->
+  <g stroke="url(#goldLight)" stroke-width="1.2" opacity="0.45">
+    <line x1="260" y1="230" x2="260" y2="125" />
+    <line x1="260" y1="230" x2="340" y2="155" />
+    <line x1="260" y1="230" x2="375" y2="230" />
+    <line x1="260" y1="230" x2="340" y2="305" />
+    <line x1="260" y1="230" x2="260" y2="345" />
+    <line x1="260" y1="230" x2="180" y2="305" />
+    <line x1="260" y1="230" x2="145" y2="230" />
+    <line x1="260" y1="230" x2="180" y2="155" />
+  </g>
+
+  <!-- Padi and Kapas (Wreath of Prosperity and Service) -->
+  <path d="M 255 355 C 165 345 120 280 140 160 C 150 190 165 215 180 230 C 165 250 170 295 255 355 Z" 
+        fill="none" stroke="url(#goldGradient)" stroke-width="5" stroke-linecap="round"/>
+  <path d="M 265 355 C 355 345 400 280 380 160 C 370 190 355 215 340 230 C 355 250 350 295 265 355 Z" 
+        fill="none" stroke="url(#goldGradient)" stroke-width="5" stroke-linecap="round"/>
+
+  <!-- Burung Tiung Rajawali (Eagle Wings of Bhayangkara) -->
+  <!-- Left Wing -->
+  <path d="M 260 215 C 228 165 175 155 135 175 C 155 200 180 210 195 215 C 165 225 150 245 145 265 C 170 265 195 255 215 245 C 195 265 190 285 200 300 C 220 290 242 270 260 248 Z" 
+        fill="url(#goldGradient)" stroke="#78350F" stroke-width="1.5"/>
+  <!-- Right Wing -->
+  <path d="M 260 215 C 292 165 345 155 385 175 C 365 200 340 210 325 215 C 355 225 370 245 375 265 C 350 265 325 255 305 245 C 325 265 330 285 320 300 C 300 290 278 270 260 248 Z" 
+        fill="url(#goldGradient)" stroke="#78350F" stroke-width="1.5"/>
+
+  <!-- Central Torch (Obor Kebenaran) -->
+  <path d="M 260 140 C 245 170 250 185 260 200 C 270 185 275 170 260 140 Z" 
+        fill="url(#redRuby)" stroke="#FFD700" stroke-width="1.5"/>
+  <rect x="256" y="200" width="8" height="42" rx="3" fill="url(#goldLight)" stroke="#78350F" stroke-width="1"/>
+
+  <!-- ======================================================== -->
+  <!-- SIMBOL KEMITRAAN SINERGI: POLISI BERSAMA MASYARAKAT     -->
+  <!-- ======================================================== -->
+  <g id="SinergiPolmas" transform="translate(260, 268)">
+    <!-- Halo Lingkar Sinergi -->
+    <circle cx="0" cy="0" r="38" fill="#0A1832" stroke="url(#goldGradient)" stroke-width="2"/>
+    
+    <!-- Figur 1: Personil Polisi (Kiri dengan Topi Pet Bhayangkara) -->
+    <g transform="translate(-14, 0)">
+      <!-- Kepala -->
+      <circle cx="0" cy="-14" r="6.5" fill="url(#goldLight)"/>
+      <!-- Topi Pet Polisi Emas -->
+      <path d="M -8 -17 C -6 -23 6 -23 8 -17 L 10 -15 L -10 -15 Z" fill="url(#goldGradient)"/>
+      <!-- Badan Polisi -->
+      <path d="M -9 18 C -11 5 11 5 9 18 Z" fill="url(#goldGradient)"/>
+    </g>
+
+    <!-- Figur 2: Warga Masyarakat (Kanan dengan Simbol Harmonis) -->
+    <g transform="translate(14, 0)">
+      <!-- Kepala Warga -->
+      <circle cx="0" cy="-13" r="6" fill="#F8FAFC"/>
+      <!-- Badan Warga -->
+      <path d="M -8 18 C -10 6 10 6 8 18 Z" fill="url(#citizenBlue)"/>
+    </g>
+
+    <!-- Simbol Tangan Saling Bersinergi / Jabat Tangan Kemitraan -->
+    <path d="M -10 12 C -2 8 2 8 10 12" stroke="url(#goldLight)" stroke-width="3" stroke-linecap="round" fill="none"/>
+    <circle cx="0" cy="10" r="3.5" fill="#F59E0B" stroke="#071224" stroke-width="1"/>
+  </g>
+
+  <!-- ======================================================== -->
+  <!-- PITA SEMBOYAN RESMI: POLRI BERSAMA MASYARAKAT            -->
+  <!-- ======================================================== -->
+  <g id="BannerSinergi">
+    <!-- Ribbon Shadow/Back -->
+    <path d="M 95 385 L 125 360 L 125 395 Z" fill="#451A03"/>
+    <path d="M 425 385 L 395 360 L 395 395 Z" fill="#451A03"/>
+    
+    <!-- Main Ribbon Outer Arc -->
+    <path d="M 110 375 C 190 352 330 352 410 375 L 398 412 C 328 390 192 390 122 412 Z" 
+          fill="url(#goldGradient)" stroke="#78350F" stroke-width="2"/>
+
+    <!-- Ribbon Swallowtail Ends -->
+    <path d="M 110 375 L 80 365 L 92 388 L 80 412 L 122 412 Z" 
+          fill="url(#goldLight)" stroke="#78350F" stroke-width="1.2"/>
+    <path d="M 410 375 L 440 365 L 428 388 L 440 412 L 398 412 Z" 
+          fill="url(#goldLight)" stroke="#78350F" stroke-width="1.2"/>
+
+    <!-- Motto Text Line 1: POLRI BERSAMA MASYARAKAT -->
+    <path id="textArcMedsos" d="M 125 398 C 205 380 315 380 395 398" fill="none"/>
+    <text font-family="'Arial Black', Impact, sans-serif" font-size="12" font-weight="900" fill="#0A192F" letter-spacing="1.2">
+      <textPath href="#textArcMedsos" startOffset="50%" text-anchor="middle">
+        POLRI BERSAMA MASYARAKAT
+      </textPath>
+    </text>
+  </g>
+
+  <!-- Motto Text Line 2: RASTRA SEWAKOTAMA -->
+  <rect x="180" y="425" width="160" height="22" rx="6" fill="#071224" stroke="url(#goldGradient)" stroke-width="1.2"/>
+  <text x="260" y="440" font-family="'Arial Black', sans-serif" font-size="10.5" font-weight="900" fill="#FDE68A" text-anchor="middle" letter-spacing="2">
+    RASTRA SEWAKOTAMA
+  </text>
+
+  <!-- Wordmark Bottom -->
+  <text x="260" y="475" font-family="'Arial Black', sans-serif" font-size="12" font-weight="900" fill="#94A3B8" text-anchor="middle" letter-spacing="4">
+    POLRI PRESISI
+  </text>
+</svg>

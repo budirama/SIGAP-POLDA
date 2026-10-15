@@ -1,0 +1,135 @@
+/* ==========================================================================
+   SIGAP-POLDA: TEMA RESMI KEPOLISIAN NEGARA REPUBLIK INDONESIA
+   Palet: Deep Navy Bhayangkara, Emas Tri Brata, Slate Presisi, & Glow Command Center
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;600;700;800;900&display=swap');
+
+:root {
+  --polri-navy-deep: #070F1E;
+  --polri-navy: #0A192F;
+  --polri-blue: #1E3A8A;
+  --polri-blue-light: #2563EB;
+  --polri-gold: #D97706;
+  --polri-gold-light: #F59E0B;
+  --polri-gold-glow: #FBBF24;
+  --polri-maroon: #7F1D1D;
+  --polri-maroon-dark: #450A0A;
+  --polri-crimson: #991B1B;
+  --polri-red: #DC2626;
+  --polri-surface: #0E1E38;
+  --polri-card: #132442;
+  --polri-border: #1E355B;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  background-color: #070F1E;
+  color: #E2E8F0;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, .font-heading {
+  font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+}
+
+/* Glassmorphism Command Center */
+.polri-glass {
+  background: rgba(10, 25, 47, 0.85);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(217, 119, 6, 0.25);
+}
+
+.polri-glass-card {
+  background: rgba(14, 30, 56, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(30, 53, 91, 0.8);
+}
+
+.polri-glass-card:hover {
+  border-color: rgba(245, 158, 11, 0.45);
+  box-shadow: 0 10px 25px -5px rgba(10, 25, 47, 0.6), 0 0 15px 0 rgba(217, 119, 6, 0.15);
+}
+
+/* Polisi Bersama Masyarakat Maroon & Gold Styling */
+.bg-maroon-gradient {
+  background: linear-gradient(135deg, #7F1D1D 0%, #450A0A 100%);
+}
+
+.bg-maroon-glass {
+  background: rgba(69, 10, 10, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+/* Golden Gradients & Glows */
+.bg-gold-gradient {
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 50%, #B45309 100%);
+}
+
+.text-gold-gradient {
+  background: linear-gradient(135deg, #FDE68A 0%, #F59E0B 50%, #D97706 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.border-gold-glow {
+  border-color: #F59E0B;
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.35);
+}
+
+/* Sang Saka Merah Putih Ribbon Accent Line */
+.ribbon-merah-putih {
+  height: 3px;
+  background: linear-gradient(90deg, #DC2626 0%, #DC2626 50%, #F8FAFC 50%, #F8FAFC 100%);
+}
+
+/* Atensi Kapolda Pulse Animation */
+@keyframes kapoldaPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 12px rgba(220, 38, 38, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0);
+  }
+}
+
+.animate-kapolda-pulse {
+  animation: kapoldaPulse 2s infinite;
+}
+
+/* Radar Scan line for Command Center */
+@keyframes radarSweep {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.radar-sweep {
+  animation: radarSweep 4s linear infinite;
+  transform-origin: center center;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: #070F1E;
+}
+::-webkit-scrollbar-thumb {
+  background: #1E355B;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #D97706;
+}

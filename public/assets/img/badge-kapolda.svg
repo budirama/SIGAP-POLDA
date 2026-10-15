@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="100%" height="100%">
+  <defs>
+    <radialGradient id="alertGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#EF4444" stop-opacity="0.9" />
+      <stop offset="70%" stop-color="#991B1B" stop-opacity="0.6" />
+      <stop offset="100%" stop-color="#7F1D1D" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="goldStar" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FEF08A" />
+      <stop offset="40%" stop-color="#F59E0B" />
+      <stop offset="100%" stop-color="#B45309" />
+    </linearGradient>
+    <filter id="shadowEffect" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+
+  <!-- Glowing Pulse Halo -->
+  <circle cx="80" cy="80" r="75" fill="url(#alertGlow)"/>
+
+  <!-- Golden Brass Ring -->
+  <circle cx="80" cy="80" r="64" fill="#180A0A" stroke="url(#goldStar)" stroke-width="3" filter="url(#shadowEffect)"/>
+  <circle cx="80" cy="80" r="58" fill="#7F1D1D" stroke="#DC2626" stroke-width="1.5"/>
+
+  <!-- Two General Stars (Inspektur Jenderal Polisi / Kapolda - Bintang Dua) -->
+  <g transform="translate(62, 70) scale(0.95)" fill="url(#goldStar)" stroke="#805300" stroke-width="0.8">
+    <polygon points="0,-18 5.5,-5.5 19,-5.5 8,3.5 12,17 0,8.5 -12,17 -8,3.5 -19,-5.5 -5.5,-5.5"/>
+  </g>
+  <g transform="translate(98, 70) scale(0.95)" fill="url(#goldStar)" stroke="#805300" stroke-width="0.8">
+    <polygon points="0,-18 5.5,-5.5 19,-5.5 8,3.5 12,17 0,8.5 -12,17 -8,3.5 -19,-5.5 -5.5,-5.5"/>
+  </g>
+
+  <!-- Badge Text Ribbon -->
+  <rect x="25" y="100" width="110" height="24" rx="6" fill="#0F172A" stroke="url(#goldStar)" stroke-width="1.2"/>
+  <text x="80" y="116" font-family="'Arial Black', sans-serif" font-size="9" font-weight="900" fill="#FEF08A" text-anchor="middle" letter-spacing="1">
+    ATENSI KAPOLDA
+  </text>
+</svg>
