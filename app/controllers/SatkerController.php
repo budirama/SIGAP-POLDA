@@ -11,6 +11,7 @@ use App\Core\Session;
 use App\Config\Constants;
 use App\Models\Report;
 use App\Models\User;
+use App\Models\KapoldaDirective;
 
 class SatkerController extends Controller
 {
@@ -48,7 +49,8 @@ class SatkerController extends Controller
         $this->render('backoffice/satker_inbox', [
             'pageTitle'     => 'Inbox Disposisi Satker & Penugasan Kanit',
             'reports'       => $reports,
-            'investigators' => $investigators
+            'investigators' => $investigators,
+            'directives'    => (new KapoldaDirective())->getOpenForSatker($isSuper ? null : (Auth::satkerId() ?? -1))
         ], 'admin');
     }
 
@@ -103,6 +105,56 @@ class SatkerController extends Controller
             Session::setFlash('success', 'Surat Perintah Penugasan (Sprintgas) berhasil diterbitkan ke Penyidik.');
         } else {
             Session::setFlash('error', 'Gagal memproses penugasan penyidik.');
+        }
+
+        $this->redirect('/satker');
+    }
+
+    /**
+     * Tanggapi Instruksi Atensi Kapolda: terima (acknowledge) atau selesaikan (resolve)
+     */
+    public function directive(): void
+    {
+        if (!$this->isPost()) {
+            $this->redirect('/satker');
+        }
+
+        if (!$this->validateCsrf()) {
+            Session::setFlash('error', 'Token CSRF tidak valid.');
+            $this->redirect('/satker');
+        }
+
+        $directiveModel = new KapoldaDirective();
+        $directive = $directiveModel->findById((int)$this->post('directive_id', 0));
+        $isSuper = Auth::role() === Constants::ROLE_SUPERADMIN;
+        if (!$directive || (!$isSuper && (int)$directive['target_satker_id'] !== Auth::satkerId())) {
+            Session::setFlash('error', 'Instruksi tidak ditemukan atau bukan untuk Satker Anda.');
+            $this->redirect('/satker');
+        }
+
+        $action = $this->post('action', '');
+        $notes = trim((string)$this->post('response_notes', ''));
+        $newStatus = match ($action) {
+            'acknowledge' => 'ACKNOWLEDGED',
+            'resolve' => 'RESOLVED',
+            default => null,
+        };
+
+        if ($newStatus === null) {
+            Session::setFlash('error', 'Aksi tidak valid.');
+            $this->redirect('/satker');
+        }
+        if ($newStatus === 'RESOLVED' && $notes === '') {
+            Session::setFlash('error', 'Laporan tanggapan wajib diisi untuk menyelesaikan instruksi Kapolda.');
+            $this->redirect('/satker');
+        }
+
+        if ($directiveModel->respond((int)$directive['id'], Auth::id(), $newStatus, $notes)) {
+            Session::setFlash('success', $newStatus === 'ACKNOWLEDGED'
+                ? 'Instruksi Atensi Kapolda telah diterima.'
+                : 'Instruksi Atensi Kapolda dilaporkan selesai.');
+        } else {
+            Session::setFlash('error', 'Instruksi sudah ditanggapi sebelumnya.');
         }
 
         $this->redirect('/satker');

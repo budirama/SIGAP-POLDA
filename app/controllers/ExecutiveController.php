@@ -11,6 +11,7 @@ use App\Core\Session;
 use App\Config\Constants;
 use App\Models\Report;
 use App\Models\Satker;
+use App\Models\KapoldaDirective;
 
 class ExecutiveController extends Controller
 {
@@ -43,8 +44,8 @@ class ExecutiveController extends Controller
             'active_only'          => 1
         ]);
 
-        // Ambil laporan terbaru
-        $recentReports = $this->reportModel->getFilteredReports([]);
+        // Pilihan laporan untuk Atensi Kapolda: hanya perkara aktif
+        $recentReports = $this->reportModel->getFilteredReports(['active_only' => 1]);
 
         $this->render('executive/dashboard', [
             'pageTitle'        => 'Dashboard Eksekutif Kapolda - Peta Kerawanan Kamtibmas & Komando',
@@ -52,6 +53,7 @@ class ExecutiveController extends Controller
             'heatmapPoints'    => $heatmapPoints,
             'satkers'          => $satkers,
             'attentionReports' => $attentionReports,
+            'directiveStatus'  => (new KapoldaDirective())->latestByReports(array_column($attentionReports, 'id')),
             'slaWatchlist'     => $this->reportModel->getSlaWatchlist(),
             'spktBacklog'      => $this->reportModel->getSpktBacklog(),
             'recentReports'    => $recentReports
@@ -80,12 +82,18 @@ class ExecutiveController extends Controller
             $this->redirect('/executive');
         }
 
+        $report = $this->reportModel->findById($reportId);
+        if (!$report || in_array($report['status'], [Constants::STATUS_CLOSED, Constants::STATUS_REJECTED], true)) {
+            Session::setFlash('error', 'Atensi Kapolda hanya dapat diberikan pada perkara yang masih aktif.');
+            $this->redirect('/executive');
+        }
+
         $success = $this->reportModel->giveKapoldaAttention($reportId, Auth::id(), $directiveText);
 
         if ($success) {
             Session::setFlash('success', 'Instruksi "Atensi Kapolda" berhasil diterbitkan dan ditandai Bintang Merah pada sistem.');
         } else {
-            Session::setFlash('error', 'Gagal membubuhkan Atensi Kapolda.');
+            Session::setFlash('error', 'Perkara ini masih memiliki instruksi Atensi Kapolda yang belum diselesaikan.');
         }
 
         $this->redirect('/executive');

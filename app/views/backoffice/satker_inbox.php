@@ -21,6 +21,41 @@
     </div>
   </div>
 
+  <!-- Instruksi Atensi Kapolda yang belum selesai -->
+  <?php if (!empty($directives)): ?>
+  <div class="polri-glass-card rounded-2xl p-5 border border-red-800/70 bg-red-950/10 space-y-3">
+    <h3 class="text-sm font-black text-red-300 flex items-center gap-2">
+      <img src="<?= $baseUrl ?>/assets/img/badge-kapolda.svg" alt="" class="w-5 h-5">
+      Instruksi Atensi Kapolda (<?= count($directives) ?>)
+    </h3>
+    <?php foreach ($directives as $d): ?>
+      <div class="p-4 rounded-xl bg-[#070F1E] border border-slate-800 space-y-2">
+        <div class="flex flex-wrap items-center justify-between gap-2 text-[11px]">
+          <span class="font-mono font-bold text-amber-400"><?= htmlspecialchars($d['ticket_number']) ?> · <?= htmlspecialchars($d['report_title']) ?></span>
+          <span class="px-2 py-0.5 rounded font-bold border <?= $d['status'] === 'PENDING' ? 'bg-red-950 text-red-300 border-red-800' : 'bg-amber-950 text-amber-300 border-amber-700' ?>">
+            <?= $d['status'] === 'PENDING' ? 'Belum Ditanggapi' : 'Diterima' ?>
+          </span>
+        </div>
+        <p class="text-xs text-slate-200 italic">"<?= htmlspecialchars($d['directive_text']) ?>"</p>
+        <p class="text-[10px] text-slate-500">
+          <?= htmlspecialchars(trim(($d['creator_rank'] ?? '') . ' ' . $d['creator_name'])) ?> · <?= date('d/m/Y H:i', strtotime($d['created_at'])) ?>
+          <?php if (!empty($d['satker_name'])): ?> · Satker: <?= htmlspecialchars($d['satker_name']) ?><?php endif; ?>
+        </p>
+        <form action="<?= $baseUrl ?>/satker/directive" method="POST" class="flex flex-col sm:flex-row gap-2">
+          <input type="hidden" name="_csrf_token" value="<?= $csrfToken ?>">
+          <input type="hidden" name="directive_id" value="<?= (int)$d['id'] ?>">
+          <input type="text" name="response_notes" maxlength="1000" placeholder="Laporan tanggapan kepada Kapolda"
+                 class="flex-1 bg-[#0A192F] border border-slate-700 rounded-xl p-2 text-xs text-slate-100 outline-none focus:border-amber-500">
+          <?php if ($d['status'] === 'PENDING'): ?>
+            <button type="submit" name="action" value="acknowledge" class="px-3 py-2 bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold rounded-xl text-xs">Terima</button>
+          <?php endif; ?>
+          <button type="submit" name="action" value="resolve" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold rounded-xl text-xs">Selesaikan</button>
+        </form>
+      </div>
+    <?php endforeach; ?>
+  </div>
+  <?php endif; ?>
+
   <!-- Reports List -->
   <div class="polri-glass-card rounded-2xl border border-slate-800 overflow-hidden shadow-2xl">
     <div class="overflow-x-auto">
