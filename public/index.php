@@ -33,6 +33,22 @@ error_reporting(E_ALL);
 ini_set('display_errors', $isDevelopment ? '1' : '0');
 ini_set('log_errors', '1');
 
+// Header keamanan HTTP
+header_remove('X-Powered-By');
+header('X-Frame-Options: DENY');
+header('X-Content-Type-Options: nosniff');
+header('Referrer-Policy: strict-origin-when-cross-origin');
+header('Permissions-Policy: geolocation=(self), camera=(), microphone=(), payment=()');
+header("Content-Security-Policy: default-src 'self'; "
+    . "script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://unpkg.com; "
+    . "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://unpkg.com https://fonts.googleapis.com; "
+    . "font-src 'self' data: https://cdnjs.cloudflare.com https://fonts.gstatic.com; "
+    . "img-src 'self' data: https://unpkg.com https://*.basemaps.cartocdn.com https://*.tile.openstreetmap.org; "
+    . "connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'");
+if ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (int)($_SERVER['SERVER_PORT'] ?? 0) === 443) {
+    header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+}
+
 // Mulai Sesi Aman
 \App\Core\Session::start();
 

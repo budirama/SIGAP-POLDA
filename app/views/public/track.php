@@ -181,7 +181,7 @@
 
                 <div class="mt-2 text-[10px] text-slate-500 flex items-center gap-2 border-t border-slate-800/80 pt-2">
                   <i class="fas fa-user-check text-slate-400"></i>
-                  <span>Diverifikasi oleh: <b><?= htmlspecialchars($t['actor_rank'] . ' ' . $t['actor_name']) ?></b></span>
+                  <span>Dicatat oleh: <b><?= htmlspecialchars(empty($t['actor_name']) ? 'Sistem SIGAP-POLDA' : trim(($t['actor_rank'] ?? '') . ' ' . $t['actor_name'])) ?></b></span>
                 </div>
               </div>
 

@@ -61,7 +61,7 @@ Hasil review ulang 15 Oktober 2026 setelah PR #1–#11 (lihat `docs/TASK_HARDENI
 - **Solusi:** tabel `audit_logs` (user, aksi, laporan, IP, waktu) dicatat dari login, logout, workspace kasus, unduhan file & aksi status; halaman audit untuk Superadmin & Itwasda.
 
 ### U12 — Header keamanan, aktor timeline & konfigurasi DB
-- [ ] **Masalah:** tanpa CSP/X-Frame-Options/Referrer-Policy; `X-Powered-By` terbuka; laporan anonim tercatat dibuat oleh Superadmin ("Diverifikasi oleh: Bripka Adhi Nugraha"); zona waktu koneksi DB tidak diset; `sql_mode` non-strict memotong data diam-diam.
+- [x] **Masalah:** tanpa CSP/X-Frame-Options/Referrer-Policy; `X-Powered-By` terbuka; laporan anonim tercatat dibuat oleh Superadmin ("Diverifikasi oleh: Bripka Adhi Nugraha"); zona waktu koneksi DB tidak diset; `sql_mode` non-strict memotong data diam-diam.
 - **Solusi:** header keamanan; `actor_id` timeline nullable (Sistem/Pelapor) & konversi medsos mencatat petugas; `time_zone` +07:00 & mode strict di koneksi.
 
 ---

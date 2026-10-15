@@ -99,7 +99,7 @@ class Report extends Model
     {
         $sql = "SELECT t.*, u.name AS actor_name, u.rank AS actor_rank, u.role AS actor_role
                 FROM report_timeline t
-                JOIN users u ON t.actor_id = u.id
+                LEFT JOIN users u ON t.actor_id = u.id
                 WHERE t.report_id = ? ";
 
         if (!$includeInternal) {
@@ -156,7 +156,7 @@ class Report extends Model
                 $data['title'],
                 $data['description'],
                 $data['incident_date'],
-                $data['incident_time'] ?? date('H:i:s'),
+                ($data['incident_time'] ?? '') !== '' ? $data['incident_time'] : null,
                 $data['incident_location'],
                 $data['latitude'] ?? null,
                 $data['longitude'] ?? null,
@@ -186,7 +186,7 @@ class Report extends Model
             }
 
             // Catat Timeline Pertama (Laporan Terkirim)
-            $actorId = $data['actor_id'] ?? $data['reporter_id'] ?? 1; // Petugas konversi / pelapor / sistem
+            $actorId = $data['actor_id'] ?? null; // Petugas konversi medsos, atau NULL = diterima sistem
             $this->execute(
                 "INSERT INTO report_timeline (report_id, actor_id, status_from, status_to, title, public_notes, internal_notes)
                  VALUES (?, ?, 'NEW', 'SUBMITTED', 'Laporan Diterima Sistem', 'Laporan pengaduan Anda telah terdaftar dan menunggu verifikasi kelayakan oleh Petugas SPKT Polda.', 'Laporan baru masuk melalui portal publik.')",

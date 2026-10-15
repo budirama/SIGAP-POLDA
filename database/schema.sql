@@ -170,7 +170,7 @@ CREATE TABLE IF NOT EXISTS `report_attachments` (
 CREATE TABLE IF NOT EXISTS `report_timeline` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
     `report_id` INT NOT NULL,
-    `actor_id` INT NOT NULL,
+    `actor_id` INT NULL COMMENT 'NULL = dicatat sistem (laporan publik)',
     `status_from` VARCHAR(50) NULL,
     `status_to` VARCHAR(50) NOT NULL,
     `title` VARCHAR(150) NOT NULL,

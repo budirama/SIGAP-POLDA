@@ -78,7 +78,7 @@ class SocialMediaController extends Controller
             $this->redirect('/social');
         }
         $location = $this->post('incident_location', 'Wilayah Hukum Polda Metro Jaya');
-        $title = $this->post('title', "Pengaduan Medsos {$feed['platform']}: @" . $feed['author_username']);
+        $title = mb_substr((string)$this->post('title', "Pengaduan Medsos {$feed['platform']}: @" . $feed['author_username']), 0, 200);
         $description = $feed['post_content'];
 
         try {
@@ -89,9 +89,9 @@ class SocialMediaController extends Controller
                 'actor_id'          => Auth::id(),
                 'reporter_id'       => null,
                 'is_anonymous'      => 0,
-                'reporter_name_raw' => $feed['author_name'] ?: $feed['author_username'],
+                'reporter_name_raw' => mb_substr($feed['author_name'] ?: $feed['author_username'], 0, 150),
                 'reporter_nik_raw'  => null,
-                'reporter_phone'    => 'Medsos @' . $feed['author_username'],
+                'reporter_phone'    => mb_substr('Medsos @' . $feed['author_username'], 0, 25),
                 'category_id'       => $categoryId,
                 'title'             => $title,
                 'description'       => $description,
