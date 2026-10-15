@@ -667,8 +667,10 @@ class Report extends Model
                     COALESCE(SUM(r.sla_deadline >= NOW() AND r.sla_deadline < NOW() + INTERVAL 24 HOUR), 0) AS due_soon_cases
              FROM satkers s
              LEFT JOIN reports r ON r.current_satker_id = s.id AND r.status NOT IN ('CLOSED', 'REJECTED')
-             WHERE s.type IN ('DIREKTORAT', 'POLDA', 'POLRES')
+             WHERE s.type IN ('DIREKTORAT', 'POLDA', 'POLRES') AND s.is_active = 1
              GROUP BY s.id, s.name, s.code, s.type
+             -- Satker Mabes selalu tampil; Polda/Polres jajaran hanya bila sedang menangani perkara
+             HAVING s.type = 'DIREKTORAT' OR active_cases > 0
              ORDER BY overdue_cases DESC, due_soon_cases DESC, active_cases DESC, s.name ASC"
         );
     }

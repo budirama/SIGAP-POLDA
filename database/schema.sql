@@ -11,14 +11,19 @@ USE `sigap_polda`;
 CREATE TABLE IF NOT EXISTS `satkers` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
     `parent_id` INT NULL,
+    `path` VARCHAR(255) NULL COMMENT 'Materialized path id leluhur, mis. /1/10/100/',
     `type` ENUM('MABES', 'POLDA', 'DIREKTORAT', 'POLRES', 'POLSEK') NOT NULL DEFAULT 'POLDA',
+    `level` TINYINT NOT NULL DEFAULT 2 COMMENT '1 Polsek, 2 Polres, 3 Polda, 4 Pusat',
     `code` VARCHAR(50) NOT NULL UNIQUE,
     `name` VARCHAR(150) NOT NULL,
     `address` TEXT NULL,
     `phone` VARCHAR(30) NULL,
     `latitude` DECIMAL(10, 8) NULL,
     `longitude` DECIMAL(11, 8) NULL,
+    `is_active` TINYINT(1) NOT NULL DEFAULT 1,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX `idx_satkers_path` (`path`),
+    INDEX `idx_satkers_level` (`level`, `is_active`),
     CONSTRAINT `fk_satkers_parent` FOREIGN KEY (`parent_id`) REFERENCES `satkers`(`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -31,6 +36,7 @@ CREATE TABLE IF NOT EXISTS `users` (
     `email` VARCHAR(100) NULL,
     `phone` VARCHAR(25) NOT NULL,
     `password_hash` VARCHAR(255) NOT NULL,
+    `must_change_password` TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'Wajib ganti sandi saat login berikutnya',
     `role` ENUM(
         'ROLE_CITIZEN',
         'ROLE_SPKT_OPERATOR',
@@ -40,7 +46,10 @@ CREATE TABLE IF NOT EXISTS `users` (
         'ROLE_INVESTIGATOR',
         'ROLE_INTERNAL_AFFAIRS',
         'ROLE_EXECUTIVE',
-        'ROLE_SUPERADMIN'
+        'ROLE_SUPERADMIN',
+        'ROLE_POSKO_ADMIN',
+        'ROLE_POSKO_OPERATOR',
+        'ROLE_POSKO_EXECUTIVE'
     ) NOT NULL DEFAULT 'ROLE_CITIZEN',
     `satker_id` INT NULL,
     `rank` VARCHAR(50) NULL COMMENT 'Pangkat Personil: Bripka, Iptu, Kombes, Irjen, dll',

@@ -108,7 +108,22 @@ class AuthController extends Controller
             'kanit'      => 'kanit.tipidum@sigap.polri.go.id',
             'penyidik'   => 'penyidik.rian@sigap.polri.go.id',
             'itwasum'    => 'itwasum@sigap.polri.go.id',
-            'warga'      => 'budi.santoso95@gmail.com'
+            'warga'      => 'budi.santoso95@gmail.com',
+            // Management Posko (akun demo per tingkat)
+            'poskoAdminPusat' => 'posko.admin.pusat@sigap.polri.go.id',
+            'poskoOpPusat'    => 'posko.op.pusat@sigap.polri.go.id',
+            'poskoExecPusat'  => 'posko.exec.pusat@sigap.polri.go.id',
+            'poskoAdminJatim' => 'posko.admin.jatim@sigap.polri.go.id',
+            'poskoOpJatim'    => 'posko.op.jatim@sigap.polri.go.id',
+            'poskoExecJatim'  => 'posko.exec.jatim@sigap.polri.go.id',
+            'poskoAdminSby'   => 'posko.admin.surabaya@sigap.polri.go.id',
+            'poskoOpSby'      => 'posko.op.surabaya@sigap.polri.go.id',
+            'poskoExecSby'    => 'posko.exec.surabaya@sigap.polri.go.id',
+            'poskoOpBenowo'   => 'posko.op.benowo@sigap.polri.go.id',
+            'poskoOpGubeng'   => 'posko.op.gubeng@sigap.polri.go.id',
+            'poskoOpMetro'    => 'posko.op.metro@sigap.polri.go.id',
+            'poskoOpJaksel'   => 'posko.op.jaksel@sigap.polri.go.id',
+            'poskoOpSidoarjo' => 'posko.op.sidoarjo@sigap.polri.go.id',
         ];
 
         if (!isset($roleMap[$roleKey])) {
@@ -145,6 +160,7 @@ class AuthController extends Controller
             Constants::ROLE_INVESTIGATOR => $this->redirect('/investigator'),
             Constants::ROLE_INTERNAL_AFFAIRS => $this->redirect('/spkt'),
             Constants::ROLE_CITIZEN => $this->redirect('/report/track'),
+            Constants::ROLE_POSKO_ADMIN, Constants::ROLE_POSKO_OPERATOR, Constants::ROLE_POSKO_EXECUTIVE => $this->redirect('/posko'),
             default => $this->redirect('/')
         };
     }
