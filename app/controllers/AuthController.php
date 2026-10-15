@@ -9,11 +9,15 @@ use App\Core\Controller;
 use App\Core\Auth;
 use App\Core\Session;
 use App\Models\User;
+use App\Models\Throttle;
 use App\Config\Config;
 use App\Config\Constants;
 
 class AuthController extends Controller
 {
+    // Hash bcrypt pengganti untuk akun yang tidak ditemukan (penyamaan waktu respons)
+    private const DUMMY_HASH = '$2y$10$GhIIUf9MBrFOsjoYru3aruToxMcpxmfIGVIYlADoYzOIFqj4jcRce';
+
     private User $userModel;
 
     public function __construct()
@@ -51,12 +55,29 @@ class AuthController extends Controller
             $this->redirect('/auth/login');
         }
 
+        $throttle = new Throttle();
+        $idKey = mb_strtolower($identifier);
+        $ip = Throttle::clientIp();
+        if ($throttle->tooMany('login_id', $idKey) || $throttle->tooMany('login_ip', $ip)) {
+            Session::setFlash('error', 'Terlalu banyak percobaan login yang gagal. Silakan coba lagi dalam '
+                . Throttle::windowMinutes('login_id') . ' menit.');
+            $this->redirect('/auth/login');
+        }
+
         $user = $this->userModel->findByEmailOrNrp($identifier);
 
-        if (!$user || !password_verify($password, $user['password_hash'])) {
+        // password_verify selalu dijalankan agar waktu respons tidak membocorkan keberadaan akun
+        $hash = $user['password_hash'] ?? self::DUMMY_HASH;
+        $valid = password_verify($password, $hash) && $user !== null;
+
+        if (!$valid) {
+            $throttle->hit('login_id', $idKey);
+            $throttle->hit('login_ip', $ip);
             Session::setFlash('error', 'Kombinasi NRP/Email atau Password tidak sesuai.');
             $this->redirect('/auth/login');
         }
+
+        $throttle->clear('login_id', $idKey);
 
         Auth::login($user);
         Session::setFlash('success', "Selamat datang kembali, {$user['rank']} {$user['name']}!");

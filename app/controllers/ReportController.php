@@ -15,21 +15,21 @@ use App\Config\Constants;
 use App\Models\Report;
 use App\Models\User;
 use App\Models\Feedback;
-use App\Models\PinAttempt;
+use App\Models\Throttle;
 
 class ReportController extends Controller
 {
     private Report $reportModel;
     private User $userModel;
     private Feedback $feedbackModel;
-    private PinAttempt $pinAttemptModel;
+    private Throttle $throttle;
 
     public function __construct()
     {
         $this->reportModel = new Report();
         $this->userModel = new User();
         $this->feedbackModel = new Feedback();
-        $this->pinAttemptModel = new PinAttempt();
+        $this->throttle = new Throttle();
     }
 
     /**
@@ -77,6 +77,13 @@ class ReportController extends Controller
         $urgency = $this->post('urgency_level', 'NORMAL');
         if (!in_array($urgency, ['NORMAL', 'HIGH', 'EMERGENCY'], true)) {
             $urgency = 'NORMAL';
+        }
+
+        $ip = Throttle::clientIp();
+        if ($this->throttle->tooMany('report_ip', $ip)) {
+            Session::setFlash('error', 'Batas pengiriman laporan dari jaringan Anda tercapai. Silakan coba lagi dalam '
+                . Throttle::windowMinutes('report_ip') . ' menit atau hubungi Call Center 110 untuk keadaan darurat.');
+            $this->redirect('/report/create');
         }
 
         // Validasi input wajib
@@ -153,6 +160,8 @@ class ReportController extends Controller
                 'attachments'       => $attachments
             ]);
 
+            $this->throttle->hit('report_ip', $ip);
+
             // Pelapor yang baru membuat laporan langsung mendapat akses ke tiketnya
             ReportAccess::grantReporter($ticketNumber);
 
@@ -210,21 +219,23 @@ class ReportController extends Controller
                 $isLocked = false;
                 if ($pin !== '' && !$this->canAccessReport($report)) {
                     $ticket = $report['ticket_number'];
-                    $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+                    $ip = Throttle::clientIp();
 
-                    if ($this->pinAttemptModel->isLocked($ticket, $ip)) {
+                    if ($this->isPinLocked($ticket, $ip)) {
                         $isLocked = true;
                     } elseif (hash_equals((string)$report['security_pin'], $pin)) {
-                        $this->pinAttemptModel->clearFailures($ticket);
+                        $this->throttle->clear('pin_ticket_ip', "{$ticket}|{$ip}");
                         ReportAccess::grantReporter($ticket);
                     } else {
-                        $this->pinAttemptModel->recordFailure($ticket, $ip);
+                        $this->throttle->hit('pin_ticket_ip', "{$ticket}|{$ip}");
+                        $this->throttle->hit('pin_ip', $ip);
+                        $this->throttle->hit('pin_ticket', $ticket);
                     }
                 }
 
                 if ($isLocked) {
                     $errorMessage = 'Terlalu banyak percobaan PIN yang salah. Silakan coba lagi dalam '
-                        . PinAttempt::WINDOW_MINUTES . ' menit.';
+                        . Throttle::windowMinutes('pin_ticket_ip') . ' menit.';
                     $report = null;
                 } elseif (!$this->canAccessReport($report)) {
                     $errorMessage = $pin === ''
@@ -238,6 +249,10 @@ class ReportController extends Controller
                     $messages = $this->reportModel->getCaseMessages($report['id']);
                 }
             } else {
+                // Tebakan tiket tak dikenal ikut dihitung dalam batas per IP
+                if ($pin !== '') {
+                    $this->throttle->hit('pin_ip', Throttle::clientIp());
+                }
                 $errorMessage = "Nomor tiket {$ticketNumber} tidak ditemukan dalam database.";
             }
         }
@@ -401,5 +416,12 @@ class ReportController extends Controller
         }
 
         return $stored['file_path'] ?? null;
+    }
+
+    private function isPinLocked(string $ticket, string $ip): bool
+    {
+        return $this->throttle->tooMany('pin_ticket_ip', "{$ticket}|{$ip}")
+            || $this->throttle->tooMany('pin_ip', $ip)
+            || $this->throttle->tooMany('pin_ticket', $ticket);
     }
 }

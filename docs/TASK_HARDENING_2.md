@@ -25,7 +25,7 @@ Hasil review ulang 15 Oktober 2026 setelah PR #1–#11 (lihat `docs/TASK_HARDENI
 - **Solusi:** watchlist SLA per Satker dari `sla_deadline` (lewat SLA / mendekati SLA / sesuai), clearance rate = selesai ÷ (semua − ditolak), KPI atensi hanya kasus aktif.
 
 ### U4 — Pembatasan percobaan (login, laporan publik, PIN)
-- [ ] **Masalah:** login personil tanpa batas percobaan; formulir laporan publik tanpa batas (spam, disk penuh); kunci PIN per tiket dapat disalahgunakan untuk mengunci tiket warga.
+- [x] **Masalah:** login personil tanpa batas percobaan; formulir laporan publik tanpa batas (spam, disk penuh); kunci PIN per tiket dapat disalahgunakan untuk mengunci tiket warga.
 - **Solusi:** `App\Core\Throttle` generik (tabel `throttle_events`) dipakai untuk login (per identitas & per IP), laporan publik (per IP), dan PIN (per tiket+IP, per IP, plafon per tiket). Login selalu menjalankan `password_verify` (anti timing).
 
 ---
