@@ -18,6 +18,18 @@ class Constants
     public const ROLE_EXECUTIVE = 'ROLE_EXECUTIVE';
     public const ROLE_SUPERADMIN = 'ROLE_SUPERADMIN';
 
+    // Role Management Posko (akun terpisah; tingkat posko diambil dari satker pengguna)
+    public const ROLE_POSKO_ADMIN = 'ROLE_POSKO_ADMIN';
+    public const ROLE_POSKO_OPERATOR = 'ROLE_POSKO_OPERATOR';
+    public const ROLE_POSKO_EXECUTIVE = 'ROLE_POSKO_EXECUTIVE';
+    public const POSKO_ROLES = [self::ROLE_POSKO_ADMIN, self::ROLE_POSKO_OPERATOR, self::ROLE_POSKO_EXECUTIVE];
+
+    // Tingkat posko (satkers.level)
+    public const LEVEL_POLSEK = 1;
+    public const LEVEL_POLRES = 2;
+    public const LEVEL_POLDA = 3;
+    public const LEVEL_PUSAT = 4;
+
     // Status Penanganan Perkara (Lifecycle)
     public const STATUS_DRAFT = 'DRAFT';
     public const STATUS_SUBMITTED = 'SUBMITTED';
@@ -65,8 +77,29 @@ class Constants
             self::ROLE_INTERNAL_AFFAIRS => 'Pengawas Internal (Itwasum/Propam)',
             self::ROLE_EXECUTIVE => 'Executive (Kapolri / PJU)',
             self::ROLE_SUPERADMIN => 'Superadministrator TIK',
+            self::ROLE_POSKO_ADMIN => 'Admin Posko',
+            self::ROLE_POSKO_OPERATOR => 'Operator Posko',
+            self::ROLE_POSKO_EXECUTIVE => 'Executive Posko',
             default => 'Pengguna'
         };
+    }
+
+    // Nama tingkat posko
+    public static function levelLabel(int $level): string
+    {
+        return match ($level) {
+            self::LEVEL_POLSEK => 'Polsek',
+            self::LEVEL_POLRES => 'Polres',
+            self::LEVEL_POLDA => 'Polda',
+            self::LEVEL_PUSAT => 'Pusat',
+            default => 'Tidak diketahui',
+        };
+    }
+
+    // Label role posko lengkap dengan tingkat, mis. "Operator Posko Polres"
+    public static function poskoRoleLabel(string $role, int $level): string
+    {
+        return self::getRoleLabel($role) . ' ' . self::levelLabel($level);
     }
 
     // Badge Warna Status (Tailwind Classes)

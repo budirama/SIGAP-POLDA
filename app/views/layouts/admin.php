@@ -50,7 +50,9 @@
       <!-- Navigation Menus Based on Role -->
       <div class="px-3 py-2 space-y-1 text-xs font-semibold">
         
-        <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-3 py-1 mt-2">MENU OPERASIONAL</div>
+        <?php if (!\App\Core\PoskoAccess::isPoskoUser()): ?>
+          <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-3 py-1 mt-2">MENU OPERASIONAL</div>
+        <?php endif; ?>
 
         <!-- Executive Kapolri -->
         <?php if (\App\Core\Auth::hasRole([\App\Config\Constants::ROLE_EXECUTIVE, \App\Config\Constants::ROLE_SUPERADMIN])): ?>
@@ -107,6 +109,37 @@
             <span id="navChatWaiting" class="px-1.5 min-w-[1.25rem] text-center rounded-full bg-red-600 text-white text-[10px] leading-5"
                   <?= $chatWaiting > 0 ? '' : 'hidden' ?>><?= $chatWaiting ?></span>
           </a>
+        <?php endif; ?>
+
+        <!-- Management Posko (pelaporan berjenjang) -->
+        <?php if (\App\Core\Auth::hasRole(array_merge(\App\Config\Constants::POSKO_ROLES, [\App\Config\Constants::ROLE_SUPERADMIN]))): ?>
+          <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-3 py-1 mt-4">MANAGEMENT POSKO</div>
+          <a href="<?= $baseUrl ?>/posko"
+             class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-300 hover:text-slate-100 hover:bg-[#1B1610] transition-colors">
+            <i class="fas fa-sitemap text-amber-400 w-4"></i>
+            <span>Beranda Posko</span>
+          </a>
+          <?php if (\App\Core\Auth::hasRole([\App\Config\Constants::ROLE_POSKO_ADMIN, \App\Config\Constants::ROLE_SUPERADMIN])): ?>
+            <a href="<?= $baseUrl ?>/posko/users"
+               class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-300 hover:text-slate-100 hover:bg-[#1B1610] transition-colors">
+              <i class="fas fa-users-gear text-amber-400 w-4"></i>
+              <span>Pengguna Posko</span>
+            </a>
+          <?php endif; ?>
+          <?php if (\App\Core\PoskoAccess::canManageOrganization()): ?>
+            <a href="<?= $baseUrl ?>/posko/organizations"
+               class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-300 hover:text-slate-100 hover:bg-[#1B1610] transition-colors">
+              <i class="fas fa-building-shield text-amber-400 w-4"></i>
+              <span>Organisasi Posko</span>
+            </a>
+          <?php endif; ?>
+          <?php if (\App\Core\PoskoAccess::isPoskoUser()): ?>
+            <a href="<?= $baseUrl ?>/posko/password"
+               class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-300 hover:text-slate-100 hover:bg-[#1B1610] transition-colors">
+              <i class="fas fa-key text-amber-400 w-4"></i>
+              <span>Ganti Kata Sandi</span>
+            </a>
+          <?php endif; ?>
         <?php endif; ?>
 
         <!-- Jejak Audit -->

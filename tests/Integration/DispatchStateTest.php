@@ -75,8 +75,10 @@ return [
     },
 
     'tombol disposisi hanya tampil untuk status pra-penyidikan' => function () {
-        $html = Http::as('spkt')->get('/spkt')->body;
-        foreach (Db::pdo()->query("SELECT id, status FROM reports")->fetchAll() as $r) {
+        // Daftar SPKT berpaginasi: cari tiap laporan lewat nomor tiketnya agar barisnya pasti tampil
+        $spkt = Http::as('spkt');
+        foreach (Db::pdo()->query("SELECT id, status, ticket_number FROM reports")->fetchAll() as $r) {
+            $html = $spkt->get('/spkt?search=' . urlencode($r['ticket_number']))->body;
             $hasButton = str_contains($html, "openDispatchModal({&quot;id&quot;:{$r['id']},");
             T::same(in_array($r['status'], \App\Config\Constants::DISPATCHABLE_STATUSES, true), $hasButton, "laporan #{$r['id']} ({$r['status']})");
         }

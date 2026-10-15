@@ -24,11 +24,12 @@ BRD menggambarkan **pelaporan operasional internal posko** yang mengalir **dari 
 
 | # | Hal | Asumsi saat ini | Status |
 |---|---|---|---|
-| A1 | Bentuk aplikasi | **Modul di dalam SIGAP** (route `/posko/...`), bukan aplikasi terpisah | Rekomendasi, belum dikonfirmasi |
-| A2 | Daftar jenis laporan & isiannya | Mulai dengan 4 jenis contoh: Laporan Harian, Laporan Periodik (Mingguan), Laporan Kejadian Khusus, Laporan Insidentil | Menunggu daftar resmi |
+| A1 | Bentuk aplikasi | **Modul di dalam SIGAP** (route `/posko/...`), bukan aplikasi terpisah | ✅ Dikonfirmasi 15 Okt 2026 |
+| A2 | Daftar jenis laporan & isiannya | Mulai dengan 4 jenis contoh: Laporan Harian, Laporan Periodik (Mingguan), Laporan Kejadian Khusus, Laporan Insidentil | ✅ Pakai contoh dulu (15 Okt 2026) |
+| A9 | Akun posko vs akun SIGAP | **Akun posko terpisah**, satu akun satu role | ✅ Dikonfirmasi 15 Okt 2026 |
 | A3 | Tenggat pelaporan | Harian: pukul 23.59 hari yang sama; Mingguan: Senin 12.00 minggu berikutnya | Menunggu ketentuan resmi |
 | A4 | Persetujuan sebelum diteruskan | **Dapat dikonfigurasi per jenis laporan** (BRD 2.2); default: wajib disetujui | Sesuai BRD |
-| A5 | Data organisasi | Data demo: 1 Pusat, 5 Polda, 2–3 Polres per Polda, 2–3 Polsek per Polres | Menunggu data resmi Polres/Polsek |
+| A5 | Data organisasi | Nama satuan dari Wikipedia bahasa Indonesia: 36 Polda, Polres lengkap 5 Polda, Polsek contoh Polrestabes Surabaya | ✅ Diputuskan 15 Okt 2026 (ganti data resmi sebelum produksi) |
 | A6 | Hubungan dengan aduan warga | Terpisah; laporan posko boleh **merujuk** nomor tiket aduan (opsional), tidak menggantikan alur SP2HP | Rekomendasi |
 | A7 | Notifikasi | Dalam aplikasi + email (SMTP dari `.env`); WhatsApp/SMS di luar cakupan (BRD 4.6) | Sesuai BRD |
 | A8 | SSO | Di luar cakupan tahap ini; disiapkan titik integrasinya saja | Menunggu infrastruktur instansi |
@@ -41,7 +42,7 @@ BRD menggambarkan **pelaporan operasional internal posko** yang mengalir **dari 
 
 | Tahap | File | Isi | Bergantung pada | Rujukan BRD |
 |---|---|---|---|---|
-| 1 | [POSKO_01_ORGANISASI_ROLE.md](POSKO_01_ORGANISASI_ROLE.md) | Hierarki 4 tingkat, role per tingkat, pembatasan wilayah, manajemen pengguna & organisasi | — | Bab 2.1, 3, 9.1 |
+| 1 ✅ | [POSKO_01_ORGANISASI_ROLE.md](POSKO_01_ORGANISASI_ROLE.md) | Hierarki 4 tingkat, role per tingkat, pembatasan wilayah, manajemen pengguna & organisasi | — | Bab 2.1, 3, 9.1 |
 | 2 | [POSKO_02_INPUT_LAPORAN.md](POSKO_02_INPUT_LAPORAN.md) | Jenis laporan terkonfigurasi, formulir dinamis, draft, lampiran, nomor laporan, periode & tenggat | Tahap 1 | Bab 4.2, 7.3, 9.3 |
 | 3 | [POSKO_03_WORKFLOW_BERJENJANG.md](POSKO_03_WORKFLOW_BERJENJANG.md) | Kirim, verifikasi, kembalikan, setujui, teruskan, revisi & versi, eskalasi mendesak | Tahap 2 | Bab 4.3, 5, 9.3 |
 | 4 | [POSKO_04_REKAP_NIHIL_KEPATUHAN.md](POSKO_04_REKAP_NIHIL_KEPATUHAN.md) | Rekapitulasi berjenjang, laporan nihil, monitoring kepatuhan | Tahap 3 | Bab 2.2–2.3, 4.4–4.5 |
