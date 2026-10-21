@@ -207,6 +207,76 @@ class Report extends Model
                 }
             }
 
+            // Dual-Write Integration Bridge: Terbitkan Satu Nomor Global (One Police Service Presisi v1.3)
+            try {
+                $rawChannel = (string)($data['source_channel'] ?? 'WEB_PORTAL');
+                $opsChannelCode = match($rawChannel) {
+                    'CALL_CENTER_110' => '110',
+                    'SPKT_LOKET' => 'SPKT',
+                    'TWITTER_X', 'INSTAGRAM', 'FACEBOOK', 'TIKTOK' => 'MED',
+                    'LIVE_CHAT' => 'CHAT',
+                    default => 'WEB',
+                };
+
+                $opsChannelEnum = match($rawChannel) {
+                    'CALL_CENTER_110' => '110_CALL',
+                    'SPKT_LOKET' => 'SPKT_LOKET',
+                    'DUMAS_PROPAM' => 'DUMAS_PROPAM',
+                    default => 'WEB_PORTAL',
+                };
+
+                $opsTrackingNumber = \App\Core\OpsTracker::generateTrackingNumber($opsChannelCode);
+                $pinHash = password_hash($securityPin, PASSWORD_BCRYPT);
+                $nikClean = preg_replace('/[^0-9]/', '', (string)($data['reporter_nik_raw'] ?? ''));
+                $nikEncrypted = ($nikClean !== '') ? \App\Core\OpsPdp::encryptNik($nikClean) : null;
+
+                $this->execute(
+                    "INSERT INTO `ops_global_tracks` (
+                        tracking_number, security_pin_hash, source_channel, current_status,
+                        priority_level, incident_category, incident_summary, incident_lat, incident_lng,
+                        incident_address, citizen_name, citizen_nik_encrypted, citizen_phone,
+                        is_whistleblower, is_vulnerable_group, current_satker_id, external_reference_no,
+                        sla_deadline, is_stalled, created_at
+                    ) VALUES (
+                        ?, ?, ?, 'INCOMING',
+                        ?, ?, ?, ?, ?,
+                        ?, ?, ?, ?,
+                        ?, 0, 1, ?,
+                        ?, 0, NOW()
+                    )",
+                    [
+                        $opsTrackingNumber,
+                        $pinHash,
+                        $opsChannelEnum,
+                        ($data['urgency_level'] ?? 'NORMAL') === 'EMERGENCY' ? 'P1_EMERGENCY' : 'P3_ROUTINE',
+                        'PENGADUAN_MASYARAKAT',
+                        $data['title'] . "\n" . $data['description'],
+                        $data['latitude'] ?? null,
+                        $data['longitude'] ?? null,
+                        $data['incident_location'] ?? 'Wilayah Hukum',
+                        $data['reporter_name_raw'],
+                        $nikEncrypted,
+                        $data['reporter_phone'],
+                        $data['is_anonymous'] ?? 0,
+                        $ticketNumber,
+                        $slaDeadline
+                    ]
+                );
+
+                \App\Core\OpsEventBus::publish(
+                    $this->db,
+                    $opsTrackingNumber,
+                    'CASE_REGISTERED_FROM_LEGACY_MODULE',
+                    [
+                        'legacy_ticket' => $ticketNumber,
+                        'source'        => $rawChannel,
+                        'title'         => $data['title']
+                    ]
+                );
+            } catch (\Throwable $bridgeEx) {
+                error_log('[SIGAP-POLRI] Dual-write OneService bridge notice: ' . $bridgeEx->getMessage());
+            }
+
             $this->commit();
             return $ticketNumber;
         } catch (\Throwable $e) {
@@ -403,6 +473,49 @@ class Report extends Model
                 ]
             );
 
+            // Sinkronisasi ke OneService ops_case_milestones & ops_global_tracks
+            try {
+                $opsTrack = $this->fetch(
+                    "SELECT tracking_number FROM `ops_global_tracks` WHERE external_reference_no = ? LIMIT 1",
+                    [$report['ticket_number']]
+                );
+                if ($opsTrack) {
+                    $trackingNum = (string)$opsTrack['tracking_number'];
+                    $stageCode = ($newStatus === 'CLOSED') ? 'A5' : 'A2';
+                    $officerNrp = '88030301';
+                    $qrHash = hash('sha256', $trackingNum . $stageCode . microtime() . $officerNrp);
+
+                    $this->execute(
+                        "INSERT INTO `ops_case_milestones` (
+                            tracking_number, stage_code, title, description_public,
+                            description_internal, officer_nrp, qr_verification_hash, issued_at
+                        ) VALUES (?, ?, 'Penerbitan SP2HP Elektronik', ?, ?, ?, ?, NOW())",
+                        [
+                            $trackingNum,
+                            $stageCode,
+                            $publicNotes,
+                            $internalNotes,
+                            $officerNrp,
+                            $qrHash
+                        ]
+                    );
+
+                    $this->execute(
+                        "UPDATE `ops_global_tracks` SET current_status = 'INVESTIGATION', updated_at = NOW() WHERE tracking_number = ?",
+                        [$trackingNum]
+                    );
+
+                    \App\Core\OpsEventBus::publish(
+                        $this->db,
+                        $trackingNum,
+                        'SP2HP_ISSUED_FROM_LEGACY_MODULE',
+                        ['sp2hp_number' => $sp2hpNumber, 'stage' => $stageCode]
+                    );
+                }
+            } catch (\Throwable $bridgeEx) {
+                error_log('[SIGAP-POLRI] SP2HP OneService bridge notice: ' . $bridgeEx->getMessage());
+            }
+
             $this->commit();
             return true;
         } catch (\Throwable $e) {
@@ -444,6 +557,47 @@ class Report extends Model
                     "Catatan Penutupan Kasus (BAP): {$resolutionNotes}"
                 ]
             );
+
+            // Sinkronisasi ke OneService ops_case_milestones & ops_global_tracks
+            try {
+                $opsTrack = $this->fetch(
+                    "SELECT tracking_number FROM `ops_global_tracks` WHERE external_reference_no = ? LIMIT 1",
+                    [$report['ticket_number']]
+                );
+                if ($opsTrack) {
+                    $trackingNum = (string)$opsTrack['tracking_number'];
+                    $officerNrp = '88030301';
+                    $qrHash = hash('sha256', $trackingNum . 'A5' . microtime() . $officerNrp);
+
+                    $this->execute(
+                        "INSERT INTO `ops_case_milestones` (
+                            tracking_number, stage_code, title, description_public,
+                            description_internal, officer_nrp, qr_verification_hash, issued_at
+                        ) VALUES (?, 'A5', 'Penanganan Kasus Selesai', ?, ?, ?, ?, NOW())",
+                        [
+                            $trackingNum,
+                            "Perkara ini telah berhasil diselesaikan oleh tim kepolisian. Terima kasih atas partisipasi aktif masyarakat.",
+                            "Catatan Penutupan Kasus (BAP): {$resolutionNotes}",
+                            $officerNrp,
+                            $qrHash
+                        ]
+                    );
+
+                    $this->execute(
+                        "UPDATE `ops_global_tracks` SET current_status = 'CLOSED', updated_at = NOW() WHERE tracking_number = ?",
+                        [$trackingNum]
+                    );
+
+                    \App\Core\OpsEventBus::publish(
+                        $this->db,
+                        $trackingNum,
+                        'CASE_CLOSED_FROM_LEGACY_MODULE',
+                        ['resolution_notes' => $resolutionNotes]
+                    );
+                }
+            } catch (\Throwable $bridgeEx) {
+                error_log('[SIGAP-POLRI] Close Case OneService bridge notice: ' . $bridgeEx->getMessage());
+            }
 
             $this->commit();
             return true;

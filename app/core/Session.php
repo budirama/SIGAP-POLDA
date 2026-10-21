@@ -12,6 +12,12 @@ class Session
 
     public static function start(): void
     {
+        if (PHP_SAPI === 'cli') {
+            if (!isset($_SESSION) || !is_array($_SESSION)) {
+                $_SESSION = [];
+            }
+            return;
+        }
         if (session_status() === PHP_SESSION_NONE) {
             // Set parameter cookie aman
             ini_set('session.cookie_httponly', '1');
@@ -151,9 +157,15 @@ class Session
         return self::generateCsrf();
     }
 
-    public static function validateCsrf(?string $token): bool
+    public static function csrfToken(): string
+    {
+        return self::generateCsrf();
+    }
+
+    public static function validateCsrf(?string $token = null): bool
     {
         self::start();
+        $token = $token ?? $_POST['_csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? null;
         if (empty($token) || empty($_SESSION['_csrf_token'])) {
             return false;
         }

@@ -15,6 +15,8 @@ class App
         'posko-rekap' => 'PoskoRecapController',
         'posko-kepatuhan' => 'PoskoComplianceController',
         'posko-notifikasi' => 'PoskoNotificationController',
+        'oneservice' => 'OneServiceController',
+        'satunomor' => 'OneServiceController',
     ];
 
     protected string $controller = 'HomeController';
