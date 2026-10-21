@@ -103,6 +103,15 @@
           </a>
         <?php endif; ?>
 
+        <!-- Layanan PIN Pelapor: lihat / reset PIN selama gateway SMS belum aktif -->
+        <?php if (\App\Core\Auth::hasRole([\App\Config\Constants::ROLE_SPKT_OPERATOR, \App\Config\Constants::ROLE_SUPERADMIN])): ?>
+          <a href="<?= $baseUrl ?>/pin"
+             class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-300 hover:text-slate-100 hover:bg-[#1B1610] transition-colors">
+            <i class="fas fa-key text-amber-400 w-4"></i>
+            <span>Layanan PIN Pelapor</span>
+          </a>
+        <?php endif; ?>
+
         <!-- Omnichat: kanal chat warga -->
         <?php if (\App\Core\Auth::hasRole([\App\Config\Constants::ROLE_SPKT_OPERATOR, \App\Config\Constants::ROLE_CYBER_HUMAS, \App\Config\Constants::ROLE_SUPERADMIN, \App\Config\Constants::ROLE_INTERNAL_AFFAIRS])): ?>
           <?php $chatWaiting = (new \App\Models\Chat())->countWaiting(); ?>

@@ -190,6 +190,15 @@
                       </button>
                     <?php endif; ?>
 
+                    <?php if ($canAct): ?>
+                    <!-- Layanan PIN Pelapor -->
+                    <a href="<?= $baseUrl ?>/pin?ticket=<?= urlencode($r['ticket_number']) ?>"
+                       class="p-1.5 bg-slate-800 hover:bg-slate-700 text-amber-300 rounded-lg transition-colors"
+                       title="Layanan PIN Pelapor (lihat / reset)">
+                      <i class="fas fa-key text-xs"></i>
+                    </a>
+                    <?php endif; ?>
+
                     <!-- Tombol Cek Detail -->
                     <a href="<?= $baseUrl ?>/report/track?ticket=<?= urlencode($r['ticket_number']) ?>" target="_blank"
                        class="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition-colors"
