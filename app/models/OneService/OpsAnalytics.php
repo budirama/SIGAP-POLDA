@@ -58,11 +58,11 @@ class OpsAnalytics
 
         // 5. APA YANG BELUM BERHASIL? (TRANSPARANSI DEFISIT)
         $stalledSatkers = $pdo->query(
-            "SELECT s.name as satker_name, COUNT(t.id) as stalled_count
+            "SELECT s.id as satker_id, s.name as satker_name, COUNT(t.id) as stalled_count
              FROM `ops_global_tracks` t
              JOIN `satkers` s ON t.current_satker_id = s.id
              WHERE t.is_stalled = 1
-             GROUP BY s.name
+             GROUP BY s.id, s.name
              ORDER BY stalled_count DESC LIMIT 5"
         )->fetchAll();
 

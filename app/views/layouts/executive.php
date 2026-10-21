@@ -41,6 +41,16 @@
 
     <!-- Right: Profile & Actions -->
     <div class="flex items-center gap-3">
+      <?php if (\App\Core\ModuleManager::isActive('ONESERVICE') && \App\Core\Auth::hasRole([\App\Config\Constants::ROLE_EXECUTIVE, \App\Config\Constants::ROLE_SUPERADMIN])): ?>
+      <a href="<?= $baseUrl ?>/oneservice/dashboard" class="px-3.5 py-2 rounded-xl bg-amber-950/80 hover:bg-amber-900 border border-amber-700 text-amber-200 text-xs font-bold transition-all flex items-center gap-2" title="Satu Nomor, Satu Jejak: ringkasan 100 hari">
+        <i class="fas fa-fingerprint text-amber-400"></i>
+        <span class="hidden sm:inline">Satu Nomor, Satu Jejak</span>
+      </a>
+      <a href="<?= $baseUrl ?>/oneservice/daftar" class="px-3.5 py-2 rounded-xl bg-[#1B1610] hover:bg-[#241D14] border border-slate-700 text-slate-200 text-xs font-bold transition-all flex items-center gap-2" title="Daftar & detail seluruh perkara">
+        <i class="fas fa-magnifying-glass-chart text-sky-400"></i>
+        <span class="hidden sm:inline">Detail Perkara</span>
+      </a>
+      <?php endif; ?>
       <?php if (\App\Core\Auth::hasRole([\App\Config\Constants::ROLE_SPKT_OPERATOR, \App\Config\Constants::ROLE_INTERNAL_AFFAIRS])): ?>
       <a href="<?= $baseUrl ?>/spkt" class="px-3.5 py-2 rounded-xl bg-blue-950/80 hover:bg-blue-900 border border-blue-800 text-blue-200 text-xs font-bold transition-all flex items-center gap-2">
         <i class="fas fa-desktop text-amber-400"></i>

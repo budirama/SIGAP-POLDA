@@ -130,7 +130,7 @@
         <?php endif; ?>
 
         <!-- Satu Nomor, Satu Jejak v1.3 Presisi -->
-        <?php if (\App\Core\ModuleManager::isActive('ONESERVICE') && (!\App\Core\PoskoAccess::isPoskoUser() || \App\Core\Auth::hasRole([\App\Config\Constants::ROLE_SUPERADMIN, \App\Config\Constants::ROLE_EXECUTIVE]))): ?>
+        <?php if (\App\Core\ModuleManager::isActive('ONESERVICE') && \App\Core\Auth::hasRole([\App\Config\Constants::ROLE_SPKT_OPERATOR, \App\Config\Constants::ROLE_CYBER_HUMAS, \App\Config\Constants::ROLE_SATKER_HEAD, \App\Config\Constants::ROLE_SATKER_ADMIN, \App\Config\Constants::ROLE_INVESTIGATOR, \App\Config\Constants::ROLE_INTERNAL_AFFAIRS, \App\Config\Constants::ROLE_EXECUTIVE, \App\Config\Constants::ROLE_SUPERADMIN])): ?>
           <div class="text-[10px] font-bold text-amber-500/80 uppercase tracking-widest px-3 py-1 mt-4">SATU NOMOR, SATU JEJAK</div>
           <?php if (\App\Core\ModuleManager::isActive('oneservice_hub')): ?>
           <a href="<?= $baseUrl ?>/oneservice"
@@ -144,6 +144,13 @@
              class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-300 hover:text-slate-100 hover:bg-[#1B1610] transition-colors">
             <i class="fas fa-chart-pie text-emerald-400 w-4"></i>
             <span>Akuntabilitas 100 Hari</span>
+          </a>
+          <?php endif; ?>
+          <?php if (\App\Core\ModuleManager::isActive('oneservice_cases')): ?>
+          <a href="<?= $baseUrl ?>/oneservice/daftar"
+             class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-300 hover:text-slate-100 hover:bg-[#1B1610] transition-colors">
+            <i class="fas fa-magnifying-glass-chart text-sky-400 w-4"></i>
+            <span>Daftar &amp; Detail Perkara</span>
           </a>
           <?php endif; ?>
         <?php endif; ?>

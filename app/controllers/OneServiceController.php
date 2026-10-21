@@ -21,10 +21,30 @@ use App\Models\OneService\OpsCyber;
 use App\Models\OneService\OpsBhabin;
 use App\Models\OneService\OpsDumas;
 use App\Models\OneService\OpsAnalytics;
+use App\Models\OneService\OpsDrill;
 use App\Models\Satker;
+use App\Config\Constants;
 
 class OneServiceController extends Controller
 {
+    /** Personil Polri yang boleh membuka backoffice OneService (bukan warga / operator Posko) */
+    private const PERSONNEL_ROLES = [
+        Constants::ROLE_SPKT_OPERATOR,
+        Constants::ROLE_CYBER_HUMAS,
+        Constants::ROLE_SATKER_HEAD,
+        Constants::ROLE_SATKER_ADMIN,
+        Constants::ROLE_INVESTIGATOR,
+        Constants::ROLE_INTERNAL_AFFAIRS,
+        Constants::ROLE_EXECUTIVE,
+        Constants::ROLE_SUPERADMIN,
+    ];
+
+    /** Pimpinan (Kapolri/PJU): melihat seluruh data hingga detail, tanpa mengubah.
+     *  Itwasum tetap dapat bertindak (antara lain mendaftarkan aduan Dumas). */
+    private const READ_ONLY_ROLES = [
+        Constants::ROLE_EXECUTIVE,
+    ];
+
     private Satker $satkerModel;
 
     public function __construct()
@@ -39,7 +59,7 @@ class OneServiceController extends Controller
     public function index(): void
     {
         ModuleManager::requireActive('oneservice_hub');
-        Auth::requireAuth();
+        $this->requirePersonnel();
 
         $report = OpsAnalytics::getAccountabilityReport();
         $stalledCount = OpsTrack::runSlaWatchdog();
@@ -121,13 +141,16 @@ class OneServiceController extends Controller
     public function dispatch(): void
     {
         ModuleManager::requireActive('oneservice_dispatch');
-        Auth::requireAuth();
+        $this->requirePersonnel();
 
         $message = null;
         $error = null;
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            Session::validateCsrf();
+            if (!Session::validateCsrf()) {
+                Session::setFlash('error', 'Sesi keamanan berakhir (token CSRF tidak valid). Silakan ulangi.');
+                $this->redirect(preg_replace('#^.*?/oneservice#', '/oneservice', parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?: '/oneservice'));
+            }
             $action = $_POST['action'] ?? '';
 
             if ($action === 'create_call') {
@@ -201,14 +224,17 @@ class OneServiceController extends Controller
     public function spkt(): void
     {
         ModuleManager::requireActive('oneservice_spkt');
-        Auth::requireAuth();
+        $this->requirePersonnel();
 
         $message = null;
         $error = null;
         $ticketInfo = null;
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            Session::validateCsrf();
+            if (!Session::validateCsrf()) {
+                Session::setFlash('error', 'Sesi keamanan berakhir (token CSRF tidak valid). Silakan ulangi.');
+                $this->redirect(preg_replace('#^.*?/oneservice#', '/oneservice', parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?: '/oneservice'));
+            }
 
             $res = OpsTrack::createTrack([
                 'source_channel'     => 'SPKT_LOKET',
@@ -257,13 +283,16 @@ class OneServiceController extends Controller
     public function cases(): void
     {
         ModuleManager::requireActive('oneservice_cases');
-        Auth::requireAuth();
+        $this->requirePersonnel();
 
         $message = null;
         $error = null;
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            Session::validateCsrf();
+            if (!Session::validateCsrf()) {
+                Session::setFlash('error', 'Sesi keamanan berakhir (token CSRF tidak valid). Silakan ulangi.');
+                $this->redirect(preg_replace('#^.*?/oneservice#', '/oneservice', parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?: '/oneservice'));
+            }
             $action = $_POST['action'] ?? '';
 
             if ($action === 'issue_sp2hp') {
@@ -325,7 +354,10 @@ class OneServiceController extends Controller
         $fraudResult = null;
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            Session::validateCsrf();
+            if (!Session::validateCsrf()) {
+                Session::setFlash('error', 'Sesi keamanan berakhir (token CSRF tidak valid). Silakan ulangi.');
+                $this->redirect(preg_replace('#^.*?/oneservice#', '/oneservice', parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?: '/oneservice'));
+            }
 
             $res = OpsCyber::reportFraud([
                 'citizen_name'        => trim((string)($_POST['citizen_name'] ?? '')),
@@ -346,16 +378,19 @@ class OneServiceController extends Controller
             }
         }
 
-        // Ambil daftar aduan siber terbaru dan cluster sindikat
-        $pdo = \App\Config\Database::getConnection();
-        $frauds = $pdo->query(
-            "SELECT f.*, t.incident_summary, t.created_at as reported_at
-             FROM `ops_cyber_fraud` f
-             JOIN `ops_global_tracks` t ON f.tracking_number = t.tracking_number
-             ORDER BY f.created_at DESC LIMIT 30"
-        )->fetchAll();
-
-        $clusters = OpsCyber::getSyndicateClusters();
+        // Daftar aduan & kluster rekening terlapor (belum terverifikasi) hanya untuk personil
+        $frauds = [];
+        $clusters = [];
+        if (Auth::hasRole(self::PERSONNEL_ROLES)) {
+            $pdo = \App\Config\Database::getConnection();
+            $frauds = $pdo->query(
+                "SELECT f.*, t.incident_summary, t.created_at as reported_at
+                 FROM `ops_cyber_fraud` f
+                 JOIN `ops_global_tracks` t ON f.tracking_number = t.tracking_number
+                 ORDER BY f.created_at DESC LIMIT 30"
+            )->fetchAll();
+            $clusters = OpsCyber::getSyndicateClusters();
+        }
 
         $this->render('oneservice/cyber', [
             'pageTitle'   => 'Aduan Penipuan Daring & Blokir Cepat Rekening - POLRI',
@@ -373,13 +408,16 @@ class OneServiceController extends Controller
     public function bhabin(): void
     {
         ModuleManager::requireActive('oneservice_bhabin');
-        Auth::requireAuth();
+        $this->requirePersonnel();
 
         $message = null;
         $error = null;
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            Session::validateCsrf();
+            if (!Session::validateCsrf()) {
+                Session::setFlash('error', 'Sesi keamanan berakhir (token CSRF tidak valid). Silakan ulangi.');
+                $this->redirect(preg_replace('#^.*?/oneservice#', '/oneservice', parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?: '/oneservice'));
+            }
 
             $res = OpsBhabin::recordResolution([
                 'bhabin_nrp'        => Auth::user()['nrp'] ?? 'BHABIN-01',
@@ -424,14 +462,17 @@ class OneServiceController extends Controller
      public function dumas(): void
      {
          ModuleManager::requireActive('oneservice_dumas');
-         Auth::requireAuth();
+         $this->requirePersonnel();
 
          $message = null;
          $error = null;
          $dumasResult = null;
 
          if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-             Session::validateCsrf();
+             if (!Session::validateCsrf()) {
+                 Session::setFlash('error', 'Sesi keamanan berakhir (token CSRF tidak valid). Silakan ulangi.');
+                 $this->redirect(preg_replace('#^.*?/oneservice#', '/oneservice', parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?: '/oneservice'));
+             }
 
              $res = OpsDumas::reportDumas([
                  'reported_satker_id'     => (int)($_POST['reported_satker_id'] ?? 1),
@@ -486,8 +527,78 @@ class OneServiceController extends Controller
         $this->render('oneservice/dashboard', [
             'pageTitle'   => 'Dashboard Akuntabilitas 100 Hari: "Satu Nomor, Satu Jejak" - POLRI',
             'report'      => $report,
-            'isExecutive' => $isExecutive
+            'isExecutive' => $isExecutive,
+            // Publik melihat angka ringkasan; personil dapat menelusuri hingga detail perkara
+            'canDrill'    => Auth::hasRole(self::PERSONNEL_ROLES),
         ], Auth::check() ? 'admin' : 'main');
+    }
+
+    /**
+     * Drill-down: ringkasan per satker + daftar perkara terfilter (?status, channel, priority,
+     * satker, stalled, vulnerable, q, page). Untuk seluruh personil termasuk pimpinan.
+     */
+    public function daftar(): void
+    {
+        ModuleManager::requireActive('oneservice_cases');
+        $this->requirePersonnel();
+
+        $filters = OpsDrill::filtersFrom($_GET);
+        $this->render('oneservice/daftar', [
+            'pageTitle' => 'Daftar Perkara Satu Nomor - SIGAP POLRI',
+            'filters'   => $filters,
+            'pager'     => OpsDrill::paginate($filters, (int)($_GET['page'] ?? 1)),
+            'summary'   => OpsDrill::satkerSummary(),
+            'readOnly'  => $this->isReadOnly(),
+        ], 'admin');
+    }
+
+    /**
+     * Drill-down: detail lengkap satu nomor lacak (tanpa PIN, khusus personil)
+     */
+    public function detail(string $trackingNumber = ''): void
+    {
+        ModuleManager::requireActive('oneservice_cases');
+        $this->requirePersonnel();
+
+        $trackingNumber = strtoupper(trim($trackingNumber));
+        $data = OpsTracker::isValidNumber($trackingNumber) ? OpsDrill::detail($trackingNumber) : null;
+        if ($data === null) {
+            Session::setFlash('error', 'Nomor lacak tidak ditemukan.');
+            $this->redirect('/oneservice/daftar');
+        }
+
+        // Pembukaan halaman detail tercatat di jejak audit UU PDP (data pribadi tetap tersamar)
+        OpsPdp::logAccess(
+            $trackingNumber,
+            (int)$data['track']['current_satker_id'],
+            'CASE_DETAIL',
+            'Drill-down detail perkara oleh ' . (Auth::user()['role'] ?? 'personil')
+        );
+
+        $this->render('oneservice/detail', [
+            'pageTitle' => "Detail {$trackingNumber} - Satu Nomor, Satu Jejak",
+            'csrf'      => Session::csrfToken(),
+            'readOnly'  => $this->isReadOnly(),
+        ] + $data, 'admin');
+    }
+
+    /**
+     * Hanya personil Polri; pimpinan (Kapolri/PJU) tidak dapat mengirim aksi perubahan
+     */
+    private function requirePersonnel(): void
+    {
+        Auth::requireRole(self::PERSONNEL_ROLES);
+
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && $this->isReadOnly()) {
+            Session::setFlash('error', 'Mode pantau pimpinan: data dapat dilihat hingga detail, perubahan dilakukan oleh satuan pelaksana.');
+            $path = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?: '/oneservice';
+            $this->redirect(preg_replace('#^.*?/oneservice#', '/oneservice', $path));
+        }
+    }
+
+    private function isReadOnly(): bool
+    {
+        return in_array(Auth::role(), self::READ_ONLY_ROLES, true);
     }
 
     /**
@@ -495,8 +606,14 @@ class OneServiceController extends Controller
      */
     public function apiRevealPii(): void
     {
-        Auth::requireAuth();
-        Session::validateCsrf();
+        if (!Auth::hasRole(self::PERSONNEL_ROLES)) {
+            $this->json(['success' => false, 'error' => 'Akses ditolak'], 403);
+            return;
+        }
+        if (!Session::validateCsrf()) {
+            $this->json(['success' => false, 'error' => 'Token CSRF tidak valid'], 403);
+            return;
+        }
 
         $trackingNumber = trim((string)($_POST['tracking_number'] ?? ''));
         $justification = trim((string)($_POST['justification'] ?? 'Pemeriksaan berkas resmi'));
