@@ -54,6 +54,52 @@ class User extends Model
         );
     }
 
+    /** Pangkat Polri (Pati, Pamen, Pama, Bintara, Tamtama) untuk pilihan profil pejabat */
+    public const POLRI_RANKS = [
+        'Jenderal Pol', 'Komjen Pol', 'Irjen Pol', 'Brigjen Pol',
+        'Kombes Pol', 'AKBP', 'Kompol',
+        'AKP', 'Iptu', 'Ipda',
+        'Aiptu', 'Aipda', 'Bripka', 'Brigpol', 'Briptu', 'Bripda',
+        'Abriptu', 'Abripda', 'Bharaka', 'Bharatu', 'Bharada',
+        'PNS Polri',
+    ];
+
+    /**
+     * Akun personil (bukan warga) untuk menu Profil Pejabat, dengan pencarian nama/jabatan/satker/email/NRP
+     */
+    public function listPersonnel(string $search = ''): array
+    {
+        $sql = "SELECT u.id, u.nrp, u.email, u.name, u.role, u.rank, u.position, u.is_active, s.name AS satker_name
+                FROM users u
+                LEFT JOIN satkers s ON u.satker_id = s.id
+                WHERE u.role != 'ROLE_CITIZEN'";
+        $params = [];
+        if ($search !== '') {
+            $sql .= " AND (u.name LIKE ? OR u.position LIKE ? OR s.name LIKE ? OR u.email LIKE ? OR u.nrp LIKE ?)";
+            $like = '%' . $search . '%';
+            $params = [$like, $like, $like, $like, $like];
+        }
+        $sql .= " ORDER BY FIELD(u.role, 'ROLE_EXECUTIVE', 'ROLE_INTERNAL_AFFAIRS', 'ROLE_SATKER_HEAD', 'ROLE_POSKO_EXECUTIVE',
+                                     'ROLE_SATKER_ADMIN', 'ROLE_SUPERADMIN', 'ROLE_SPKT_OPERATOR', 'ROLE_CYBER_HUMAS',
+                                     'ROLE_INVESTIGATOR', 'ROLE_POSKO_ADMIN', 'ROLE_POSKO_OPERATOR'), u.id";
+        return $this->fetchAll($sql, $params);
+    }
+
+    /**
+     * Ubah nama, pangkat, dan jabatan. Identitas login (email, NRP, no. HP) & role tidak disentuh.
+     */
+    public function updateProfile(int $userId, string $name, ?string $rank, ?string $position): bool
+    {
+        if ($this->fetch("SELECT id FROM users WHERE id = ? AND role != 'ROLE_CITIZEN'", [$userId]) === null) {
+            return false;
+        }
+        $this->execute(
+            "UPDATE users SET name = ?, `rank` = ?, position = ? WHERE id = ?",
+            [$name, $rank, $position, $userId]
+        );
+        return true;
+    }
+
     public function getAllStaff(): array
     {
         return $this->fetchAll(

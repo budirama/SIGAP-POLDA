@@ -219,6 +219,15 @@
           <?php endif; ?>
         <?php endif; ?>
 
+        <!-- Profil Pejabat: nama, pangkat & jabatan (identitas login tetap) -->
+        <?php if (\App\Core\Auth::hasRole([\App\Config\Constants::ROLE_SUPERADMIN])): ?>
+          <a href="<?= $baseUrl ?>/pejabat"
+             class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-300 hover:text-slate-100 hover:bg-[#1B1610] transition-colors">
+            <i class="fas fa-id-badge text-amber-400 w-4"></i>
+            <span>Profil Pejabat</span>
+          </a>
+        <?php endif; ?>
+
         <!-- Jejak Audit -->
         <?php if (\App\Core\Auth::hasRole([\App\Config\Constants::ROLE_SUPERADMIN, \App\Config\Constants::ROLE_INTERNAL_AFFAIRS])): ?>
           <a href="<?= $baseUrl ?>/audit"
