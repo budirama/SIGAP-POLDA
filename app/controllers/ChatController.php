@@ -3,14 +3,17 @@
  * SIGAP-POLRI: Chat Controller (Kanal Live Chat warga — endpoint JSON widget portal publik)
  *
  * Kepemilikan percakapan terikat pada sesi warga (id + token acak), tanpa perlu login.
+ * Bila modul Chatbot aktif, percakapan baru dilayani Asisten Virtual hingga diteruskan ke petugas.
  */
 
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Core\ModuleManager;
 use App\Core\ReportAccess;
 use App\Core\Session;
 use App\Models\Chat;
+use App\Models\Chatbot;
 use App\Models\Throttle;
 
 class ChatController extends Controller
@@ -18,16 +21,18 @@ class ChatController extends Controller
     private const SESSION_KEY = 'livechat';
 
     private Chat $chat;
+    private Chatbot $bot;
     private Throttle $throttle;
 
     public function __construct()
     {
         $this->chat = new Chat();
+        $this->bot = new Chatbot();
         $this->throttle = new Throttle();
     }
 
     /**
-     * Mulai percakapan: nama, no. HP (opsional), pesan pertama
+     * Mulai percakapan: nama, no. HP (opsional), pesan pertama (opsional bila chatbot aktif)
      */
     public function start(): void
     {
@@ -38,7 +43,8 @@ class ChatController extends Controller
         $phone = preg_replace('/[\s.\-]/', '', (string)$this->post('phone', ''));
         $message = $this->cleanBody($this->post('message', ''));
 
-        if ($name === '' || $message === '') {
+        $withBot = self::botEnabled();
+        if ($name === '' || ($message === '' && !$withBot)) {
             $this->json(['error' => 'Nama dan pesan wajib diisi.'], 422);
         }
         if ($phone !== '' && !preg_match('/^\+?[0-9]{8,15}$/', $phone)) {
@@ -51,8 +57,14 @@ class ChatController extends Controller
         }
         $this->throttle->hit('chat_start_ip', $ip);
 
-        $conv = $this->chat->start($name, $phone !== '' ? $phone : null, $message);
+        $conv = $this->chat->start($name, $phone !== '' ? $phone : null, $message, $withBot);
         Session::set(self::SESSION_KEY, $conv);
+        if ($withBot) {
+            $this->bot->greet((int)$conv['id']);
+            if ($message !== '') {
+                $this->bot->respond((int)$conv['id'], $message);
+            }
+        }
 
         $this->json(['ok' => true] + $this->state($conv['id'], 0));
     }
@@ -84,6 +96,9 @@ class ChatController extends Controller
         if ($message === '') {
             $this->json(['error' => 'Pesan tidak boleh kosong.'], 422);
         }
+        // Tombol cepat chatbot mengirim kode intent bersama label tombol sebagai pesan warga
+        $intent = strtoupper((string)$this->post('intent', ''));
+        $intent = preg_match('/^[A-Z0-9_]{2,40}$/', $intent) ? $intent : null;
 
         $ip = Throttle::clientIp();
         if ($this->throttle->tooMany('chat_msg_ip', $ip)) {
@@ -92,6 +107,25 @@ class ChatController extends Controller
         $this->throttle->hit('chat_msg_ip', $ip);
 
         $this->chat->addMessage((int)$conv['id'], 'VISITOR', null, $message);
+        if ($conv['status'] === 'BOT') {
+            $this->bot->respond((int)$conv['id'], $message, $intent);
+        } elseif ($conv['status'] === 'WAITING') {
+            $this->bot->flagUrgentIfEmergency((int)$conv['id'], $message);
+        }
+        $this->json(['ok' => true] + $this->state((int)$conv['id'], (int)$this->post('after', 0)));
+    }
+
+    /**
+     * Warga meminta dihubungkan dengan petugas (tombol tetap di widget selama dilayani chatbot)
+     */
+    public function handoff(): void
+    {
+        $this->requireJsonPost();
+        $conv = $this->ownConversation();
+        if (!$conv) {
+            $this->json(['error' => 'Sesi chat tidak ditemukan. Silakan mulai percakapan baru.'], 404);
+        }
+        $this->bot->handoff((int)$conv['id'], false);
         $this->json(['ok' => true] + $this->state((int)$conv['id'], (int)$this->post('after', 0)));
     }
 
@@ -130,8 +164,13 @@ class ChatController extends Controller
         $messages = array_map(fn($m) => [
             'id'   => (int)$m['id'],
             'from' => strtolower($m['sender_type']),
-            'name' => $m['sender_type'] === 'AGENT' ? trim(($m['sender_rank'] ?? '') . ' ' . ($m['sender_name'] ?? 'Petugas')) : null,
+            'name' => match ($m['sender_type']) {
+                'AGENT' => trim(($m['sender_rank'] ?? '') . ' ' . ($m['sender_name'] ?? 'Petugas')),
+                'BOT'   => Chatbot::BOT_NAME,
+                default => null,
+            },
             'body' => $m['body'],
+            'meta' => $m['sender_type'] === 'BOT' && $m['meta'] ? json_decode($m['meta'], true) : null,
             'time' => date('H:i', strtotime($m['created_at'])),
         ], $this->chat->messagesAfter($conversationId, max(0, $afterId)));
 
@@ -142,6 +181,14 @@ class ChatController extends Controller
             'ticket'   => $conv['report_ticket'],
             'messages' => $messages,
         ];
+    }
+
+    /**
+     * Chatbot melayani percakapan baru kecuali modulnya dinonaktifkan di Manajemen Modul
+     */
+    private static function botEnabled(): bool
+    {
+        return !class_exists(ModuleManager::class) || ModuleManager::isActive('op_chatbot');
     }
 
     private function ownConversation(): ?array

@@ -29,7 +29,7 @@
     <!-- Daftar percakapan -->
     <aside id="ocListPane" class="polri-glass-card rounded-2xl border border-[#3B2F1C] flex flex-col overflow-hidden">
       <div class="p-3 border-b border-[#3B2F1C] flex flex-wrap gap-1.5 text-[11px]" role="tablist" aria-label="Filter percakapan">
-        <?php foreach (['open' => 'Aktif', 'WAITING' => 'Menunggu', 'mine' => 'Milik Saya', 'CLOSED' => 'Selesai'] as $scope => $label): ?>
+        <?php foreach (['open' => 'Aktif', 'WAITING' => 'Menunggu', 'mine' => 'Milik Saya', 'BOT' => 'Asisten Virtual', 'CLOSED' => 'Selesai'] as $scope => $label): ?>
           <button type="button" role="tab" data-scope="<?= $scope ?>"
                   class="oc-tab px-2.5 py-1 rounded-lg border border-slate-700 text-slate-300 hover:bg-[#1B1610]"><?= $label ?></button>
         <?php endforeach; ?>
