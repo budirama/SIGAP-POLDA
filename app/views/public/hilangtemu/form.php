@@ -10,7 +10,7 @@ $label = 'block text-xs font-semibold text-slate-300 mb-1';
   <nav class="flex items-center gap-2 text-xs text-slate-400 mb-6">
     <a href="<?= $baseUrl ?>/" class="hover:text-amber-400 transition-colors">Beranda</a>
     <i class="fas fa-chevron-right text-[10px] text-slate-600"></i>
-    <a href="<?= $baseUrl ?>/hilangtemu" class="hover:text-amber-400 transition-colors">Hilang &amp; Temu</a>
+    <a href="<?= $baseUrl ?>/hilangtemu" class="hover:text-amber-400 transition-colors">Kehilangan dan Temuan</a>
     <i class="fas fa-chevron-right text-[10px] text-slate-600"></i>
     <span class="text-amber-400 font-semibold">Buat Laporan</span>
   </nav>
@@ -20,7 +20,7 @@ $label = 'block text-xs font-semibold text-slate-300 mb-1';
     <input type="hidden" name="_csrf_token" value="<?= $csrfToken ?>">
 
     <div>
-      <h1 class="text-xl sm:text-2xl font-black text-slate-100 font-heading">Formulir Hilang &amp; Temu</h1>
+      <h1 class="text-xl sm:text-2xl font-black text-slate-100 font-heading">Formulir Kehilangan dan Temuan</h1>
       <p class="text-xs text-slate-400 mt-1">
         <?php if ($isOfficer): ?>
           <span class="text-emerald-300 font-bold"><i class="fas fa-user-shield"></i> Input petugas loket:</span> laporan langsung terverifikasi &amp; tayang.

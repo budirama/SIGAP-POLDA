@@ -73,7 +73,7 @@ class HilangtemuController extends Controller
         $pager = $this->model->paginatePublic($filters, (int)$this->get('page', 1));
 
         $this->render('public/hilangtemu/index', [
-            'pageTitle' => 'Hilang & Temu',
+            'pageTitle' => 'Kehilangan dan Temuan',
             'pager'     => $pager,
             'filters'   => $filters,
         ], 'main');
@@ -185,7 +185,7 @@ class HilangtemuController extends Controller
         }
 
         $this->render('public/hilangtemu/success', [
-            'pageTitle' => 'Laporan Hilang & Temu Terdaftar',
+            'pageTitle' => 'Laporan Kehilangan dan Temuan Terdaftar',
             'item'      => $item,
             'pin'       => $new['pin'],
         ], 'main');
@@ -205,7 +205,7 @@ class HilangtemuController extends Controller
         Session::remove('_old_claim');
 
         $this->render('public/hilangtemu/item', [
-            'pageTitle' => $item['title'] . ' - Hilang & Temu',
+            'pageTitle' => $item['title'] . ' - Kehilangan dan Temuan',
             'item'      => $item,
             'photos'    => $this->model->photos($id),
             'old'       => is_array($old) ? $old : [],
@@ -315,7 +315,7 @@ class HilangtemuController extends Controller
         }
 
         $this->render('public/hilangtemu/status', [
-            'pageTitle'    => 'Cek Status Hilang & Temu',
+            'pageTitle'    => 'Cek Status Kehilangan dan Temuan',
             'code'         => $code,
             'item'         => $item,
             'photos'       => $item ? $this->model->photos((int)$item['id']) : [],
@@ -373,7 +373,7 @@ class HilangtemuController extends Controller
         }
 
         $this->render('backoffice/hilangtemu_list', [
-            'pageTitle' => 'Hilang & Temu',
+            'pageTitle' => 'Kehilangan dan Temuan',
             'pager'     => $this->model->paginateAdmin($filters, (int)$this->get('page', 1)),
             'filters'   => $filters,
             'counts'    => $this->model->countByStatus(),
@@ -392,7 +392,7 @@ class HilangtemuController extends Controller
         }
 
         $this->render('backoffice/hilangtemu_detail', [
-            'pageTitle' => "Hilang & Temu {$item['code']}",
+            'pageTitle' => "Kehilangan dan Temuan {$item['code']}",
             'item'      => $item,
             'photos'    => $this->model->photos($id),
             'matches'   => $this->model->matchesFor($id),

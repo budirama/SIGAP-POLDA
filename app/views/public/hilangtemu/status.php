@@ -7,13 +7,13 @@ $steps = ['PENDING' => 'Diterima', 'PUBLISHED' => 'Diverifikasi & Tayang', 'MATC
 <div class="py-10 max-w-4xl mx-auto px-4 space-y-6">
 
   <nav class="flex items-center gap-2 text-xs text-slate-400">
-    <a href="<?= $baseUrl ?>/hilangtemu" class="hover:text-amber-400 transition-colors">Hilang &amp; Temu</a>
+    <a href="<?= $baseUrl ?>/hilangtemu" class="hover:text-amber-400 transition-colors">Kehilangan dan Temuan</a>
     <i class="fas fa-chevron-right text-[10px] text-slate-600"></i>
     <span class="text-amber-400 font-semibold">Cek Status</span>
   </nav>
 
   <div class="polri-glass-card rounded-2xl p-6 border border-amber-500/30 shadow-xl">
-    <h1 class="text-xl font-black text-slate-100 font-heading mb-1">Cek Status Laporan Hilang &amp; Temu</h1>
+    <h1 class="text-xl font-black text-slate-100 font-heading mb-1">Cek Status Laporan Kehilangan dan Temuan</h1>
     <p class="text-xs text-slate-400 mb-4">Masukkan kode laporan (HT-…) dan PIN 6 digit yang Anda terima saat melapor.</p>
 
     <?php if (!empty($errorMessage)): ?>

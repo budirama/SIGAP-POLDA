@@ -12,14 +12,14 @@ $filterUrl = function (array $override) use ($baseUrl, $filters): string {
   <nav class="flex items-center gap-2 text-xs text-slate-400">
     <a href="<?= $baseUrl ?>/" class="hover:text-amber-400 transition-colors">Beranda</a>
     <i class="fas fa-chevron-right text-[10px] text-slate-600"></i>
-    <span class="text-amber-400 font-semibold">Hilang &amp; Temu</span>
+    <span class="text-amber-400 font-semibold">Kehilangan dan Temuan</span>
   </nav>
 
   <!-- Hero -->
   <div class="polri-glass-card rounded-2xl p-6 sm:p-8 border border-amber-500/30 shadow-xl grid lg:grid-cols-5 gap-6 items-center">
     <div class="lg:col-span-3 space-y-3">
       <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-bold">
-        <i class="fas fa-magnifying-glass-location"></i> Layanan Hilang &amp; Temu Polri
+        <i class="fas fa-magnifying-glass-location"></i> Layanan Kehilangan dan Temuan Polri
       </div>
       <h1 class="text-2xl sm:text-3xl font-black text-slate-100 font-heading">Kehilangan sesuatu? Menemukan sesuatu?</h1>
       <p class="text-sm text-slate-400 leading-relaxed">

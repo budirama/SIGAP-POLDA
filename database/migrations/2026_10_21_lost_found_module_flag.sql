@@ -4,7 +4,7 @@
 INSERT INTO `system_modules`
 (`module_key`, `parent_key`, `name`, `description`, `category`, `route_prefix`, `icon`, `is_active`, `is_core`, `sort_order`)
 VALUES
-('op_lostfound', 'OPERATIONAL', 'Hilang & Temu', 'Laporan kehilangan & temuan kendaraan, orang, barang berharga, dokumen, hewan dengan pencocokan otomatis dan klaim pemilik', 'OPERATIONAL', 'hilangtemu', 'fas fa-magnifying-glass-location', 1, 0, 36)
+('op_lostfound', 'OPERATIONAL', 'Kehilangan dan Temuan', 'Laporan kehilangan & temuan kendaraan, orang, barang berharga, dokumen, hewan dengan pencocokan otomatis dan klaim pemilik', 'OPERATIONAL', 'hilangtemu', 'fas fa-magnifying-glass-location', 1, 0, 36)
 ON DUPLICATE KEY UPDATE
   `name` = VALUES(`name`),
   `description` = VALUES(`description`),

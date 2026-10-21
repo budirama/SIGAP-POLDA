@@ -9,7 +9,7 @@ $v = fn(string $k) => htmlspecialchars((string)($old[$k] ?? ''));
 <div class="py-10 max-w-5xl mx-auto px-4 space-y-6">
 
   <nav class="flex items-center gap-2 text-xs text-slate-400">
-    <a href="<?= $baseUrl ?>/hilangtemu" class="hover:text-amber-400 transition-colors">Hilang &amp; Temu</a>
+    <a href="<?= $baseUrl ?>/hilangtemu" class="hover:text-amber-400 transition-colors">Kehilangan dan Temuan</a>
     <i class="fas fa-chevron-right text-[10px] text-slate-600"></i>
     <span class="text-amber-400 font-semibold font-mono"><?= htmlspecialchars($item['code']) ?></span>
   </nav>

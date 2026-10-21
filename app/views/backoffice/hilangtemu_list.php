@@ -20,7 +20,7 @@ $currentTab = $filters['status'] === '' ? 'ALL' : $filters['status'];
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 polri-glass-card p-6 rounded-2xl border border-[#3B2F1C]">
     <div>
       <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-950/80 border border-amber-700/60 text-amber-300 text-xs font-bold mb-2">
-        <i class="fas fa-magnifying-glass-location"></i> Layanan Hilang &amp; Temu
+        <i class="fas fa-magnifying-glass-location"></i> Layanan Kehilangan dan Temuan
       </div>
       <h2 class="text-xl sm:text-2xl font-black text-slate-100 font-heading">Verifikasi, Pencocokan &amp; Serah Terima</h2>
       <p class="text-xs text-slate-400 mt-1">Laporan kehilangan / temuan kendaraan, orang, barang berharga, dokumen, dan hewan dari masyarakat &amp; loket SPKT.</p>

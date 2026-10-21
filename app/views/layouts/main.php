@@ -53,6 +53,7 @@
         <a href="<?= $baseUrl ?>/" class="hover:text-amber-400 transition-colors">Beranda</a>
         <a href="<?= $baseUrl ?>/#layanan-warga" class="hover:text-amber-400 transition-colors">Layanan Warga</a>
         <a href="<?= $baseUrl ?>/report/track" class="hover:text-amber-400 transition-colors">Lacak SP2HP</a>
+        <a href="<?= $baseUrl ?>/hilangtemu" class="hover:text-amber-400 transition-colors">Kehilangan dan Temuan</a>
         <a href="<?= $baseUrl ?>/#alur-pelayanan" class="hover:text-amber-400 transition-colors">Alur Pelayanan</a>
         <a href="<?= $baseUrl ?>/#management-posko" class="hover:text-amber-400 transition-colors flex items-center gap-1.5">Management Posko <span class="text-[9px] font-black px-1 py-0.5 rounded bg-amber-500 text-slate-950">BARU</span></a>
       </div>
@@ -68,7 +69,7 @@
             <a href="<?= $baseUrl ?>/" class="px-3 py-2 rounded-lg hover:bg-[#1B1610] hover:text-amber-400">Beranda</a>
             <a href="<?= $baseUrl ?>/#layanan-warga" class="px-3 py-2 rounded-lg hover:bg-[#1B1610] hover:text-amber-400">Layanan Warga</a>
             <a href="<?= $baseUrl ?>/report/track" class="px-3 py-2 rounded-lg hover:bg-[#1B1610] hover:text-amber-400">Lacak SP2HP</a>
-            <a href="<?= $baseUrl ?>/hilangtemu" class="px-3 py-2 rounded-lg hover:bg-[#1B1610] hover:text-amber-400">Hilang &amp; Temu</a>
+            <a href="<?= $baseUrl ?>/hilangtemu" class="px-3 py-2 rounded-lg hover:bg-[#1B1610] hover:text-amber-400">Kehilangan dan Temuan</a>
             <a href="<?= $baseUrl ?>/#alur-pelayanan" class="px-3 py-2 rounded-lg hover:bg-[#1B1610] hover:text-amber-400">Alur Pelayanan</a>
             <a href="<?= $baseUrl ?>/#management-posko" class="px-3 py-2 rounded-lg hover:bg-[#1B1610] hover:text-amber-400 flex items-center justify-between">Management Posko <span class="text-[9px] font-black px-1 py-0.5 rounded bg-amber-500 text-slate-950">BARU</span></a>
             <a href="<?= $baseUrl ?>/auth/login" class="px-3 py-2 rounded-lg hover:bg-[#1B1610] hover:text-amber-400 border-t border-[#3B2F1C] mt-1 pt-2.5"><i class="fas fa-user-shield text-amber-400 mr-1.5"></i>Login Personil &amp; Posko</a>
@@ -145,7 +146,7 @@
         <ul class="space-y-2 text-xs">
           <li><a href="<?= $baseUrl ?>/report/create" class="hover:text-amber-400 transition-colors">Pengaduan Tindak Pidana</a></li>
           <li><a href="<?= $baseUrl ?>/report/track" class="hover:text-amber-400 transition-colors">Cek Status SP2HP Online</a></li>
-          <li><a href="<?= $baseUrl ?>/hilangtemu" class="hover:text-amber-400 transition-colors">Hilang &amp; Temu</a></li>
+          <li><a href="<?= $baseUrl ?>/hilangtemu" class="hover:text-amber-400 transition-colors">Kehilangan dan Temuan</a></li>
           <li><a href="<?= $baseUrl ?>/auth/login" class="hover:text-amber-400 transition-colors">Portal Personil & Penyidik</a></li>
           <li><a href="<?= $baseUrl ?>/#management-posko" class="hover:text-amber-400 transition-colors">Management Posko Berjenjang</a></li>
           <li><a href="tel:110" class="hover:text-rose-400 transition-colors">Layanan Darurat Bebas Pulsa 110</a></li>
