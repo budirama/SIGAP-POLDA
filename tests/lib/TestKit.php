@@ -289,6 +289,16 @@ final class Db
         self::exec("DELETE FROM satkers WHERE code LIKE 'ZZTEST%'");
         // Percakapan Live Chat uji (pesan ikut terhapus via ON DELETE CASCADE)
         self::exec("DELETE FROM chat_conversations WHERE visitor_name LIKE '" . self::PREFIX . "%'");
+        // Laporan Hilang & Temu uji (foto, pasangan, klaim ikut terhapus via ON DELETE CASCADE) beserta berkasnya
+        $paths = self::pdo()->query(
+            "SELECT p.file_path FROM lost_found_photos p JOIN lost_found_items i ON i.id = p.item_id WHERE i.title LIKE '" . self::PREFIX . "%'
+             UNION SELECT c.proof_file_path FROM lost_found_claims c JOIN lost_found_items i ON i.id = c.item_id
+             WHERE i.title LIKE '" . self::PREFIX . "%' AND c.proof_file_path IS NOT NULL"
+        )->fetchAll(PDO::FETCH_COLUMN);
+        foreach ($paths as $path) {
+            @unlink(\App\Core\Upload::absolutePath($path));
+        }
+        self::exec("DELETE FROM lost_found_items WHERE title LIKE '" . self::PREFIX . "%'");
         // Sequence diinisialisasi ulang dari tiket tertinggi saat laporan berikutnya dibuat
         self::exec("DELETE FROM ticket_sequences");
         self::exec("DELETE FROM throttle_events");

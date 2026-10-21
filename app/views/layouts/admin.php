@@ -111,6 +111,15 @@
           </a>
         <?php endif; ?>
 
+        <!-- Hilang & Temu: verifikasi, pencocokan, klaim & serah terima -->
+        <?php if ((!class_exists(\App\Core\ModuleManager::class) || \App\Core\ModuleManager::isActive('op_lostfound')) && \App\Core\Auth::hasRole([\App\Config\Constants::ROLE_SPKT_OPERATOR, \App\Config\Constants::ROLE_SATKER_HEAD, \App\Config\Constants::ROLE_SATKER_ADMIN, \App\Config\Constants::ROLE_CYBER_HUMAS, \App\Config\Constants::ROLE_EXECUTIVE, \App\Config\Constants::ROLE_INTERNAL_AFFAIRS, \App\Config\Constants::ROLE_SUPERADMIN])): ?>
+          <a href="<?= $baseUrl ?>/hilangtemu/admin"
+             class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-300 hover:text-slate-100 hover:bg-[#1B1610] transition-colors">
+            <i class="fas fa-magnifying-glass-location text-emerald-400 w-4"></i>
+            <span>Hilang &amp; Temu</span>
+          </a>
+        <?php endif; ?>
+
         <!-- Management Posko (pelaporan berjenjang) -->
         <?php if (\App\Core\Auth::hasRole(array_merge(\App\Config\Constants::POSKO_ROLES, [\App\Config\Constants::ROLE_SUPERADMIN]))): ?>
           <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-3 py-1 mt-4">MANAGEMENT POSKO</div>

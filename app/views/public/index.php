@@ -167,6 +167,7 @@
       ['fa-comments', 'emerald', 'Live Chat SPKT', 'Tanya langsung petugas Command Center tanpa login. Percakapan dapat dikonversi menjadi tiket resmi.', null, 'Mulai chat'],
       ['fa-user-secret', 'rose', 'Perlindungan Whistleblower', 'Identitas pelapor dapat dirahasiakan penuh dari pihak mana pun di luar petugas berwenang.', $baseUrl . '/report/create', 'Lapor rahasia'],
       ['fa-people-arrows', 'indigo', 'Ruang Klarifikasi Penyidik', 'Komunikasi dua arah dengan penyidik yang menangani perkara Anda langsung dari halaman pelacakan.', $baseUrl . '/report/track', 'Buka tiket'],
+      ['fa-magnifying-glass-location', 'emerald', 'Hilang &amp; Temu', 'Laporkan kehilangan atau temuan kendaraan, orang, barang berharga, dokumen, dan hewan. Dicocokkan otomatis &amp; dapat SKTLK.', $baseUrl . '/hilangtemu', 'Buka galeri'],
       ['fa-star', 'amber', 'Survei Kepuasan (SKM)', 'Nilai pelayanan setelah perkara selesai. Masukan Anda menjadi indikator kinerja satuan.', $baseUrl . '/report/track', 'Beri penilaian'],
     ];
     $tone = [
