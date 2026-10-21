@@ -22,6 +22,7 @@ class Throttle extends Model
         'lostfound_ip'  => [5, 60],   // laporan Hilang & Temu publik per IP
         'lostfound_claim_ip' => [5, 60], // klaim kepemilikan barang temuan per IP
         'lostfound_pin_ip'   => [10, 15], // kode/PIN cek status Hilang & Temu salah per IP
+        'pin_desk_user'      => [30, 60], // lihat/reset PIN pelapor oleh satu petugas (cegah panen PIN)
     ];
 
     public static function clientIp(): string
