@@ -135,9 +135,6 @@
         <p class="text-slate-400 text-xs leading-relaxed max-w-lg">
           Layanan pelaporan masyarakat terpadu dengan transparansi penuh melalui SP2HP Elektronik dan komunikasi klarifikasi interaktif langsung bersama Tim Penyidik Polri.
         </p>
-        <div class="pt-2">
-          <img src="<?= $baseUrl ?>/assets/img/logo-presisi.svg" alt="Polri Presisi" class="h-10 object-contain">
-        </div>
       </div>
 
       <!-- Col 2: Quick Links -->
