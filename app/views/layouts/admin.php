@@ -86,7 +86,11 @@
           <a href="<?= $baseUrl ?>/satker" 
              class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-300 hover:text-slate-100 hover:bg-[#1B1610] transition-colors">
             <i class="fas fa-inbox text-indigo-400 w-4"></i>
-            <span>Disposisi Satker & Kanit</span>
+            <span class="flex-1">Disposisi Satker & Kanit</span>
+            <?php $ticketPending = \App\Core\Auth::satkerId() ? (new \App\Models\Disposition())->countPendingForSatker((int)\App\Core\Auth::satkerId()) : 0; ?>
+            <?php if ($ticketPending > 0): ?>
+              <span class="px-1.5 min-w-[1.25rem] text-center rounded-full bg-red-600 text-white text-[10px] leading-5" title="Tiket menunggu diterima"><?= $ticketPending ?></span>
+            <?php endif; ?>
           </a>
         <?php endif; ?>
 

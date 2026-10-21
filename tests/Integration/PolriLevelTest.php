@@ -12,10 +12,11 @@ return [
         T::same('Jenderal Pol', Db::value("SELECT `rank` FROM users WHERE email = 'kapolri@sigap.polri.go.id'"), 'eksekutif = Kapolri');
     },
 
-    'disposisi SPKT dapat ke Satker Mabes maupun Polda jajaran' => function () {
+    'disposisi SPKT dapat ke Satker Mabes, Polda, maupun Polres jajaran' => function () {
         $page = Http::as('spkt')->get('/spkt')->body;
-        T::contains('SATKER MABES POLRI', $page);
-        T::contains('<optgroup label="POLDA JAJARAN">', $page);
+        T::contains('<optgroup label="MABES POLRI">', $page);
+        T::contains('<optgroup label="POLDA">', $page);
+        T::contains('<optgroup label="POLRES">', $page);
         T::contains('Polda Jawa Timur', $page);
     },
 

@@ -10,7 +10,7 @@
         Meja Triage Laporan & Disposisi Terpusat
       </h2>
       <p class="text-xs text-slate-400 mt-1">
-        Verifikasi kelayakan aduan masyarakat dari Portal Web maupun Eskalasi Media Sosial. Tentukan disposisi ke Satker Mabes Polri atau Polda jajaran.
+        Verifikasi kelayakan aduan masyarakat dari Portal Web maupun Eskalasi Media Sosial. Kirim tiket disposisi ke Direktorat Mabes, Polda, Polres, Polsek, atau satuan fungsinya (Reskrim, Jatanras, Krimsus, Siber, Narkoba, Lantas, Propam, Samapta).
       </p>
       <?php if (!$canAct): ?>
         <p class="mt-2 inline-flex items-center gap-1.5 text-[11px] font-semibold text-sky-300 bg-sky-950/60 border border-sky-800/60 px-2.5 py-1 rounded-lg">
@@ -27,6 +27,29 @@
       </div>
     </div>
   </div>
+
+  <?php if (!empty($returned) || !empty($escalated)): ?>
+  <!-- Tiket yang perlu perhatian SPKT -->
+  <div class="grid lg:grid-cols-2 gap-4">
+    <?php foreach ([
+        ['rows' => $returned, 'title' => 'Dikembalikan Satker — perlu disposisi ulang', 'icon' => 'fa-rotate-left', 'tone' => 'border-rose-800/70 text-rose-300', 'note' => 'response_notes'],
+        ['rows' => $escalated, 'title' => 'Eskalasi — tiket belum diterima melewati batas', 'icon' => 'fa-triangle-exclamation', 'tone' => 'border-red-800/70 text-red-300', 'note' => null],
+    ] as $panel): if (empty($panel['rows'])) continue; ?>
+      <div class="polri-glass-card rounded-2xl p-4 border <?= $panel['tone'] ?> space-y-2">
+        <h3 class="text-xs font-black flex items-center gap-2"><i class="fas <?= $panel['icon'] ?>"></i> <?= $panel['title'] ?> (<?= count($panel['rows']) ?>)</h3>
+        <?php foreach (array_slice($panel['rows'], 0, 6) as $t): ?>
+          <a href="<?= $baseUrl ?>/spkt?search=<?= urlencode($t['ticket_number']) ?>" class="block p-2.5 rounded-xl bg-[#0C0A08] border border-slate-800 hover:border-amber-500/40 text-[11px]">
+            <span class="font-mono font-bold text-amber-400"><?= htmlspecialchars($t['ticket_number']) ?></span>
+            <span class="text-slate-300"> · <?= htmlspecialchars($t['satker_name']) ?></span>
+            <span class="block text-slate-500 truncate">
+              <?= $panel['note'] ? htmlspecialchars((string)$t[$panel['note']]) : 'Batas terima ' . date('d/m H:i', strtotime($t['ack_deadline'])) . ' · ' . htmlspecialchars($t['title']) ?>
+            </span>
+          </a>
+        <?php endforeach; ?>
+      </div>
+    <?php endforeach; ?>
+  </div>
+  <?php endif; ?>
 
   <!-- Filter & Search Bar -->
   <div class="polri-glass-card p-4 rounded-xl border border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
@@ -135,6 +158,7 @@
                   <?php else: ?>
                     <span class="text-amber-500/80 italic text-[11px]">Belum Didisposisikan</span>
                   <?php endif; ?>
+                  <?php $ticket = $tickets[(int)$r['id']] ?? null; require __DIR__ . '/_ticket_badge.php'; ?>
                 </td>
 
                 <!-- Status -->
@@ -148,7 +172,7 @@
                     
                     <?php if ($canAct && in_array($r['status'], \App\Config\Constants::DISPATCHABLE_STATUSES, true)): ?>
                     <!-- Tombol Disposisi -->
-                    <button onclick="openDispatchModal(<?= htmlspecialchars(json_encode(['id' => (int)$r['id'], 'ticket_number' => $r['ticket_number'], 'title' => $r['title'], 'current_satker_id' => $r['current_satker_id'], 'assigned_investigator_id' => $r['assigned_investigator_id']])) ?>)"
+                    <button onclick="openDispatchModal(<?= htmlspecialchars(json_encode(['id' => (int)$r['id'], 'ticket_number' => $r['ticket_number'], 'title' => $r['title'], 'current_satker_id' => $r['current_satker_id'], 'recommendation' => $recommendations[(int)$r['id']] ?? null])) ?>)"
                             class="px-2.5 py-1.5 bg-blue-900/60 hover:bg-blue-800 text-blue-200 font-bold rounded-lg transition-colors flex items-center gap-1"
                             title="Disposisi ke Satker">
                       <i class="fas fa-share-nodes text-xs"></i>
@@ -189,11 +213,11 @@
 
 <!-- Modal Disposisi Satker -->
 <div id="modalDispatch" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-  <div class="bg-[#1B1610] border border-blue-500/40 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
+  <div class="bg-[#1B1610] border border-blue-500/40 rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative">
     <div class="flex items-center justify-between border-b border-slate-700 pb-3 mb-4">
       <h3 class="text-base font-bold text-slate-100 flex items-center gap-2">
         <i class="fas fa-sitemap text-amber-400"></i>
-        Disposisi Laporan ke Satker Mabes / Polda
+        Kirim Tiket Disposisi ke Satker
       </h3>
       <button onclick="document.getElementById('modalDispatch').classList.add('hidden')" class="text-slate-400 hover:text-slate-200">
         <i class="fas fa-xmark text-lg"></i>
@@ -209,22 +233,33 @@
         <div id="dispatch_ticket_label" class="font-mono font-bold text-amber-400 text-sm"></div>
       </div>
 
-      <div>
-        <label class="block text-xs font-semibold text-slate-300 mb-1">Satuan Kerja Tujuan Disposisi:</label>
-        <select name="satker_id" id="dispatch_satker_id" required
-                class="w-full bg-[#0C0A08] border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 outline-none focus:border-amber-500">
-          <option value="">-- Pilih Satker Mabes Polri atau Polda Jajaran --</option>
-          <optgroup label="SATKER MABES POLRI (BARESKRIM, KORLANTAS, DIVPROPAM)">
-            <?php foreach ($satkers as $s): if ($s['type'] === 'DIREKTORAT'): ?>
-              <option value="<?= $s['id'] ?>"><?= htmlspecialchars($s['name']) ?></option>
-            <?php endif; endforeach; ?>
-          </optgroup>
-          <optgroup label="POLDA JAJARAN">
-            <?php foreach ($satkers as $s): if ($s['type'] === 'POLDA'): ?>
-              <option value="<?= $s['id'] ?>"><?= htmlspecialchars($s['name']) ?></option>
-            <?php endif; endforeach; ?>
-          </optgroup>
-        </select>
+      <div id="dispatch_recommendation" class="hidden p-3 rounded-xl bg-emerald-950/40 border border-emerald-700/50 text-[11px] text-emerald-200">
+        <div class="font-bold"><i class="fas fa-wand-magic-sparkles mr-1"></i> Rekomendasi: <span id="dispatch_rec_name"></span></div>
+        <div id="dispatch_rec_reason" class="text-emerald-300/80 mt-0.5"></div>
+      </div>
+
+      <div class="grid sm:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1" for="dispatch_territory">1. Wilayah:</label>
+          <select id="dispatch_territory" required
+                  class="w-full bg-[#0C0A08] border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 outline-none focus:border-amber-500">
+            <option value="">-- Pilih Wilayah --</option>
+            <?php foreach (['MABES' => 'MABES POLRI', 'POLDA' => 'POLDA', 'POLRES' => 'POLRES', 'POLSEK' => 'POLSEK'] as $type => $label): ?>
+              <optgroup label="<?= $label ?>">
+                <?php foreach ($territories as $t): if ($t['type'] !== $type) continue; ?>
+                  <option value="<?= (int)$t['id'] ?>"><?= htmlspecialchars($t['name'] . (in_array($type, ['POLRES', 'POLSEK'], true) ? ' — ' . $t['parent_name'] : '')) ?></option>
+                <?php endforeach; ?>
+              </optgroup>
+            <?php endforeach; ?>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1" for="dispatch_satker_id">2. Satuan Penerima Tiket:</label>
+          <select name="satker_id" id="dispatch_satker_id" required
+                  class="w-full bg-[#0C0A08] border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 outline-none focus:border-amber-500">
+            <option value="">-- Pilih wilayah dahulu --</option>
+          </select>
+        </div>
       </div>
 
       <div>
@@ -291,11 +326,47 @@
     document.getElementById('modalReject').classList.remove('hidden');
   }
 
+  const territorySelect = document.getElementById('dispatch_territory');
+  const unitSelect = document.getElementById('dispatch_satker_id');
+
+  // Satuan penerima di wilayah terpilih: wilayah itu sendiri + satuan fungsinya
+  function loadUnits(territoryId, selectId) {
+    if (!territoryId) {
+      unitSelect.innerHTML = '<option value="">-- Pilih wilayah dahulu --</option>';
+      return;
+    }
+    unitSelect.innerHTML = '<option value="">Memuat…</option>';
+    fetch('<?= $baseUrl ?>/spkt/units/' + encodeURIComponent(territoryId), { headers: { 'Accept': 'application/json' } })
+      .then(res => res.json())
+      .then(data => {
+        unitSelect.innerHTML = '';
+        (data.units || []).forEach((u, i) => {
+          const opt = document.createElement('option');
+          opt.value = u.id;
+          opt.textContent = i === 0 ? u.name + ' (pimpinan wilayah)' : u.name;
+          unitSelect.appendChild(opt);
+        });
+        if (selectId) {
+          unitSelect.value = String(selectId);
+        }
+      });
+  }
+
+  territorySelect.addEventListener('change', () => loadUnits(territorySelect.value, null));
+
   function openDispatchModal(report) {
     document.getElementById('dispatch_report_id').value = report.id;
     document.getElementById('dispatch_ticket_label').innerText = report.ticket_number + ' - ' + report.title;
-    if (report.current_satker_id) {
-      document.getElementById('dispatch_satker_id').value = report.current_satker_id;
+    const rec = report.recommendation;
+    document.getElementById('dispatch_recommendation').classList.toggle('hidden', !rec);
+    if (rec) {
+      document.getElementById('dispatch_rec_name').innerText = rec.satker_name;
+      document.getElementById('dispatch_rec_reason').innerText = rec.reason;
+      territorySelect.value = String(rec.territory_id);
+      loadUnits(rec.territory_id, rec.satker_id);
+    } else {
+      territorySelect.value = '';
+      loadUnits('', null);
     }
     document.getElementById('modalDispatch').classList.remove('hidden');
   }

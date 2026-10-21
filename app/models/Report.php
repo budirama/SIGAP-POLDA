@@ -340,68 +340,6 @@ class Report extends Model
     }
 
     /**
-     * Disposisi Laporan oleh SPKT ke Satuan Kerja
-     */
-    public function dispatchReport(int $reportId, int $satkerId, int $actorId, string $notes): bool
-    {
-        $this->beginTransaction();
-        try {
-            // Kunci baris laporan agar pemeriksaan status & perubahan bersifat atomik
-            $report = $this->fetch(
-                "SELECT r.status, r.current_satker_id, r.assigned_investigator_id,
-                        inv.name AS investigator_name, inv.rank AS investigator_rank
-                 FROM reports r
-                 LEFT JOIN users inv ON r.assigned_investigator_id = inv.id
-                 WHERE r.id = ? FOR UPDATE",
-                [$reportId]
-            );
-            $satker = $this->fetch("SELECT name FROM satkers WHERE id = ?", [$satkerId]);
-
-            if (!$report || !$satker || !in_array($report['status'], Constants::DISPATCHABLE_STATUSES, true)) {
-                $this->rollBack();
-                return false;
-            }
-
-            $isRedispatch = !empty($report['current_satker_id']);
-            $internalNotes = "Catatan Disposisi SPKT: {$notes}";
-            if (!empty($report['assigned_investigator_id'])) {
-                $internalNotes .= " Penugasan penyidik sebelumnya ({$report['investigator_rank']} {$report['investigator_name']}) dicabut.";
-            }
-
-            // Disposisi (ulang) mencabut penyidik lama: penugasan baru dilakukan oleh Satker tujuan
-            $this->execute(
-                "UPDATE reports SET status = 'DISPATCHED', current_satker_id = ?, assigned_investigator_id = NULL WHERE id = ?",
-                [$satkerId, $reportId]
-            );
-
-            // Instruksi Atensi Kapolri yang masih terbuka ikut berpindah ke Satker tujuan
-            $this->execute(
-                "UPDATE kapolda_directives SET target_satker_id = ? WHERE report_id = ? AND status IN ('PENDING', 'ACKNOWLEDGED')",
-                [$satkerId, $reportId]
-            );
-
-            $this->execute(
-                "INSERT INTO report_timeline (report_id, actor_id, status_from, status_to, title, public_notes, internal_notes)
-                 VALUES (?, ?, ?, 'DISPATCHED', ?, ?, ?)",
-                [
-                    $reportId,
-                    $actorId,
-                    $report['status'],
-                    $isRedispatch ? 'Disposisi Ulang ke Satker Lain' : 'Disposisi ke Satker Terkait',
-                    "Laporan telah diverifikasi oleh SPKT Polri dan didisposisikan ke {$satker['name']} untuk tindak lanjut.",
-                    $internalNotes
-                ]
-            );
-
-            $this->commit();
-            return true;
-        } catch (\Throwable $e) {
-            $this->rollBack();
-            return false;
-        }
-    }
-
-    /**
      * Penunjukan Penyidik oleh Kanit/Kasatker
      */
     public function assignInvestigator(int $reportId, int $investigatorId, int $actorId, string $sprintgasNumber): bool
@@ -661,16 +599,17 @@ class Report extends Model
     public function getSlaWatchlist(): array
     {
         return $this->fetchAll(
-            "SELECT s.id, s.name, s.code, s.type,
+            "SELECT s.id, s.name, s.code, s.type, p.type AS parent_type,
                     COALESCE(SUM(r.id IS NOT NULL), 0) AS active_cases,
                     COALESCE(SUM(r.sla_deadline < NOW()), 0) AS overdue_cases,
                     COALESCE(SUM(r.sla_deadline >= NOW() AND r.sla_deadline < NOW() + INTERVAL 24 HOUR), 0) AS due_soon_cases
              FROM satkers s
+             LEFT JOIN satkers p ON p.id = s.parent_id
              LEFT JOIN reports r ON r.current_satker_id = s.id AND r.status NOT IN ('CLOSED', 'REJECTED')
              WHERE s.type IN ('DIREKTORAT', 'POLDA', 'POLRES') AND s.is_active = 1
-             GROUP BY s.id, s.name, s.code, s.type
-             -- Satker Mabes selalu tampil; Polda/Polres jajaran hanya bila sedang menangani perkara
-             HAVING s.type = 'DIREKTORAT' OR active_cases > 0
+             GROUP BY s.id, s.name, s.code, s.type, p.type
+             -- Direktorat Mabes selalu tampil; Polda/Polres & satuan fungsinya hanya bila sedang menangani perkara
+             HAVING (s.type = 'DIREKTORAT' AND parent_type = 'MABES') OR active_cases > 0
              ORDER BY overdue_cases DESC, due_soon_cases DESC, active_cases DESC, s.name ASC"
         );
     }
