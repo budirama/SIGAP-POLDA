@@ -3,6 +3,15 @@
  * View: Modul 8 Dashboard Akuntabilitas 100 Hari Polri Presisi
  * Menjawab 6 Pertanyaan Wajib Halaman 41 Paparan Prioritas Kapolri
  */
+
+// Angka ringkasan menjadi tautan ke daftar perkara terfilter (hanya untuk personil)
+$drill = function (string $html, array $query) use ($baseUrl, $canDrill): string {
+    if (empty($canDrill)) {
+        return $html;
+    }
+    $href = htmlspecialchars($baseUrl . '/oneservice/daftar' . ($query ? '?' . http_build_query($query) : ''));
+    return '<a href="' . $href . '" class="hover:underline decoration-dotted underline-offset-4" title="Telusuri daftar perkara">' . $html . '</a>';
+};
 ?>
 <div class="space-y-8">
   <!-- Banner Utama Dashboard Akuntabilitas -->
@@ -61,7 +70,7 @@
         </div>
 
         <div class="flex items-baseline gap-3">
-          <span class="text-4xl font-heading font-black text-slate-100"><?= number_format($report['warga_dilayani']['total_interaksi']) ?></span>
+          <span class="text-4xl font-heading font-black text-slate-100"><?= $drill(number_format($report['warga_dilayani']['total_interaksi']), []) ?></span>
           <span class="text-xs text-slate-400 font-medium">total interaksi warga tercatat</span>
         </div>
 
@@ -70,22 +79,22 @@
           <div class="grid grid-cols-3 gap-2 text-xs">
             <div class="bg-[#1B1610] p-2.5 rounded-xl border border-[#3B2F1C]">
               <span class="text-slate-400 block text-[10px]">Panggilan 110:</span>
-              <strong class="text-slate-100 font-mono"><?= number_format($report['warga_dilayani']['channel_breakdown']['110_call']) ?></strong>
+              <strong class="text-slate-100 font-mono"><?= $drill(number_format($report['warga_dilayani']['channel_breakdown']['110_call']), ['channel' => '110_CALL']) ?></strong>
             </div>
             <div class="bg-[#1B1610] p-2.5 rounded-xl border border-[#3B2F1C]">
               <span class="text-slate-400 block text-[10px]">Loket SPKT:</span>
-              <strong class="text-slate-100 font-mono"><?= number_format($report['warga_dilayani']['channel_breakdown']['spkt_loket']) ?></strong>
+              <strong class="text-slate-100 font-mono"><?= $drill(number_format($report['warga_dilayani']['channel_breakdown']['spkt_loket']), ['channel' => 'SPKT_LOKET']) ?></strong>
             </div>
             <div class="bg-[#1B1610] p-2.5 rounded-xl border border-[#3B2F1C]">
               <span class="text-slate-400 block text-[10px]">Aduan Siber:</span>
-              <strong class="text-slate-100 font-mono"><?= number_format($report['warga_dilayani']['channel_breakdown']['cyber_crime']) ?></strong>
+              <strong class="text-slate-100 font-mono"><?= $drill(number_format($report['warga_dilayani']['channel_breakdown']['cyber_crime']), ['channel' => 'CYBER_CRIME']) ?></strong>
             </div>
           </div>
         </div>
 
         <div class="p-3 rounded-xl bg-[#1B1610] border border-purple-500/30 flex items-center justify-between text-xs">
           <span class="text-purple-300 font-semibold"><i class="fas fa-hand-holding-heart mr-1.5"></i> Kelompok Rentan &amp; Jalur Khusus PPA:</span>
-          <span class="font-mono font-bold text-purple-200"><?= number_format($report['warga_dilayani']['kelompok_rentan_ppa']) ?> Warga</span>
+          <span class="font-mono font-bold text-purple-200"><?= $drill(number_format($report['warga_dilayani']['kelompok_rentan_ppa']) . ' Warga', ['vulnerable' => 1]) ?></span>
         </div>
       </div>
 
@@ -138,7 +147,7 @@
         <div class="grid grid-cols-2 gap-4">
           <div>
             <span class="text-xs text-slate-400 block">Perkara Tuntas (Clearance):</span>
-            <div class="text-3xl font-heading font-black text-amber-400"><?= number_format($report['masalah_selesai']['total_tuntas']) ?></div>
+            <div class="text-3xl font-heading font-black text-amber-400"><?= $drill(number_format($report['masalah_selesai']['total_tuntas']), ['status' => 'TUNTAS']) ?></div>
             <span class="text-[11px] text-slate-400">Clearance Rate: <strong class="text-slate-100"><?= $report['masalah_selesai']['clearance_rate'] ?>%</strong></span>
           </div>
 
@@ -201,7 +210,7 @@
 
         <div class="flex items-center justify-between p-3 rounded-xl bg-red-950/40 border border-red-500/30">
           <span class="text-xs font-bold text-red-300">Total Kasus Mangkrak / Melewati Batas SLA:</span>
-          <span class="text-xl font-black font-mono text-red-400"><?= number_format($report['belum_berhasil']['total_kasus_mangkrak']) ?> Perkara</span>
+          <span class="text-xl font-black font-mono text-red-400"><?= $drill(number_format($report['belum_berhasil']['total_kasus_mangkrak']) . ' Perkara', ['stalled' => 1]) ?></span>
         </div>
 
         <?php if (!empty($report['belum_berhasil']['satker_watchlist_sla'])): ?>
@@ -210,8 +219,8 @@
             <div class="space-y-1.5">
               <?php foreach ($report['belum_berhasil']['satker_watchlist_sla'] as $w): ?>
                 <div class="flex items-center justify-between text-xs p-2 rounded-lg bg-[#1B1610] border border-[#3B2F1C]">
-                  <span class="text-slate-100"><?= htmlspecialchars($w['satker_name']) ?></span>
-                  <span class="font-mono font-bold text-red-400"><?= (int)$w['stalled_count'] ?> kasus macet</span>
+                  <span class="text-slate-100"><?= $drill(htmlspecialchars($w['satker_name']), ['satker' => (int)$w['satker_id']]) ?></span>
+                  <span class="font-mono font-bold text-red-400"><?= $drill((int)$w['stalled_count'] . ' kasus macet', ['satker' => (int)$w['satker_id'], 'stalled' => 1]) ?></span>
                 </div>
               <?php endforeach; ?>
             </div>
