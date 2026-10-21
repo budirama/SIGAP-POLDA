@@ -77,6 +77,11 @@ class Config
     }
 
     // Path Base URL (Deteksi Otomatis atau Fallback)
+    public static function baseUrl(): string
+    {
+        return self::getBaseUrl();
+    }
+
     public static function getBaseUrl(): string
     {
         if (isset($_SERVER['HTTP_HOST'])) {

@@ -105,6 +105,20 @@ class Auth
     }
 
     /**
+     * Guard Middleware: Pastikan pengguna sudah login
+     */
+    public static function requireAuth(?string $redirectUrl = null): void
+    {
+        $baseUrl = Config::getBaseUrl();
+
+        if (!self::check()) {
+            Session::setFlash('error', 'Sesi Anda telah berakhir. Silakan login kembali.');
+            header("Location: {$baseUrl}/auth/login");
+            exit;
+        }
+    }
+
+    /**
      * Guard Middleware: Pastikan pengguna login dan memiliki role yang diizinkan
      */
     public static function requireRole(string|array $roles, ?string $redirectUrl = null): void

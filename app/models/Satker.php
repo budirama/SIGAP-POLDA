@@ -24,6 +24,11 @@ class Satker extends Model
         return $this->fetchAll("SELECT * FROM satkers ORDER BY type ASC, name ASC");
     }
 
+    public function getAllActive(): array
+    {
+        return $this->fetchAll("SELECT * FROM satkers WHERE is_active = 1 ORDER BY type ASC, name ASC");
+    }
+
     public function getDirectorates(): array
     {
         return $this->fetchAll("SELECT * FROM satkers WHERE type = 'DIREKTORAT' ORDER BY name ASC");
