@@ -55,11 +55,6 @@
           Sistem komando dan kendali terpadu untuk monitoring, verifikasi berkas, disposisi satuan kerja, hingga pelaporan SP2HP Elektronik langsung ke masyarakat.
         </p>
 
-        <!-- Presisi Badge -->
-        <div class="pt-2">
-          <img src="<?= $baseUrl ?>/assets/img/logo-presisi.svg" alt="Polri Presisi" class="h-16 object-contain mx-auto md:mx-0 drop-shadow-md">
-        </div>
-
         <!-- Quick Credentials Switcher (Developer & Review Mode) -->
         <?php if (\App\Config\Config::isDevelopment()): ?>
         <div class="bg-[#1B1610]/90 border border-amber-500/25 rounded-2xl p-4 text-left shadow-lg">
