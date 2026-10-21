@@ -211,6 +211,12 @@ $this->feedbackModel = new Feedback();
 
         $ticketNumber = trim((string)$this->get('ticket', ''));
 
+        // Pengalihan cerdas jika nomor berupa format Satu Nomor POL-...
+        if ($ticketNumber !== '' && str_starts_with($ticketNumber, 'POL-')) {
+            $this->redirect('/oneservice/track?ticket=' . urlencode($ticketNumber));
+            return;
+        }
+
         $report = null;
         $timeline = [];
         $attachments = [];

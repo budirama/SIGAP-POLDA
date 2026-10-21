@@ -129,6 +129,25 @@
           </a>
         <?php endif; ?>
 
+        <!-- Satu Nomor, Satu Jejak v1.3 Presisi -->
+        <?php if (\App\Core\ModuleManager::isActive('ONESERVICE') && (!\App\Core\PoskoAccess::isPoskoUser() || \App\Core\Auth::hasRole([\App\Config\Constants::ROLE_SUPERADMIN, \App\Config\Constants::ROLE_EXECUTIVE]))): ?>
+          <div class="text-[10px] font-bold text-amber-500/80 uppercase tracking-widest px-3 py-1 mt-4">SATU NOMOR, SATU JEJAK</div>
+          <?php if (\App\Core\ModuleManager::isActive('oneservice_hub')): ?>
+          <a href="<?= $baseUrl ?>/oneservice"
+             class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-300 hover:text-slate-100 hover:bg-[#1B1610] transition-colors">
+            <i class="fas fa-fingerprint text-amber-400 w-4"></i>
+            <span>Hub Layanan Terpadu</span>
+          </a>
+          <?php endif; ?>
+          <?php if (\App\Core\ModuleManager::isActive('oneservice_dashboard')): ?>
+          <a href="<?= $baseUrl ?>/oneservice/dashboard"
+             class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-300 hover:text-slate-100 hover:bg-[#1B1610] transition-colors">
+            <i class="fas fa-chart-pie text-emerald-400 w-4"></i>
+            <span>Akuntabilitas 100 Hari</span>
+          </a>
+          <?php endif; ?>
+        <?php endif; ?>
+
         <!-- Management Posko (pelaporan berjenjang) -->
         <?php if (\App\Core\Auth::hasRole(array_merge(\App\Config\Constants::POSKO_ROLES, [\App\Config\Constants::ROLE_SUPERADMIN]))): ?>
           <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-3 py-1 mt-4">MANAGEMENT POSKO</div>
