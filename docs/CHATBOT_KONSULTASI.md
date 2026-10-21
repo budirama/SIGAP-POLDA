@@ -9,11 +9,12 @@ Chatbot ini **berbasis aturan**: kata kunci dicocokkan dengan topik yang dikelol
 ```bash
 mysql -uroot sigap_polda < database/migrations/2026_10_22_chatbot.sql
 mysql -uroot sigap_polda < database/migrations/2026_10_22_chatbot_module_flag.sql   # butuh tabel system_modules
+mysql -uroot sigap_polda < database/migrations/2026_10_22_chatbot_kehilangan_temuan.sql   # ganti sebutan layanan di jawaban yang sudah terpasang
 ```
 
 Isi awal berupa 20 topik:
 
-- cara melapor, cek status, Hilang & Temu, kendaraan hilang, orang hilang;
+- cara melapor, cek status, Kehilangan dan Temuan, kendaraan hilang, orang hilang;
 - SKCK, SIM, STNK;
 - penipuan online, KDRT/PPA, narkoba, Propam, kecelakaan, izin keramaian;
 - lapor rahasia, kontak;

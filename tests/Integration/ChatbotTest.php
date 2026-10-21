@@ -42,6 +42,11 @@ return [
         T::contains('formulir Pengaduan Online', $answer['body']);
         T::same('/report/create', $answer['meta']['link']['url']);
 
+        $hilang = $lastBot($say($c, $csrf, 'Kehilangan / menemukan barang', 'HILANG_TEMU'));
+        T::contains('Kehilangan dan Temuan', $hilang['body'], 'sebutan layanan terbaru');
+        T::notContains('Hilang & Temu', $hilang['body']);
+        T::same('Buka Kehilangan dan Temuan', $hilang['meta']['link']['label']);
+
         $state = $say($c, $csrf, 'SKCK', 'SKCK');
         T::contains('SKCK dapat diajukan', $lastBot($state)['body']);
         T::same((int)$hits + 1, (int)Db::value("SELECT hit_count FROM chatbot_intents WHERE code = 'SKCK'"), 'statistik dipakai');

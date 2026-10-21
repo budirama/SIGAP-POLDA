@@ -80,22 +80,22 @@ INSERT IGNORE INTO `chatbot_intents`
 
 ('CEK_STATUS', 'Cek status laporan',
  'cek status, status laporan, cek laporan, laporan saya, status, lacak, tracking, perkembangan laporan, sp2hp, sudah sampai mana, tiket saya, nomor tiket, progres laporan',
- 'Status laporan dapat dipantau di halaman Lacak SP2HP dengan Nomor Tiket (LP-POLRI-…) dan PIN 6 digit. Di sana Anda juga dapat berkomunikasi dengan penyidik dan mencetak SP2HP. Untuk laporan Hilang & Temu (HT-…), gunakan halaman Cek Status Hilang & Temu.',
+ 'Status laporan dapat dipantau di halaman Lacak SP2HP dengan Nomor Tiket (LP-POLRI-…) dan PIN 6 digit. Di sana Anda juga dapat berkomunikasi dengan penyidik dan mencetak SP2HP. Untuk laporan Kehilangan dan Temuan (HT-…), gunakan halaman Cek Status Kehilangan dan Temuan.',
  '/report/track', 'Lacak laporan', 'HILANG_TEMU,PETUGAS', 'NONE', 1, 20),
 
 ('HILANG_TEMU', 'Kehilangan / menemukan barang',
  'hilang, kehilangan, dicuri, kecurian, menemukan, temuan, barang hilang, dompet hilang, hp hilang, handphone hilang, ktp hilang, dokumen hilang, sktlk, surat kehilangan, surat keterangan hilang, hewan hilang, kucing hilang, anjing hilang',
- 'Laporkan kehilangan atau temuan (kendaraan, orang, barang berharga, dokumen, hewan) di layanan Hilang & Temu. Sistem otomatis mencocokkan laporan kehilangan dengan temuan. Setelah laporan kehilangan diverifikasi petugas, Anda dapat mencetak Surat Keterangan Tanda Lapor Kehilangan (SKTLK).',
- '/hilangtemu', 'Buka Hilang & Temu', 'KENDARAAN_HILANG,ORANG_HILANG,PETUGAS', 'NONE', 1, 30),
+ 'Laporkan kehilangan atau temuan (kendaraan, orang, barang berharga, dokumen, hewan) di layanan Kehilangan dan Temuan. Sistem otomatis mencocokkan laporan kehilangan dengan temuan. Setelah laporan kehilangan diverifikasi petugas, Anda dapat mencetak Surat Keterangan Tanda Lapor Kehilangan (SKTLK).',
+ '/hilangtemu', 'Buka Kehilangan dan Temuan', 'KENDARAAN_HILANG,ORANG_HILANG,PETUGAS', 'NONE', 1, 30),
 
 ('KENDARAAN_HILANG', 'Kendaraan hilang/dicuri',
  'motor hilang, mobil hilang, kendaraan hilang, curanmor, motor dicuri, mobil dicuri, kendaraan dicuri, pencurian motor, motor, mobil, kendaraan, dicuri, kecurian, bpkb, plat nomor',
- 'Untuk kendaraan yang dicuri, buat laporan polisi (kategori Kriminal Umum) dan daftarkan juga di Hilang & Temu dengan plat nomor, nomor rangka, dan nomor mesin agar dapat dicocokkan bila kendaraan ditemukan. Siapkan STNK/BPKB sebagai bukti kepemilikan. Jika pencurian disertai kekerasan (begal), pilih kategori Kejahatan dengan Kekerasan.',
+ 'Untuk kendaraan yang dicuri, buat laporan polisi (kategori Kriminal Umum) dan daftarkan juga di Kehilangan dan Temuan dengan plat nomor, nomor rangka, dan nomor mesin agar dapat dicocokkan bila kendaraan ditemukan. Siapkan STNK/BPKB sebagai bukti kepemilikan. Jika pencurian disertai kekerasan (begal), pilih kategori Kejahatan dengan Kekerasan.',
  '/hilangtemu/lapor?type=LOST&category=KENDARAAN', 'Lapor kendaraan hilang', 'CARA_LAPOR,PETUGAS', 'NONE', 0, 31),
 
 ('ORANG_HILANG', 'Orang hilang',
  'orang hilang, anak hilang, keluarga hilang, belum pulang, tidak pulang, hilang kontak, lansia hilang, orang tua hilang, pencarian orang',
- 'Untuk orang hilang, Anda TIDAK perlu menunggu 1x24 jam. Segera hubungi 110 atau datang ke SPKT terdekat, terutama bila menyangkut anak, lansia, atau orang dengan kondisi khusus. Daftarkan juga di Hilang & Temu dengan foto terbaru, ciri fisik, dan pakaian terakhir.',
+ 'Untuk orang hilang, Anda TIDAK perlu menunggu 1x24 jam. Segera hubungi 110 atau datang ke SPKT terdekat, terutama bila menyangkut anak, lansia, atau orang dengan kondisi khusus. Daftarkan juga di Kehilangan dan Temuan dengan foto terbaru, ciri fisik, dan pakaian terakhir.',
  '/hilangtemu/lapor?type=LOST&category=ORANG', 'Lapor orang hilang', 'PETUGAS', 'NONE', 0, 32),
 
 ('SKCK', 'SKCK',
