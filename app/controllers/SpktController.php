@@ -10,6 +10,7 @@ use App\Core\Audit;
 use App\Core\Auth;
 use App\Core\Session;
 use App\Config\Constants;
+use App\Models\Disposition;
 use App\Models\Report;
 use App\Models\Satker;
 
@@ -17,6 +18,7 @@ class SpktController extends Controller
 {
     private Report $reportModel;
     private Satker $satkerModel;
+    private Disposition $dispositionModel;
 
     // Itwasum (pengawas internal) dapat melihat meja triage, tetapi hanya role ini yang dapat bertindak
     private const ACTION_ROLES = [
@@ -34,6 +36,7 @@ class SpktController extends Controller
 
         $this->reportModel = new Report();
         $this->satkerModel = new Satker();
+        $this->dispositionModel = new Disposition();
     }
 
     /**
@@ -49,13 +52,25 @@ class SpktController extends Controller
             'search' => $search
         ], (int)$this->get('page', 1));
 
-        $satkers = $this->satkerModel->getAll();
+        $this->dispositionModel->escalateOverdue();
+
+        // Rekomendasi tujuan hanya untuk laporan yang masih dapat didisposisikan
+        $recommendations = [];
+        foreach ($pager['items'] as $r) {
+            if (in_array($r['status'], Constants::DISPATCHABLE_STATUSES, true)) {
+                $recommendations[(int)$r['id']] = $this->dispositionModel->recommend($r);
+            }
+        }
 
         $this->render('backoffice/spkt_triage', [
             'pageTitle'    => 'Meja Triage SPKT & Command Center Polri',
             'reports'      => $pager['items'],
             'pager'        => $pager,
-            'satkers'      => $satkers,
+            'territories'  => $this->dispositionModel->territorialUnits(),
+            'recommendations' => $recommendations,
+            'tickets'      => $this->dispositionModel->latestForReports(array_column($pager['items'], 'id')),
+            'escalated'    => $this->dispositionModel->escalatedWithin(null),
+            'returned'     => $this->dispositionModel->returnedAwaitingSpkt(),
             'statusFilter' => $statusFilter,
             'search'       => $search,
             'canAct'       => Auth::hasRole(self::ACTION_ROLES)
@@ -93,11 +108,16 @@ class SpktController extends Controller
             $this->redirect('/spkt');
         }
 
-        $success = $this->reportModel->dispatchReport($reportId, $satkerId, Auth::id(), $notes);
+        if ((int)$report['current_satker_id'] === $satkerId) {
+            Session::setFlash('error', 'Laporan sudah berada di Satker tersebut.');
+            $this->redirect('/spkt');
+        }
+
+        $success = $this->dispositionModel->dispatch($reportId, $satkerId, Auth::id(), (string)$notes);
 
         if ($success) {
             Audit::log('report.dispatch', $reportId, 'Satker tujuan #' . $satkerId);
-            Session::setFlash('success', 'Laporan berhasil didisposisikan ke Satuan Kerja terkait.');
+            Session::setFlash('success', 'Tiket disposisi terkirim ke Satuan Kerja terkait.');
         } else {
             Session::setFlash('error', 'Gagal memproses disposisi laporan.');
         }
@@ -143,6 +163,18 @@ class SpktController extends Controller
         }
 
         $this->redirect('/spkt');
+    }
+
+    /**
+     * JSON: satuan penerima tiket dalam satu wilayah (wilayah itu sendiri + satuan fungsinya)
+     */
+    public function units(int $territoryId): void
+    {
+        $this->json(['units' => array_map(fn($u) => [
+            'id'       => (int)$u['id'],
+            'name'     => $u['name'],
+            'function' => $u['function_code'] ? (Disposition::FUNCTIONS[$u['function_code']] ?? $u['function_code']) : null,
+        ], $this->dispositionModel->unitsInTerritory($territoryId))]);
     }
 
     private function requireActionRole(): void

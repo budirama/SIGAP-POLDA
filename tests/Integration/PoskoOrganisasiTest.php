@@ -27,7 +27,8 @@ return [
         T::same([1, 2, 3, 4], array_map('intval', [$s->findById(GUBENG)['level'], $s->findById(SBY)['level'], $s->findById(JATIM)['level'], $s->findById(1)['level']]));
 
         $polsekSby = $s->descendantIds(SBY);
-        T::same(24, count($polsekSby), 'Polsek di bawah Polrestabes Surabaya');
+        $polsekOnly = array_filter($polsekSby, fn($id) => $s->findById($id)['type'] === 'POLSEK');
+        T::same(24, count($polsekOnly), 'Polsek di bawah Polrestabes Surabaya (di luar satuan fungsi)');
         T::true(!in_array(SIDOARJO, $polsekSby, true), 'Polres lain tidak termasuk');
         T::true(in_array(GUBENG, $s->descendantIds(JATIM), true), 'Polsek termasuk wilayah Polda');
         T::same(['Mabes Polri (Command Center SPKT)', 'Polda Jawa Timur', 'Polrestabes Surabaya'], array_column($s->ancestors(GUBENG), 'name'));

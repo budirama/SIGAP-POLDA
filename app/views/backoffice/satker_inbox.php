@@ -10,7 +10,7 @@
         Inbox Disposisi & Manajemen Kasus Satker
       </h2>
       <p class="text-xs text-slate-400 mt-1">
-        Daftar perkara yang didisposisikan oleh SPKT Polri. Terbitkan Surat Perintah Penugasan (Sprintgas) ke Penyidik Pelaksana.
+        Tiket disposisi dari SPKT Polri atau satuan atasan. Terima tiket sebelum batas waktu, teruskan ke jajaran bila perlu, lalu terbitkan Surat Perintah Penugasan (Sprintgas) ke Penyidik Pelaksana.
       </p>
     </div>
 
@@ -20,6 +20,22 @@
       </span>
     </div>
   </div>
+
+  <?php if (!empty($escalated)): ?>
+  <!-- Tiket jajaran yang belum diterima melewati batas waktu -->
+  <div class="polri-glass-card rounded-2xl p-5 border border-red-800/70 space-y-2">
+    <h3 class="text-sm font-black text-red-300 flex items-center gap-2">
+      <i class="fas fa-triangle-exclamation"></i> Eskalasi Jajaran: Tiket Belum Diterima (<?= count($escalated) ?>)
+    </h3>
+    <?php foreach ($escalated as $e): ?>
+      <div class="p-3 rounded-xl bg-[#0C0A08] border border-slate-800 text-[11px] flex flex-wrap justify-between gap-2">
+        <span><span class="font-mono font-bold text-amber-400"><?= htmlspecialchars($e['ticket_number']) ?></span>
+          <span class="text-slate-300"> · <?= htmlspecialchars($e['title']) ?></span></span>
+        <span class="text-red-300 font-bold"><?= htmlspecialchars($e['satker_name']) ?> · batas <?= date('d/m H:i', strtotime($e['ack_deadline'])) ?></span>
+      </div>
+    <?php endforeach; ?>
+  </div>
+  <?php endif; ?>
 
   <!-- Instruksi Atensi Kapolri yang belum selesai -->
   <?php if (!empty($directives)): ?>
@@ -121,10 +137,37 @@
 
                 <td class="p-4">
                   <?= \App\Config\Constants::getStatusBadge($r['status']) ?>
+                  <?php $ticket = $tickets[(int)$r['id']] ?? null; require __DIR__ . '/_ticket_badge.php'; ?>
+                  <?php if ($ticket && $ticket['from_satker_name']): ?>
+                    <span class="block text-[10px] text-slate-500 mt-0.5">dari <?= htmlspecialchars($ticket['from_satker_name']) ?></span>
+                  <?php endif; ?>
                 </td>
 
                 <td class="p-4 text-center">
-                  <div class="flex items-center justify-center gap-2">
+                  <div class="flex flex-wrap items-center justify-center gap-2">
+                    <?php
+                      $ticketJson = htmlspecialchars(json_encode([
+                          'id' => (int)$r['id'],
+                          'label' => $r['ticket_number'] . ' - ' . $r['title'],
+                          'status' => $r['status'],
+                          'targets' => array_map(fn($t) => ['id' => (int)$t['id'], 'name' => $t['name']], $forwardTargets[(int)$r['current_satker_id']] ?? []),
+                      ]));
+                    ?>
+                    <?php if (($ticket['status'] ?? null) === 'PENDING'): ?>
+                      <form action="<?= $baseUrl ?>/satker/terima" method="POST">
+                        <input type="hidden" name="_csrf_token" value="<?= $csrfToken ?>">
+                        <input type="hidden" name="report_id" value="<?= (int)$r['id'] ?>">
+                        <button class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold rounded-lg text-xs flex items-center gap-1">
+                          <i class="fas fa-check text-[10px]"></i> Terima
+                        </button>
+                      </form>
+                    <?php endif; ?>
+                    <?php if (in_array($r['status'], ['DISPATCHED', 'ASSIGNED'], true)): ?>
+                      <button onclick="openTicketModal(<?= $ticketJson ?>)" title="Teruskan ke jajaran / kembalikan ke SPKT"
+                              class="px-2.5 py-1.5 bg-blue-900/60 hover:bg-blue-800 text-blue-200 font-bold rounded-lg text-xs flex items-center gap-1">
+                        <i class="fas fa-share-nodes text-[10px]"></i> Teruskan
+                      </button>
+                    <?php endif; ?>
                     <?php if (in_array($r['status'], ['DISPATCHED', 'ASSIGNED'], true)): ?>
                     <button onclick="openAssignModal(<?= htmlspecialchars(json_encode(['id' => (int)$r['id'], 'ticket_number' => $r['ticket_number'], 'title' => $r['title'], 'current_satker_id' => $r['current_satker_id'], 'assigned_investigator_id' => $r['assigned_investigator_id'], 'sprintgas_number' => \App\Config\Constants::documentNumber('SP.Gas', $r['satker_code'] ?? null)])) ?>)"
                             class="px-3 py-1.5 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-bold rounded-lg text-xs shadow transition-all flex items-center gap-1">
@@ -207,7 +250,54 @@
   </div>
 </div>
 
+<!-- Modal Teruskan / Kembalikan Tiket -->
+<div id="modalTicket" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="bg-[#1B1610] border border-blue-500/40 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+    <div class="flex items-center justify-between border-b border-slate-700 pb-3">
+      <h3 class="text-base font-bold text-slate-100 flex items-center gap-2"><i class="fas fa-share-nodes text-amber-400"></i> Teruskan / Kembalikan Tiket</h3>
+      <button onclick="document.getElementById('modalTicket').classList.add('hidden')" class="text-slate-400 hover:text-slate-200"><i class="fas fa-xmark text-lg"></i></button>
+    </div>
+    <div id="ticket_label" class="text-xs font-bold text-amber-400 font-mono"></div>
+
+    <form action="<?= $baseUrl ?>/satker/teruskan" method="POST" class="space-y-3">
+      <input type="hidden" name="_csrf_token" value="<?= $csrfToken ?>">
+      <input type="hidden" name="report_id" class="ticket_report_id">
+      <label class="block text-xs font-semibold text-slate-300">Teruskan ke satuan jajaran:</label>
+      <select name="target_satker_id" id="ticket_targets" required
+              class="w-full bg-[#0C0A08] border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 outline-none focus:border-amber-500"></select>
+      <textarea name="notes" rows="2" required maxlength="1000" placeholder="Instruksi untuk satuan penerima"
+                class="w-full bg-[#0C0A08] border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 outline-none focus:border-amber-500"></textarea>
+      <button class="w-full py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-xs font-bold">Teruskan Tiket</button>
+    </form>
+
+    <form action="<?= $baseUrl ?>/satker/kembalikan" method="POST" id="ticket_return_form" class="space-y-3 border-t border-slate-700 pt-4">
+      <input type="hidden" name="_csrf_token" value="<?= $csrfToken ?>">
+      <input type="hidden" name="report_id" class="ticket_report_id">
+      <label class="block text-xs font-semibold text-rose-300">Bukan kewenangan Satker ini? Kembalikan ke SPKT:</label>
+      <textarea name="notes" rows="2" required minlength="10" maxlength="1000" placeholder="Alasan pengembalian (mis. lokus di luar wilayah, bukan tindak pidana narkoba)"
+                class="w-full bg-[#0C0A08] border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 outline-none focus:border-rose-500"></textarea>
+      <button class="w-full py-2 bg-rose-800 hover:bg-rose-700 text-white rounded-xl text-xs font-bold">Kembalikan ke SPKT</button>
+    </form>
+  </div>
+</div>
+
 <script>
+  function openTicketModal(t) {
+    document.getElementById('ticket_label').innerText = t.label;
+    document.querySelectorAll('.ticket_report_id').forEach(el => el.value = t.id);
+    const select = document.getElementById('ticket_targets');
+    select.innerHTML = '<option value="">-- Pilih satuan jajaran --</option>';
+    t.targets.forEach(u => {
+      const opt = document.createElement('option');
+      opt.value = u.id;
+      opt.textContent = u.name;
+      select.appendChild(opt);
+    });
+    // Pengembalian ke SPKT hanya sebelum penyidik ditunjuk
+    document.getElementById('ticket_return_form').classList.toggle('hidden', t.status !== 'DISPATCHED');
+    document.getElementById('modalTicket').classList.remove('hidden');
+  }
+
   function openAssignModal(report) {
     document.getElementById('assign_report_id').value = report.id;
     document.getElementById('assign_ticket_label').innerText = report.ticket_number + ' - ' + report.title;

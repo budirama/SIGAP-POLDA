@@ -333,6 +333,8 @@
     <?php endif; ?>
   </div>
 
+  <?php require __DIR__ . '/_disposition_history.php'; ?>
+
   <!-- Complete Timeline (Public + Internal Notes) -->
   <div class="polri-glass-card rounded-2xl p-6 border border-[#3B2F1C]">
     <h3 class="text-base font-bold text-slate-100 flex items-center gap-2 font-heading border-b border-slate-700 pb-3 mb-5">
