@@ -49,6 +49,7 @@
   }
 
   const STATUS = {
+    BOT: ['Asisten Virtual', 'border-sky-600/60 text-sky-300 bg-sky-500/10'],
     WAITING: ['Menunggu', 'border-amber-500/60 text-amber-300 bg-amber-500/10'],
     ACTIVE: ['Aktif', 'border-emerald-600/60 text-emerald-300 bg-emerald-500/10'],
     CLOSED: ['Selesai', 'border-slate-600 text-slate-400 bg-slate-800/40'],
@@ -99,7 +100,7 @@
 
       const preview = document.createElement('span');
       preview.className = 'block text-[11px] text-slate-400 truncate mt-0.5';
-      preview.textContent = (c.last_sender === 'agent' ? 'Anda/Petugas: ' : '') + c.last_body;
+      preview.textContent = (c.last_sender === 'agent' ? 'Anda/Petugas: ' : c.last_sender === 'bot' ? 'Bot: ' : '') + c.last_body;
 
       const meta = document.createElement('span');
       meta.className = 'flex items-center gap-1.5 mt-1 text-[10px]';
@@ -108,6 +109,12 @@
       st.className = 'px-1.5 rounded-full border ' + cls;
       st.textContent = label;
       meta.appendChild(st);
+      if (c.urgent && c.status !== 'CLOSED') {
+        const ur = document.createElement('span');
+        ur.className = 'px-1.5 rounded-full bg-red-700 text-white font-bold animate-pulse';
+        ur.textContent = 'DARURAT';
+        meta.appendChild(ur);
+      }
       if (c.agent) {
         const ag = document.createElement('span');
         ag.className = 'text-slate-500 truncate';
@@ -148,15 +155,16 @@
       wrap.textContent = m.body + ' · ' + m.time;
       return wrap;
     }
-    const agent = m.from === 'agent';
-    wrap.className = 'flex ' + (agent ? 'justify-end' : 'justify-start');
+    const agent = m.from === 'agent', bot = m.from === 'bot';
+    wrap.className = 'flex ' + (agent || bot ? 'justify-end' : 'justify-start');
     const box = document.createElement('div');
     box.className = 'max-w-[75%] rounded-2xl px-3 py-2 ' + (agent
       ? 'bg-amber-500/90 text-slate-950 rounded-br-sm'
+      : bot ? 'bg-sky-950/60 border border-sky-800/60 text-slate-200 rounded-br-sm'
       : 'bg-[#241D14] border border-[#3B2F1C] text-slate-100 rounded-bl-sm');
     const who = document.createElement('p');
-    who.className = 'text-[10px] font-bold mb-0.5 ' + (agent ? 'text-slate-800' : 'text-amber-300');
-    who.textContent = agent ? (m.name || 'Petugas') : (conv ? conv.visitor : 'Warga');
+    who.className = 'text-[10px] font-bold mb-0.5 ' + (agent ? 'text-slate-800' : bot ? 'text-sky-300' : 'text-amber-300');
+    who.textContent = agent ? (m.name || 'Petugas') : bot ? (m.name || 'Asisten Virtual') : (conv ? conv.visitor : 'Warga');
     const text = document.createElement('p');
     text.className = 'whitespace-pre-line break-words';
     text.textContent = m.body;
@@ -171,7 +179,8 @@
   function renderConversation(c) {
     conv = c;
     $('ocVisitor').textContent = c.visitor;
-    $('ocMeta').textContent = 'Live Chat #' + c.id + (c.agent ? ' · ' + c.agent : ' · belum ditangani');
+    $('ocMeta').textContent = 'Live Chat #' + c.id + (c.urgent ? ' · DARURAT' : '')
+      + (c.agent ? ' · ' + c.agent : c.status === 'BOT' ? ' · dilayani Asisten Virtual' : ' · belum ditangani');
     const [label, cls] = STATUS[c.status];
     const badge = $('ocStatusBadge');
     badge.textContent = label;
@@ -184,7 +193,7 @@
 
     const open = c.status !== 'CLOSED';
     $('ocSend').hidden = !canAct || !open || (c.status === 'ACTIVE' && !c.mine);
-    $('ocClaim').hidden = !canAct || c.status !== 'WAITING';
+    $('ocClaim').hidden = !canAct || (c.status !== 'WAITING' && c.status !== 'BOT');
     $('ocClose').hidden = !canAct || !open || !c.mine;
     $('ocTicketInfo').hidden = !c.ticket;
     $('ocTicketNo').textContent = c.ticket || '';

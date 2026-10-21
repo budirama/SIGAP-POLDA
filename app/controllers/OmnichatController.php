@@ -12,6 +12,7 @@ use App\Core\Audit;
 use App\Core\Auth;
 use App\Config\Constants;
 use App\Models\Chat;
+use App\Models\Chatbot;
 use App\Models\Report;
 
 class OmnichatController extends Controller
@@ -43,7 +44,7 @@ class OmnichatController extends Controller
     }
 
     /**
-     * Daftar percakapan (?scope=open|WAITING|ACTIVE|CLOSED|mine)
+     * Daftar percakapan (?scope=open|BOT|WAITING|ACTIVE|CLOSED|mine)
      */
     public function conversations(): void
     {
@@ -58,6 +59,7 @@ class OmnichatController extends Controller
                 'visitor'     => $c['visitor_name'],
                 'phone'       => $c['visitor_phone'],
                 'status'      => $c['status'],
+                'urgent'      => (bool)$c['is_urgent'],
                 'agent'       => $c['agent_name'] ? trim(($c['agent_rank'] ?? '') . ' ' . $c['agent_name']) : null,
                 'mine'        => (int)$c['assigned_agent_id'] === Auth::id(),
                 'ticket'      => $c['report_ticket'],
@@ -82,7 +84,11 @@ class OmnichatController extends Controller
             'messages'     => array_map(fn($m) => [
                 'id'   => (int)$m['id'],
                 'from' => strtolower($m['sender_type']),
-                'name' => $m['sender_type'] === 'AGENT' ? trim(($m['sender_rank'] ?? '') . ' ' . ($m['sender_name'] ?? '')) : null,
+                'name' => match ($m['sender_type']) {
+                    'AGENT' => trim(($m['sender_rank'] ?? '') . ' ' . ($m['sender_name'] ?? '')),
+                    'BOT'   => Chatbot::BOT_NAME,
+                    default => null,
+                },
                 'body' => $m['body'],
                 'time' => date('d/m H:i', strtotime($m['created_at'])),
             ], $messages),
@@ -90,12 +96,12 @@ class OmnichatController extends Controller
     }
 
     /**
-     * Ambil alih percakapan yang menunggu
+     * Ambil alih percakapan yang menunggu atau masih dilayani chatbot
      */
     public function claim(): void
     {
         $conv = $this->actionConversation();
-        if ($conv['status'] !== 'WAITING') {
+        if (!in_array($conv['status'], ['WAITING', 'BOT'], true)) {
             $this->json(['error' => 'Percakapan sudah ditangani petugas lain atau ditutup.'], 409);
         }
         if (!$this->chat->claim((int)$conv['id'], (int)Auth::id())) {
@@ -121,7 +127,7 @@ class OmnichatController extends Controller
             $this->json(['error' => 'Percakapan sudah ditutup.'], 409);
         }
 
-        if ($conv['status'] === 'WAITING') {
+        if (in_array($conv['status'], ['WAITING', 'BOT'], true)) {
             if (!$this->chat->claim((int)$conv['id'], (int)Auth::id())) {
                 $this->json(['error' => 'Percakapan baru saja diambil petugas lain.'], 409);
             }
@@ -212,6 +218,7 @@ class OmnichatController extends Controller
             'visitor' => $conv['visitor_name'],
             'phone'   => $conv['visitor_phone'],
             'status'  => $conv['status'],
+            'urgent'  => (bool)($conv['is_urgent'] ?? false),
             'agent'   => $conv['agent_name'] ? trim(($conv['agent_rank'] ?? '') . ' ' . $conv['agent_name']) : null,
             'mine'    => $this->isHandler($conv),
             'ticket'  => $conv['report_ticket'],

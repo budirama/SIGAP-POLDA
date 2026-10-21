@@ -287,6 +287,9 @@ final class Db
         // Akun & satuan posko uji (Polsek uji tidak memiliki sub-unit)
         self::exec("DELETE FROM users WHERE email LIKE 'zztest%'");
         self::exec("DELETE FROM satkers WHERE code LIKE 'ZZTEST%'");
+        // Chatbot: pertanyaan tak terjawab dari percakapan uji & intent uji (sebelum percakapannya dihapus)
+        self::exec("DELETE FROM chatbot_misses WHERE conversation_id IN (SELECT id FROM chat_conversations WHERE visitor_name LIKE '" . self::PREFIX . "%')");
+        self::exec("DELETE FROM chatbot_intents WHERE code LIKE 'ZZTEST%'");
         // Percakapan Live Chat uji (pesan ikut terhapus via ON DELETE CASCADE)
         self::exec("DELETE FROM chat_conversations WHERE visitor_name LIKE '" . self::PREFIX . "%'");
         // Laporan Hilang & Temu uji (foto, pasangan, klaim ikut terhapus via ON DELETE CASCADE) beserta berkasnya

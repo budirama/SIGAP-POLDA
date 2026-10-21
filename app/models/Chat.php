@@ -13,9 +13,10 @@ class Chat extends Model
     public const MAX_POLL = 200;
 
     /**
-     * Buka percakapan baru beserta pesan pertama warga; kembalikan ['id', 'token']
+     * Buka percakapan baru beserta pesan pertama warga (boleh kosong bila dilayani chatbot);
+     * kembalikan ['id', 'token']. Dengan chatbot, salam pembuka dikirim oleh Chatbot::greet().
      */
-    public function start(string $name, ?string $phone, string $firstMessage): array
+    public function start(string $name, ?string $phone, string $firstMessage, bool $withBot = false): array
     {
         $token = bin2hex(random_bytes(32));
 
@@ -23,19 +24,23 @@ class Chat extends Model
         try {
             $this->execute(
                 "INSERT INTO chat_conversations (visitor_token, visitor_name, visitor_phone, status, last_message_at)
-                 VALUES (?, ?, ?, 'WAITING', NOW())",
-                [$token, $name, $phone]
+                 VALUES (?, ?, ?, ?, NOW())",
+                [$token, $name, $phone, $withBot ? 'BOT' : 'WAITING']
             );
             $id = $this->lastInsertId();
 
-            $this->execute(
-                "INSERT INTO chat_messages (conversation_id, sender_type, body) VALUES (?, 'SYSTEM', ?)",
-                [$id, 'Terima kasih telah menghubungi SPKT Polri. Mohon tunggu, petugas Command Center akan segera membalas.']
-            );
-            $this->execute(
-                "INSERT INTO chat_messages (conversation_id, sender_type, body) VALUES (?, 'VISITOR', ?)",
-                [$id, $firstMessage]
-            );
+            if (!$withBot) {
+                $this->execute(
+                    "INSERT INTO chat_messages (conversation_id, sender_type, body) VALUES (?, 'SYSTEM', ?)",
+                    [$id, 'Terima kasih telah menghubungi SPKT Polri. Mohon tunggu, petugas Command Center akan segera membalas.']
+                );
+            }
+            if ($firstMessage !== '') {
+                $this->execute(
+                    "INSERT INTO chat_messages (conversation_id, sender_type, body) VALUES (?, 'VISITOR', ?)",
+                    [$id, $firstMessage]
+                );
+            }
 
             $this->commit();
         } catch (\Throwable $e) {
@@ -81,7 +86,7 @@ class Chat extends Model
     public function messagesAfter(int $conversationId, int $afterId = 0): array
     {
         return $this->fetchAll(
-            "SELECT m.id, m.sender_type, m.body, m.created_at, u.name AS sender_name, u.rank AS sender_rank
+            "SELECT m.id, m.sender_type, m.body, m.meta, m.created_at, u.name AS sender_name, u.rank AS sender_rank
              FROM chat_messages m
              LEFT JOIN users u ON u.id = m.sender_id
              WHERE m.conversation_id = ? AND m.id > ?
@@ -92,19 +97,19 @@ class Chat extends Model
 
     /**
      * Daftar percakapan untuk konsol Omnichat.
-     * $scope: 'open' (menunggu + aktif), 'WAITING', 'ACTIVE', 'CLOSED', 'mine'
+     * $scope: 'open' (menunggu + aktif), 'BOT' (dilayani chatbot), 'WAITING', 'ACTIVE', 'CLOSED', 'mine'
      */
     public function listForConsole(string $scope, int $agentId): array
     {
         [$where, $params] = match ($scope) {
-            'WAITING', 'ACTIVE', 'CLOSED' => ["c.status = ?", [$scope]],
+            'BOT', 'WAITING', 'ACTIVE', 'CLOSED' => ["c.status = ?", [$scope]],
             'mine' => ["c.assigned_agent_id = ? AND c.status <> 'CLOSED'", [$agentId]],
-            default => ["c.status <> 'CLOSED'", []],
+            default => ["c.status IN ('WAITING', 'ACTIVE')", []],
         };
 
         // Pesan terakhir & jumlah pesan warga yang belum dibalas (setelah balasan agen terakhir)
         return $this->fetchAll(
-            "SELECT c.id, c.channel, c.visitor_name, c.visitor_phone, c.status, c.assigned_agent_id,
+            "SELECT c.id, c.channel, c.visitor_name, c.visitor_phone, c.status, c.is_urgent, c.assigned_agent_id,
                     c.created_at, c.last_message_at, c.closed_at,
                     u.name AS agent_name, u.rank AS agent_rank, r.ticket_number AS report_ticket,
                     (SELECT m.body FROM chat_messages m WHERE m.conversation_id = c.id ORDER BY m.id DESC LIMIT 1) AS last_body,
@@ -116,7 +121,7 @@ class Chat extends Model
              LEFT JOIN users u ON u.id = c.assigned_agent_id
              LEFT JOIN reports r ON r.id = c.report_id
              WHERE {$where}
-             ORDER BY (c.status = 'WAITING') DESC, c.last_message_at DESC, c.id DESC
+             ORDER BY (c.is_urgent = 1 AND c.status = 'WAITING') DESC, (c.status = 'WAITING') DESC, c.last_message_at DESC, c.id DESC
              LIMIT 100",
             $params
         );
@@ -128,12 +133,13 @@ class Chat extends Model
     }
 
     /**
-     * Ambil alih percakapan yang masih menunggu (atomik: hanya satu agen yang berhasil)
+     * Ambil alih percakapan yang menunggu atau masih dilayani chatbot (atomik: hanya satu agen yang berhasil)
      */
     public function claim(int $conversationId, int $agentId): bool
     {
         return $this->affected(
-            "UPDATE chat_conversations SET status = 'ACTIVE', assigned_agent_id = ? WHERE id = ? AND status = 'WAITING'",
+            "UPDATE chat_conversations SET status = 'ACTIVE', assigned_agent_id = ?, handoff_at = COALESCE(handoff_at, NOW())
+             WHERE id = ? AND status IN ('WAITING', 'BOT')",
             [$agentId, $conversationId]
         ) === 1;
     }

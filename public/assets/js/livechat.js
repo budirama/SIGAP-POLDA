@@ -1,5 +1,6 @@
 /**
  * SIGAP-POLRI: Widget Live Chat warga (polling JSON ke /chat/*)
+ * Pesan Asisten Virtual (from: 'bot') dapat membawa tautan & tombol cepat (meta).
  */
 (function () {
   const root = document.getElementById('livechat');
@@ -44,6 +45,36 @@
     return json;
   }
 
+  // Tautan dari basis pengetahuan: hanya path internal, https, atau tel:
+  function linkButton(link) {
+    const url = String(link.url || '');
+    let href = null;
+    if (url.startsWith('/')) href = base + url;
+    else if (/^(https:\/\/|tel:)/i.test(url)) href = url;
+    if (!href) return null;
+    const a = document.createElement('a');
+    a.href = href;
+    if (href.startsWith('https://')) { a.target = '_blank'; a.rel = 'noopener'; }
+    a.className = 'mt-2 inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-amber-500 text-slate-950 font-bold text-[11px]';
+    a.textContent = (link.label || 'Buka tautan') + ' →';
+    return a;
+  }
+
+  function quickReplies(items) {
+    const box = document.createElement('div');
+    box.className = 'lc-quick flex flex-wrap gap-1.5 pl-1';
+    items.forEach((q) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'px-2.5 py-1 rounded-full border border-amber-500/50 text-amber-200 hover:bg-amber-500/15 text-[11px]';
+      b.textContent = q.label;
+      b.dataset.intent = q.intent;
+      b.addEventListener('click', () => sendMessage(q.label, q.intent));
+      box.appendChild(b);
+    });
+    return box;
+  }
+
   function bubble(m) {
     const wrap = document.createElement('div');
     if (m.from === 'system') {
@@ -66,11 +97,18 @@
     const text = document.createElement('p');
     text.className = 'whitespace-pre-line break-words';
     text.textContent = m.body;
+    box.appendChild(text);
+    const link = m.meta && m.meta.link ? linkButton(m.meta.link) : null;
+    if (link) box.appendChild(link);
     const time = document.createElement('p');
     time.className = 'text-[9px] mt-1 text-right ' + (mine ? 'text-slate-800' : 'text-slate-500');
     time.textContent = m.time;
-    box.append(text, time);
+    box.appendChild(time);
     wrap.appendChild(box);
+    if (m.from === 'bot') {
+      wrap.classList.add('lc-bot');
+      if (m.name) box.firstChild.classList.replace('text-amber-300', 'text-sky-300');
+    }
     return wrap;
   }
 
@@ -85,19 +123,28 @@
     room.style.display = 'flex';
 
     const nearBottom = list.scrollHeight - list.scrollTop - list.clientHeight < 60;
-    (state.messages || []).forEach((m) => {
-      if (m.id <= lastId) return;
+    const fresh = (state.messages || []).filter((m) => m.id > lastId);
+    if (fresh.length) list.querySelectorAll('.lc-quick').forEach((el) => el.remove()); // tombol cepat lama tidak berlaku lagi
+    fresh.forEach((m) => {
       lastId = m.id;
       list.appendChild(bubble(m));
-      if (m.from === 'agent' && panel.hidden) unread++;
+      if ((m.from === 'agent' || m.from === 'bot') && panel.hidden) unread++;
     });
+    const lastBot = fresh.length ? fresh[fresh.length - 1] : null;
+    if (lastBot && lastBot.from === 'bot' && lastBot.meta && (lastBot.meta.quick_replies || []).length && state.status === 'BOT') {
+      list.appendChild(quickReplies(lastBot.meta.quick_replies));
+    }
     if (nearBottom) list.scrollTop = list.scrollHeight;
     renderBadge();
 
     const closed = state.status === 'CLOSED';
     $('lcStatus').textContent = closed ? 'Percakapan telah ditutup'
+      : state.status === 'BOT' ? 'Asisten Virtual SIGAP • ketik "petugas" untuk bicara dengan petugas'
       : state.agent ? 'Terhubung dengan ' + state.agent
       : 'Menunggu petugas Command Center…';
+    // Tombol tetap disembunyikan bila tombol cepat yang tampil sudah memuat "Bicara dengan petugas"
+    const quickHasAgent = !!list.querySelector('.lc-quick [data-intent="PETUGAS"]');
+    $('lcHandoff').hidden = state.status !== 'BOT' || quickHasAgent;
     $('lcSend').hidden = closed;
     $('lcEnd').textContent = closed ? 'Mulai chat baru' : 'Akhiri chat';
 
@@ -112,7 +159,8 @@
     room.hidden = true;
     room.style.display = 'none';
     startForm.hidden = false;
-    $('lcStatus').textContent = 'Petugas Command Center siap membantu';
+    $('lcHandoff').hidden = true;
+    $('lcStatus').textContent = root.dataset.bot === '1' ? 'Asisten Virtual & petugas siap membantu 24 jam' : 'Petugas Command Center siap membantu';
   }
 
   async function poll() {
@@ -150,15 +198,14 @@
     }
   });
 
-  $('lcSend').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const message = input.value.trim();
-    if (!message) return;
+  async function sendMessage(message, intent) {
     busy = true;
     input.disabled = true;
     try {
-      apply(await call('/chat/send', { message, after: lastId }));
-      input.value = '';
+      const data = { message, after: lastId };
+      if (intent) data.intent = intent;
+      apply(await call('/chat/send', data));
+      if (!intent) input.value = '';
       list.scrollTop = list.scrollHeight;
       $('lcError').textContent = '';
     } catch (ex) {
@@ -168,6 +215,21 @@
       input.disabled = false;
       input.focus();
       schedule();
+    }
+  }
+
+  $('lcSend').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const message = input.value.trim();
+    if (message) sendMessage(message, null);
+  });
+
+  $('lcHandoffBtn').addEventListener('click', async () => {
+    try {
+      apply(await call('/chat/handoff', { after: lastId }));
+      list.scrollTop = list.scrollHeight;
+    } catch (ex) {
+      $('lcError').textContent = ex.message;
     }
   });
 

@@ -21,7 +21,12 @@ $startChat = function (Http $client, string $csrf, string $suffix) use ($json): 
     ]);
     T::same(200, $res->status, 'mulai chat: ' . $res->body);
     $id = (int)Db::value("SELECT id FROM chat_conversations WHERE visitor_name = ?", [Db::PREFIX . "warga {$suffix}"]);
-    return [$id, $json($res)];
+    // Percakapan baru dilayani chatbot; suite ini menguji alur petugas, jadi warga langsung meminta petugas
+    $state = $json($res);
+    if (($state['status'] ?? null) === 'BOT') {
+        $state = $json($client->post('/chat/handoff', ['_csrf_token' => $csrf, 'after' => 0]));
+    }
+    return [$id, $state];
 };
 $agentPost = function (Http $agent, string $path, array $fields) {
     // Konsol Omnichat menyimpan token CSRF di atribut data-csrf

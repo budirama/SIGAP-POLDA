@@ -113,6 +113,11 @@
             <span id="navChatWaiting" class="px-1.5 min-w-[1.25rem] text-center rounded-full bg-red-600 text-white text-[10px] leading-5"
                   <?= $chatWaiting > 0 ? '' : 'hidden' ?>><?= $chatWaiting ?></span>
           </a>
+          <a href="<?= $baseUrl ?>/chatbot"
+             class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-300 hover:text-slate-100 hover:bg-[#1B1610] transition-colors">
+            <i class="fas fa-robot text-sky-400 w-4"></i>
+            <span>Basis Pengetahuan Chatbot</span>
+          </a>
         <?php endif; ?>
 
         <!-- Hilang & Temu: verifikasi, pencocokan, klaim & serah terima -->
